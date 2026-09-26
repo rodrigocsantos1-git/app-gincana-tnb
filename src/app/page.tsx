@@ -11,10 +11,11 @@ import { ActivityManager } from '@/components/ActivityManager';
 import { ScoreHistory } from '@/components/ScoreHistory';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
+import { UnauthorizedScreen } from '@/components/UnauthorizedScreen';
 import { Sparkles, Info, RefreshCw, Database } from 'lucide-react';
 
 export default function HomePage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isAdmin, isCheckingAdmin } = useAuth();
   const {
     teams,
     activities,
@@ -44,13 +45,13 @@ export default function HomePage() {
     setIsScoreModalOpen(true);
   };
 
-  // Se a autenticação estiver carregando
-  if (authLoading) {
+  // Se a autenticação estiver carregando ou verificando permissão de ADM
+  if (authLoading || (user && isCheckingAdmin)) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
         <RefreshCw className="w-8 h-8 text-[#0284c7] animate-spin mb-3" />
         <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
-          Carregando autenticação...
+          Verificando permissões de administrador...
         </p>
       </div>
     );
@@ -59,6 +60,11 @@ export default function HomePage() {
   // Se o usuário não estiver autenticado, exibe a tela de login
   if (!user) {
     return <AuthScreen />;
+  }
+
+  // Se o usuário estiver autenticado, mas NÃO for Administrador cadastrado no banco
+  if (!isAdmin) {
+    return <UnauthorizedScreen />;
   }
 
   return (

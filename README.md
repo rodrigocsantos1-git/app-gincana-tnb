@@ -125,20 +125,12 @@ O projeto está 100% configurado para deploy gratuito na **Vercel**.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: sua Anon Key do Supabase
 5. Clique em **"Deploy"**.
 
-### Opção B: Deploy via Vercel CLI (Terminal)
-Com a Vercel CLI instalada na máquina:
-```bash
-# 1. Login na sua conta Vercel (se ainda não estiver conectado)
-vercel login
+## 🌐 Acesso ao Projeto
 
-# 2. Inicializar o deploy
-vercel
+- **Painel Geral:** [https://gincana-tnb.vercel.app](https://gincana-tnb.vercel.app)
+- **Modo Telão:** [https://gincana-tnb.vercel.app/telao](https://gincana-tnb.vercel.app/telao)
+- **Repositório GitHub:** [https://github.com/rodrigocsantos1-git/app-gincana-tnb](https://github.com/rodrigocsantos1-git/app-gincana-tnb)
 
-# 3. Para subir em produção
-vercel --prod
-```
-
-Durante o assistente, adicione as variáveis de ambiente `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_ANON_KEY` quando solicitado.
 
 ---
 

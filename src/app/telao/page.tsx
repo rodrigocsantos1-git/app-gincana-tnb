@@ -121,8 +121,11 @@ export default function TelaoPage() {
           {secondPlace && (
             <div className="flex flex-col items-center">
               <div
-                className="w-16 h-16 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center font-black text-white text-2xl sm:text-3xl shadow-xl border-4 border-slate-400 mb-2"
-                style={{ backgroundColor: secondPlace.team.color }}
+                className="w-16 h-16 sm:w-24 sm:h-24 rounded-3xl flex items-center justify-center font-black text-white text-2xl sm:text-3xl mb-3 transition-all"
+                style={{
+                  backgroundColor: secondPlace.team.color,
+                  boxShadow: `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${secondPlace.team.color}, 0 12px 30px -3px ${secondPlace.team.color}90`,
+                }}
               >
                 {secondPlace.team.name.substring(0, 2).toUpperCase()}
               </div>
@@ -147,8 +150,11 @@ export default function TelaoPage() {
             <div className="flex flex-col items-center relative -top-6">
               <Crown className="w-10 h-10 sm:w-14 sm:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
               <div
-                className="w-20 h-20 sm:w-32 sm:h-32 rounded-3xl flex items-center justify-center font-black text-white text-3xl sm:text-5xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-4 border-amber-400 mb-2"
-                style={{ backgroundColor: firstPlace.team.color }}
+                className="w-20 h-20 sm:w-32 sm:h-32 rounded-3xl flex items-center justify-center font-black text-white text-3xl sm:text-5xl mb-3 transition-all"
+                style={{
+                  backgroundColor: firstPlace.team.color,
+                  boxShadow: `0 0 0 5px rgba(255, 255, 255, 0.95), 0 0 0 10px ${firstPlace.team.color}, 0 16px 40px -3px ${firstPlace.team.color}`,
+                }}
               >
                 {firstPlace.team.name.substring(0, 2).toUpperCase()}
               </div>
@@ -172,8 +178,11 @@ export default function TelaoPage() {
           {thirdPlace && (
             <div className="flex flex-col items-center">
               <div
-                className="w-14 h-14 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center font-black text-white text-xl sm:text-2xl shadow-xl border-4 border-amber-700 mb-2"
-                style={{ backgroundColor: thirdPlace.team.color }}
+                className="w-14 h-14 sm:w-20 sm:h-20 rounded-3xl flex items-center justify-center font-black text-white text-xl sm:text-2xl mb-3 transition-all"
+                style={{
+                  backgroundColor: thirdPlace.team.color,
+                  boxShadow: `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${thirdPlace.team.color}, 0 12px 30px -3px ${thirdPlace.team.color}90`,
+                }}
               >
                 {thirdPlace.team.name.substring(0, 2).toUpperCase()}
               </div>

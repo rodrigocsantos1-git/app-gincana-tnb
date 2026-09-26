@@ -129,6 +129,7 @@ export default function HomePage() {
                 {/* Tabela de Classificação Geral */}
                 <Leaderboard
                   standings={standings}
+                  scores={scores}
                   onOpenScoreModal={handleOpenScoreModal}
                 />
               </div>

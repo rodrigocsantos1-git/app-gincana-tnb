@@ -56,8 +56,11 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
             {/* Avatar / Badge do Time */}
             <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
               <div
-                className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center shadow-lg border-4 border-slate-200 dark:border-slate-700 font-black text-white text-xl sm:text-2xl transition-all"
-                style={{ backgroundColor: secondPlace.team.color }}
+                className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-black text-white text-xl sm:text-2xl transition-all"
+                style={{
+                  backgroundColor: secondPlace.team.color,
+                  boxShadow: `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${secondPlace.team.color}, 0 10px 25px -3px ${secondPlace.team.color}80`,
+                }}
               >
                 {secondPlace.team.name.substring(0, 2).toUpperCase()}
               </div>
@@ -103,8 +106,11 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 <Crown className="w-8 h-8 text-amber-400 animate-pulse drop-shadow-md" />
               </div>
               <div
-                className="w-18 h-18 sm:w-26 sm:h-26 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-amber-300 dark:border-amber-400 font-black text-white text-2xl sm:text-4xl transition-all"
-                style={{ backgroundColor: firstPlace.team.color }}
+                className="w-18 h-18 sm:w-26 sm:h-26 rounded-3xl flex items-center justify-center font-black text-white text-2xl sm:text-4xl transition-all"
+                style={{
+                  backgroundColor: firstPlace.team.color,
+                  boxShadow: `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${firstPlace.team.color}, 0 14px 35px -3px ${firstPlace.team.color}90`,
+                }}
               >
                 {firstPlace.team.name.substring(0, 2).toUpperCase()}
               </div>
@@ -122,7 +128,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 {firstPlace.team.name}
               </h3>
             </div>
-            <p className="text-lg sm:text-3xl font-black text-amber-600 dark:text-amber-400 mb-2">
+            <p className="text-lg sm:text-3xl font-black text-slate-800 dark:text-white mb-2">
               {firstPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold">pts</span>
             </p>
 
@@ -149,8 +155,11 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
             {/* Avatar / Badge do Time */}
             <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
               <div
-                className="w-13 h-13 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center shadow-lg border-4 border-amber-700/30 dark:border-amber-700/60 font-black text-white text-lg sm:text-xl transition-all"
-                style={{ backgroundColor: thirdPlace.team.color }}
+                className="w-13 h-13 sm:w-18 sm:h-18 rounded-2xl flex items-center justify-center font-black text-white text-lg sm:text-xl transition-all"
+                style={{
+                  backgroundColor: thirdPlace.team.color,
+                  boxShadow: `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${thirdPlace.team.color}, 0 10px 25px -3px ${thirdPlace.team.color}80`,
+                }}
               >
                 {thirdPlace.team.name.substring(0, 2).toUpperCase()}
               </div>

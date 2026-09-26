@@ -1,0 +1,434 @@
+'use client';
+
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { Team, Activity, Score, TeamStanding } from '@/lib/types';
+import { INITIAL_TEAMS, INITIAL_ACTIVITIES, INITIAL_SCORES } from '@/lib/mockData';
+
+const LOCAL_STORAGE_KEYS = {
+  TEAMS: 'tnb_gincana_teams',
+  ACTIVITIES: 'tnb_gincana_activities',
+  SCORES: 'tnb_gincana_scores',
+};
+
+export function useGincanaData() {
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [scores, setScores] = useState<Score[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isUsingDemo, setIsUsingDemo] = useState(!isSupabaseConfigured);
+  const [realtimeConnected, setRealtimeConnected] = useState(false);
+
+  // Carregar dados locais de fallback
+  const loadLocalData = useCallback(() => {
+    try {
+      const storedTeams = localStorage.getItem(LOCAL_STORAGE_KEYS.TEAMS);
+      const storedActivities = localStorage.getItem(LOCAL_STORAGE_KEYS.ACTIVITIES);
+      const storedScores = localStorage.getItem(LOCAL_STORAGE_KEYS.SCORES);
+
+      const parsedTeams: Team[] = storedTeams ? JSON.parse(storedTeams) : INITIAL_TEAMS;
+      const parsedActivities: Activity[] = storedActivities ? JSON.parse(storedActivities) : INITIAL_ACTIVITIES;
+      const parsedScores: Score[] = storedScores ? JSON.parse(storedScores) : INITIAL_SCORES;
+
+      setTeams(parsedTeams);
+      setActivities(parsedActivities);
+      setScores(parsedScores);
+      setIsUsingDemo(true);
+    } catch (e) {
+      console.error('Erro ao ler localStorage, utilizando dados padrão:', e);
+      setTeams(INITIAL_TEAMS);
+      setActivities(INITIAL_ACTIVITIES);
+      setScores(INITIAL_SCORES);
+      setIsUsingDemo(true);
+    }
+  }, []);
+
+  // Salvar no localStorage quando estiver no modo demo
+  const persistLocalData = (newTeams?: Team[], newActivities?: Activity[], newScores?: Score[]) => {
+    if (!isSupabaseConfigured) {
+      try {
+        if (newTeams) localStorage.setItem(LOCAL_STORAGE_KEYS.TEAMS, JSON.stringify(newTeams));
+        if (newActivities) localStorage.setItem(LOCAL_STORAGE_KEYS.ACTIVITIES, JSON.stringify(newActivities));
+        if (newScores) localStorage.setItem(LOCAL_STORAGE_KEYS.SCORES, JSON.stringify(newScores));
+      } catch (e) {
+        console.error('Erro ao salvar no localStorage:', e);
+      }
+    }
+  };
+
+  // Buscar dados do Supabase
+  const fetchData = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      loadLocalData();
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const [teamsRes, actRes, scoresRes] = await Promise.all([
+        supabase.from('teams').select('*').order('name'),
+        supabase.from('activities').select('*').order('created_at'),
+        supabase
+          .from('scores')
+          .select(`
+            *,
+            team:teams(*),
+            activity:activities(*)
+          `)
+          .order('created_at', { ascending: false }),
+      ]);
+
+      if (teamsRes.error || actRes.error || scoresRes.error) {
+        console.warn('Erro ao consultar Supabase, utilizando modo demo:', {
+          teamsError: teamsRes.error,
+          actError: actRes.error,
+          scoresError: scoresRes.error,
+        });
+        loadLocalData();
+        return;
+      }
+
+      setTeams(teamsRes.data || []);
+      setActivities(actRes.data || []);
+      setScores(scoresRes.data || []);
+      setIsUsingDemo(false);
+    } catch (err) {
+      console.error('Falha de conexão com Supabase, fallback para dados locais:', err);
+      loadLocalData();
+    } finally {
+      setLoading(false);
+    }
+  }, [loadLocalData]);
+
+  // Efeito inicial e configuração do Realtime
+  useEffect(() => {
+    fetchData();
+
+    if (!isSupabaseConfigured) return;
+
+    // Configurar canal Realtime para sincronização instantânea
+    const channel = supabase
+      .channel('gincana-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'teams' },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'activities' },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'scores' },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setRealtimeConnected(true);
+        } else {
+          setRealtimeConnected(false);
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchData]);
+
+  // Enriquecer pontuações com objetos de equipe e atividade quando carregados localmente
+  const enrichedScores: Score[] = useMemo(() => {
+    const teamMap = new Map(teams.map((t) => [t.id, t]));
+    const actMap = new Map(activities.map((a) => [a.id, a]));
+
+    return scores.map((s) => ({
+      ...s,
+      team: s.team || teamMap.get(s.team_id),
+      activity: s.activity || (s.activity_id ? actMap.get(s.activity_id) : undefined),
+    }));
+  }, [scores, teams, activities]);
+
+  // Calcular Leaderboard e Pódio ordenados
+  const standings: TeamStanding[] = useMemo(() => {
+    if (!teams.length) return [];
+
+    const pointsByTeam: Record<string, { total: number; count: number; recentAct?: string }> = {};
+
+    teams.forEach((t) => {
+      pointsByTeam[t.id] = { total: 0, count: 0 };
+    });
+
+    enrichedScores.forEach((s) => {
+      if (pointsByTeam[s.team_id]) {
+        pointsByTeam[s.team_id].total += Number(s.points) || 0;
+        pointsByTeam[s.team_id].count += 1;
+        if (!pointsByTeam[s.team_id].recentAct && s.activity?.title) {
+          pointsByTeam[s.team_id].recentAct = s.activity.title;
+        }
+      }
+    });
+
+    const list: TeamStanding[] = teams.map((team) => ({
+      team,
+      totalPoints: pointsByTeam[team.id]?.total ?? 0,
+      scoresCount: pointsByTeam[team.id]?.count ?? 0,
+      recentActivity: pointsByTeam[team.id]?.recentAct,
+      rank: 1,
+    }));
+
+    // Ordenar por pontuação decrescente
+    list.sort((a, b) => b.totalPoints - a.totalPoints);
+
+    // Atribuir ranking considerando empates
+    let currentRank = 1;
+    for (let i = 0; i < list.length; i++) {
+      if (i > 0 && list[i].totalPoints < list[i - 1].totalPoints) {
+        currentRank = i + 1;
+      }
+      list[i].rank = currentRank;
+    }
+
+    return list;
+  }, [teams, enrichedScores]);
+
+  // ================= AÇÕES: PONTUAÇÕES =================
+  const addScore = async (data: {
+    team_id: string;
+    activity_id?: string | null;
+    points: number;
+    notes?: string | null;
+  }) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const newScore: Score = {
+        id: 'score-' + Date.now(),
+        team_id: data.team_id,
+        activity_id: data.activity_id || null,
+        points: data.points,
+        notes: data.notes || '',
+        created_at: new Date().toISOString(),
+      };
+      const updated = [newScore, ...scores];
+      setScores(updated);
+      persistLocalData(undefined, undefined, updated);
+      return { success: true };
+    }
+
+    try {
+      const { data: inserted, error } = await supabase
+        .from('scores')
+        .insert([data])
+        .select(`*, team:teams(*), activity:activities(*)`)
+        .single();
+
+      if (error) throw error;
+      setScores((prev) => [inserted, ...prev]);
+      return { success: true, data: inserted };
+    } catch (err: any) {
+      console.error('Erro ao registrar pontuação no Supabase:', err);
+      // Fallback otimista local
+      const newScore: Score = {
+        id: 'score-' + Date.now(),
+        team_id: data.team_id,
+        activity_id: data.activity_id || null,
+        points: data.points,
+        notes: data.notes || '',
+        created_at: new Date().toISOString(),
+      };
+      const updated = [newScore, ...scores];
+      setScores(updated);
+      return { success: true, warning: 'Salvo localmente (Supabase offline)' };
+    }
+  };
+
+  const deleteScore = async (scoreId: string) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updated = scores.filter((s) => s.id !== scoreId);
+      setScores(updated);
+      persistLocalData(undefined, undefined, updated);
+      return { success: true };
+    }
+
+    try {
+      const { error } = await supabase.from('scores').delete().eq('id', scoreId);
+      if (error) throw error;
+      setScores((prev) => prev.filter((s) => s.id !== scoreId));
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao deletar pontuação:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  // ================= AÇÕES: EQUIPES =================
+  const addTeam = async (data: { name: string; color: string }) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const newTeam: Team = {
+        id: 'team-' + Date.now(),
+        name: data.name,
+        color: data.color,
+        created_at: new Date().toISOString(),
+      };
+      const updated = [...teams, newTeam];
+      setTeams(updated);
+      persistLocalData(updated);
+      return { success: true, data: newTeam };
+    }
+
+    try {
+      const { data: inserted, error } = await supabase.from('teams').insert([data]).select().single();
+      if (error) throw error;
+      setTeams((prev) => [...prev, inserted]);
+      return { success: true, data: inserted };
+    } catch (err) {
+      console.error('Erro ao criar equipe:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const updateTeam = async (id: string, data: { name: string; color: string }) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updated = teams.map((t) => (t.id === id ? { ...t, ...data } : t));
+      setTeams(updated);
+      persistLocalData(updated);
+      return { success: true };
+    }
+
+    try {
+      const { error } = await supabase.from('teams').update(data).eq('id', id);
+      if (error) throw error;
+      setTeams((prev) => prev.map((t) => (t.id === id ? { ...t, ...data } : t)));
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao atualizar equipe:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const deleteTeam = async (id: string) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updatedTeams = teams.filter((t) => t.id !== id);
+      const updatedScores = scores.filter((s) => s.team_id !== id);
+      setTeams(updatedTeams);
+      setScores(updatedScores);
+      persistLocalData(updatedTeams, undefined, updatedScores);
+      return { success: true };
+    }
+
+    try {
+      const { error } = await supabase.from('teams').delete().eq('id', id);
+      if (error) throw error;
+      setTeams((prev) => prev.filter((t) => t.id !== id));
+      setScores((prev) => prev.filter((s) => s.team_id !== id));
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao excluir equipe:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  // ================= AÇÕES: ATIVIDADES =================
+  const addActivity = async (data: { title: string; description?: string; max_points?: number }) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const newAct: Activity = {
+        id: 'act-' + Date.now(),
+        title: data.title,
+        description: data.description || '',
+        max_points: data.max_points || null,
+        created_at: new Date().toISOString(),
+      };
+      const updated = [...activities, newAct];
+      setActivities(updated);
+      persistLocalData(undefined, updated);
+      return { success: true, data: newAct };
+    }
+
+    try {
+      const { data: inserted, error } = await supabase.from('activities').insert([data]).select().single();
+      if (error) throw error;
+      setActivities((prev) => [...prev, inserted]);
+      return { success: true, data: inserted };
+    } catch (err) {
+      console.error('Erro ao adicionar atividade:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const updateActivity = async (
+    id: string,
+    data: { title: string; description?: string; max_points?: number }
+  ) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updated = activities.map((a) => (a.id === id ? { ...a, ...data } : a));
+      setActivities(updated);
+      persistLocalData(undefined, updated);
+      return { success: true };
+    }
+
+    try {
+      const { error } = await supabase.from('activities').update(data).eq('id', id);
+      if (error) throw error;
+      setActivities((prev) => prev.map((a) => (a.id === id ? { ...a, ...data } : a)));
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao atualizar atividade:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const deleteActivity = async (id: string) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updated = activities.filter((a) => a.id !== id);
+      setActivities(updated);
+      persistLocalData(undefined, updated);
+      return { success: true };
+    }
+
+    try {
+      const { error } = await supabase.from('activities').delete().eq('id', id);
+      if (error) throw error;
+      setActivities((prev) => prev.filter((a) => a.id !== id));
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao excluir atividade:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const resetToMock = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.TEAMS);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.ACTIVITIES);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.SCORES);
+    setTeams(INITIAL_TEAMS);
+    setActivities(INITIAL_ACTIVITIES);
+    setScores(INITIAL_SCORES);
+    setIsUsingDemo(true);
+  };
+
+  return {
+    teams,
+    activities,
+    scores: enrichedScores,
+    standings,
+    loading,
+    isUsingDemo,
+    realtimeConnected,
+    fetchData,
+    addScore,
+    deleteScore,
+    addTeam,
+    updateTeam,
+    deleteTeam,
+    addActivity,
+    updateActivity,
+    deleteActivity,
+    resetToMock,
+  };
+}

@@ -32,3 +32,11 @@ export interface TeamStanding {
   scoresCount: number;
   recentActivity?: string;
 }
+
+export interface AllowedAdmin {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  created_at?: string;
+}

@@ -9,6 +9,7 @@ import { ScoreModal } from '@/components/ScoreModal';
 import { TeamManager } from '@/components/TeamManager';
 import { ActivityManager } from '@/components/ActivityManager';
 import { ScoreHistory } from '@/components/ScoreHistory';
+import { AdminManager } from '@/components/AdminManager';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
 import { UnauthorizedScreen } from '@/components/UnauthorizedScreen';
@@ -164,6 +165,12 @@ export default function HomePage() {
                   activities={activities}
                   onDeleteScore={deleteScore}
                 />
+              </div>
+            )}
+
+            {activeTab === 'admins' && (
+              <div className="animate-in fade-in duration-300">
+                <AdminManager />
               </div>
             )}
           </>

@@ -148,6 +148,7 @@ export function Header({
             { id: 'teams', label: '🛡️ Equipes' },
             { id: 'activities', label: '🎯 Provas' },
             { id: 'history', label: '📋 Histórico' },
+            { id: 'admins', label: '👥 Administradores' },
           ].map((tab) => (
             <button
               key={tab.id}

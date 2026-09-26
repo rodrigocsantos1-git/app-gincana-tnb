@@ -4,7 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from './ThemeProvider';
-import { Sun, Moon, Tv, Wifi, WifiOff, Sparkles } from 'lucide-react';
+import { useAuth } from './AuthContext';
+import { Sun, Moon, Tv, Wifi, WifiOff, Sparkles, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   realtimeConnected: boolean;
@@ -22,6 +23,7 @@ export function Header({
   onOpenScoreModal,
 }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-white/20 dark:border-slate-800 shadow-sm transition-colors">
@@ -116,6 +118,26 @@ export function Header({
                 <Moon className="w-4 h-4 text-slate-600" />
               )}
             </button>
+
+            {/* Usuário Logado & Botão de Sair */}
+            {user && (
+              <div className="flex items-center gap-2 pl-1 border-l border-slate-200 dark:border-slate-800">
+                <span
+                  className="hidden xl:inline-block text-xs font-semibold text-slate-600 dark:text-slate-300 max-w-[120px] truncate"
+                  title={user.email || 'Administrador'}
+                >
+                  {user.user_metadata?.name || user.email?.split('@')[0]}
+                </span>
+                <button
+                  onClick={signOut}
+                  className="p-2 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                  title="Sair da conta"
+                  aria-label="Sair"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

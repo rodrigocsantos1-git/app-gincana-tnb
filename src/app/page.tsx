@@ -9,9 +9,12 @@ import { ScoreModal } from '@/components/ScoreModal';
 import { TeamManager } from '@/components/TeamManager';
 import { ActivityManager } from '@/components/ActivityManager';
 import { ScoreHistory } from '@/components/ScoreHistory';
+import { useAuth } from '@/components/AuthContext';
+import { AuthScreen } from '@/components/AuthScreen';
 import { Sparkles, Info, RefreshCw, Database } from 'lucide-react';
 
 export default function HomePage() {
+  const { user, loading: authLoading } = useAuth();
   const {
     teams,
     activities,
@@ -40,6 +43,23 @@ export default function HomePage() {
     setSelectedTeamIdForScore(teamId);
     setIsScoreModalOpen(true);
   };
+
+  // Se a autenticação estiver carregando
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <RefreshCw className="w-8 h-8 text-[#0284c7] animate-spin mb-3" />
+        <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
+          Carregando autenticação...
+        </p>
+      </div>
+    );
+  }
+
+  // Se o usuário não estiver autenticado, exibe a tela de login
+  if (!user) {
+    return <AuthScreen />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -21,10 +21,15 @@ interface AuthContextType {
   isDemoUser: boolean;
 }
 
-const SUPER_ADMIN_EMAILS = [
+export const SUPER_ADMIN_EMAILS = [
   'rodrigocsantos1@gmail.com',
   'lucianort@gmail.com',
 ];
+
+export const isSuperAdminEmail = (email?: string | null): boolean => {
+  if (!email) return false;
+  return SUPER_ADMIN_EMAILS.includes(email.toLowerCase().trim());
+};
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -49,131 +54,194 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [isDemoUser, setIsDemoUser] = useState(false);
 
-  // Busca perfil do usuário no Supabase
-  const fetchProfile = useCallback(async (userId?: string): Promise<Profile | null> => {
-    const targetId = userId || user?.id;
-    if (!targetId) return null;
+  // Carrega ou inicializa perfil do usuário de forma segura e resiliente
+  const loadProfile = useCallback(async (targetUser: User): Promise<Profile> => {
+    const targetEmail = (targetUser.email || '').toLowerCase().trim();
+    const isSuper = isSuperAdminEmail(targetEmail);
+
+    // Se for Super Admin (Rodrigo ou Luciano), constrói perfil de admin imediatamente
+    const adminFallback: Profile = {
+      id: targetUser.id,
+      name: targetUser.user_metadata?.name || (targetEmail.startsWith('luciano') ? 'Luciano Tomaz' : 'Rodrigo Correa'),
+      email: targetUser.email || null,
+      role: 'admin',
+      approved: true,
+    };
+
+    if (isSuper) {
+      setProfile(adminFallback);
+    }
 
     if (!isSupabaseConfigured) {
-      const demoProfile: Profile = {
-        id: targetId,
-        name: user?.user_metadata?.name || 'Administrador',
-        email: user?.email || null,
-        role: 'admin',
-        approved: true,
-      };
+      const demoProfile: Profile = isSuper
+        ? adminFallback
+        : {
+            id: targetUser.id,
+            name: targetUser.user_metadata?.name || targetEmail.split('@')[0] || 'Voluntário',
+            email: targetUser.email || null,
+            role: 'volunteer',
+            approved: true,
+          };
       setProfile(demoProfile);
+      setLoading(false);
       return demoProfile;
     }
 
     try {
-      const { data, error } = await supabase
+      // Query com timeout de 2.5s para NUNCA travar a tela
+      const queryPromise = supabase
         .from('profiles')
         .select('*')
-        .eq('id', targetId)
+        .eq('id', targetUser.id)
         .maybeSingle();
 
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: new Error('Timeout ao buscar perfil') }), 2500)
+      );
+
+      const { data } = await Promise.race([queryPromise, timeoutPromise]);
+
       if (data) {
-        setProfile(data as Profile);
-        return data as Profile;
+        const userProfile = data as Profile;
+        // Se for Super Admin, garante que está aprovado como admin
+        if (isSuper && (!userProfile.approved || userProfile.role !== 'admin')) {
+          userProfile.approved = true;
+          userProfile.role = 'admin';
+          supabase.from('profiles').update({ role: 'admin', approved: true }).eq('id', targetUser.id).then(() => {});
+        }
+        setProfile(userProfile);
+        setLoading(false);
+        return userProfile;
       }
 
-      // Se não encontrou linha em profiles mas é Rodrigo ou Luciano, auto-promove
-      const userEmail = (user?.email || '').toLowerCase().trim();
-      if (SUPER_ADMIN_EMAILS.includes(userEmail)) {
-        const adminProfile: Profile = {
-          id: targetId,
-          name: user?.user_metadata?.name || (userEmail.startsWith('luciano') ? 'Luciano Tomaz' : 'Rodrigo Correa'),
-          email: userEmail,
-          role: 'admin',
-          approved: true,
-        };
-        // Tenta salvar no banco em background
-        supabase.from('profiles').upsert([adminProfile]).then(() => {});
-        setProfile(adminProfile);
-        return adminProfile;
+      // Se não encontrou no banco ou deu timeout
+      if (isSuper) {
+        supabase.from('profiles').upsert([adminFallback]).then(() => {});
+        setProfile(adminFallback);
+        setLoading(false);
+        return adminFallback;
       }
 
-      // Se for novo usuário sem perfil
-      const newProfile: Profile = {
-        id: targetId,
-        name: user?.user_metadata?.name || user?.email?.split('@')[0] || 'Voluntário',
-        email: user?.email || null,
+      // Voluntário novo sem registro no banco
+      const defaultVolunteer: Profile = {
+        id: targetUser.id,
+        name: targetUser.user_metadata?.name || targetEmail.split('@')[0] || 'Voluntário',
+        email: targetUser.email || null,
         role: 'volunteer',
         approved: false,
       };
-      setProfile(newProfile);
-      return newProfile;
+      setProfile(defaultVolunteer);
+      setLoading(false);
+      return defaultVolunteer;
     } catch (err) {
-      console.warn('Aviso ao carregar perfil (usando fallback seguro):', err);
-      const userEmail = (user?.email || '').toLowerCase().trim();
-      const fallbackProfile: Profile = {
-        id: targetId,
-        name: user?.user_metadata?.name || 'Voluntário',
-        email: user?.email || null,
-        role: SUPER_ADMIN_EMAILS.includes(userEmail) ? 'admin' : 'volunteer',
-        approved: SUPER_ADMIN_EMAILS.includes(userEmail),
-      };
-      setProfile(fallbackProfile);
-      return fallbackProfile;
+      console.warn('Fallback ativado no perfil:', err);
+      const fallback = isSuper
+        ? adminFallback
+        : {
+            id: targetUser.id,
+            name: targetUser.user_metadata?.name || targetEmail.split('@')[0] || 'Voluntário',
+            email: targetUser.email || null,
+            role: 'volunteer' as const,
+            approved: false,
+          };
+      setProfile(fallback);
+      setLoading(false);
+      return fallback;
     }
-  }, [user]);
+  }, []);
+
+  const fetchProfile = useCallback(async (userId?: string): Promise<Profile | null> => {
+    if (!user) return null;
+    return await loadProfile(user);
+  }, [user, loadProfile]);
 
   useEffect(() => {
+    let isMounted = true;
+
     if (!isSupabaseConfigured) {
       const savedDemo = localStorage.getItem('tnb_demo_user');
       if (savedDemo) {
         try {
           const parsed = JSON.parse(savedDemo);
-          setUser(parsed);
-          setProfile({
-            id: parsed.id,
-            name: parsed.user_metadata?.name || 'Administrador',
-            email: parsed.email || null,
-            role: 'admin',
-            approved: true,
-          });
-          setIsDemoUser(true);
+          if (isMounted) {
+            setUser(parsed);
+            setProfile({
+              id: parsed.id,
+              name: parsed.user_metadata?.name || 'Administrador',
+              email: parsed.email || null,
+              role: 'admin',
+              approved: true,
+            });
+            setIsDemoUser(true);
+          }
         } catch {
-          setUser(null);
+          if (isMounted) setUser(null);
         }
       }
-      setLoading(false);
+      if (isMounted) setLoading(false);
       return;
     }
 
-    // Busca sessão ativa inicial
+    // Busca sessão inicial
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
       setSession(session);
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+
       if (currentUser) {
-        fetchProfile(currentUser.id);
+        // Se for Super Admin, define imediatamente profile e encerra loading para feedback instantâneo
+        if (isSuperAdminEmail(currentUser.email)) {
+          const quickAdmin: Profile = {
+            id: currentUser.id,
+            name: currentUser.user_metadata?.name || (currentUser.email?.toLowerCase().startsWith('luciano') ? 'Luciano Tomaz' : 'Rodrigo Correa'),
+            email: currentUser.email || null,
+            role: 'admin',
+            approved: true,
+          };
+          setProfile(quickAdmin);
+          setLoading(false);
+        }
+        loadProfile(currentUser);
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    // Escuta mudanças de autenticação
+    // Escuta mudanças no estado de autenticação
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
       setSession(session);
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+
       if (currentUser) {
-        fetchProfile(currentUser.id);
+        if (isSuperAdminEmail(currentUser.email)) {
+          const quickAdmin: Profile = {
+            id: currentUser.id,
+            name: currentUser.user_metadata?.name || (currentUser.email?.toLowerCase().startsWith('luciano') ? 'Luciano Tomaz' : 'Rodrigo Correa'),
+            email: currentUser.email || null,
+            role: 'admin',
+            approved: true,
+          };
+          setProfile(quickAdmin);
+          setLoading(false);
+        }
+        loadProfile(currentUser);
       } else {
         setProfile(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+  }, [loadProfile]);
 
   const signInWithPassword = async (email: string, password: string) => {
     if (!isSupabaseConfigured) {
@@ -237,13 +305,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isSupabaseConfigured) {
       const demoUser = {
         id: 'demo-google-id',
-        email: 'lider.tnb@igreja.com',
-        user_metadata: { name: 'Líder TNB' },
+        email: 'rodrigocsantos1@gmail.com',
+        user_metadata: { name: 'Rodrigo Correa' },
       } as unknown as User;
       setUser(demoUser);
       setProfile({
         id: demoUser.id,
-        name: 'Líder TNB',
+        name: 'Rodrigo Correa',
         email: demoUser.email || null,
         role: 'admin',
         approved: true,
@@ -276,10 +344,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
   };
 
-  // Cálculo das permissões
-  const isApproved = Boolean(profile?.approved);
-  const isAdmin = Boolean(isApproved && profile?.role === 'admin');
-  const isVolunteer = Boolean(isApproved && profile?.role === 'volunteer');
+  // Cálculo robusto das permissões (Super Admins NUNCA ficam bloqueados)
+  const isSuper = isSuperAdminEmail(user?.email);
+  const isApproved = isSuper || Boolean(profile?.approved);
+  const isAdmin = isSuper || Boolean(isApproved && profile?.role === 'admin');
+  const isVolunteer = !isSuper && Boolean(isApproved && profile?.role === 'volunteer');
 
   return (
     <AuthContext.Provider

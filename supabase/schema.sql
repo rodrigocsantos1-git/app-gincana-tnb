@@ -63,6 +63,11 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
+  -- Super Admins têm bypass imediato sem consultar banco
+  IF lower(COALESCE(auth.jwt()->>'email', '')) IN ('rodrigocsantos1@gmail.com', 'lucianort@gmail.com') THEN
+    RETURN TRUE;
+  END IF;
+
   RETURN EXISTS (
     SELECT 1 FROM public.profiles
     WHERE id = auth.uid() AND role = 'admin' AND approved = TRUE
@@ -78,6 +83,10 @@ SECURITY DEFINER
 SET search_path = public, auth
 AS $$
 BEGIN
+  IF lower(COALESCE(auth.jwt()->>'email', '')) IN ('rodrigocsantos1@gmail.com', 'lucianort@gmail.com') THEN
+    RETURN TRUE;
+  END IF;
+
   RETURN EXISTS (
     SELECT 1 FROM public.profiles
     WHERE id = auth.uid() AND approved = TRUE
@@ -326,11 +335,41 @@ DROP POLICY IF EXISTS "Leitura publica profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Proprio usuario gerencia seu perfil" ON public.profiles;
 DROP POLICY IF EXISTS "Administradores gerenciam perfis" ON public.profiles;
 DROP POLICY IF EXISTS "Qualquer autenticado le perfis" ON public.profiles;
+DROP POLICY IF EXISTS "Leitura publica anon perfis" ON public.profiles;
+DROP POLICY IF EXISTS "Qualquer usuário autenticado pode ver perfis" ON public.profiles;
+DROP POLICY IF EXISTS "Usuários podem atualizar seus próprios perfis" ON public.profiles;
+DROP POLICY IF EXISTS "Apenas administradores podem atualizar papéis e aprovações" ON public.profiles;
+DROP POLICY IF EXISTS "Apenas administradores podem excluir perfis" ON public.profiles;
 
-CREATE POLICY "Qualquer autenticado le perfis" ON public.profiles FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Leitura publica anon perfis" ON public.profiles FOR SELECT TO anon USING (true);
-CREATE POLICY "Proprio usuario gerencia seu perfil" ON public.profiles FOR UPDATE TO authenticated USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
-CREATE POLICY "Administradores gerenciam perfis" ON public.profiles FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
+-- 1. Leitura aberta (NUNCA chama is_admin para evitar recursão infinita)
+CREATE POLICY "Qualquer usuário autenticado pode ver perfis"
+  ON public.profiles FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Leitura publica anon perfis"
+  ON public.profiles FOR SELECT
+  TO anon
+  USING (true);
+
+-- 2. Atualização: o próprio usuário atualiza seus dados, ou admin altera papéis
+CREATE POLICY "Usuários podem atualizar seus próprios perfis"
+  ON public.profiles FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Apenas administradores podem atualizar papéis e aprovações"
+  ON public.profiles FOR UPDATE
+  TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+-- 3. Exclusão: apenas administradores
+CREATE POLICY "Apenas administradores podem excluir perfis"
+  ON public.profiles FOR DELETE
+  TO authenticated
+  USING (public.is_admin());
 
 -- ==============================================================================
 -- HABILITAÇÃO DO SUPABASE REALTIME

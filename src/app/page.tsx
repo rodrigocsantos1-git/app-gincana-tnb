@@ -9,12 +9,14 @@ import { ScoreModal } from '@/components/ScoreModal';
 import { TeamManager } from '@/components/TeamManager';
 import { ActivityManager } from '@/components/ActivityManager';
 import { ScoreHistory } from '@/components/ScoreHistory';
+import { UserManager } from '@/components/UserManager';
+import { PendingApprovalScreen } from '@/components/PendingApprovalScreen';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
 import { Sparkles, Info, RefreshCw, Database } from 'lucide-react';
 
 export default function HomePage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, isAdmin, isApproved, loading: authLoading } = useAuth();
   const {
     teams,
     activities,
@@ -59,6 +61,11 @@ export default function HomePage() {
   // Se o usuário não estiver autenticado, exibe a tela de login
   if (!user) {
     return <AuthScreen />;
+  }
+
+  // Se o usuário não estiver aprovado por um administrador, exibe tela de aguardo idêntica ao Tarefas TNB
+  if (!isApproved) {
+    return <PendingApprovalScreen />;
   }
 
   return (
@@ -158,6 +165,12 @@ export default function HomePage() {
                   activities={activities}
                   onDeleteScore={deleteScore}
                 />
+              </div>
+            )}
+
+            {activeTab === 'users' && isAdmin && (
+              <div className="animate-in fade-in duration-300">
+                <UserManager />
               </div>
             )}
           </>

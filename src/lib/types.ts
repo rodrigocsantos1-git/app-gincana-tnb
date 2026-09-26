@@ -33,10 +33,11 @@ export interface TeamStanding {
   recentActivity?: string;
 }
 
-export interface AllowedAdmin {
+export interface Profile {
   id: string;
   name: string;
-  email: string;
-  role: string;
+  email: string | null;
+  role: 'admin' | 'volunteer';
+  approved: boolean;
   created_at?: string;
 }

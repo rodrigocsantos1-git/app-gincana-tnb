@@ -152,22 +152,22 @@ export function Header({
           </div>
         </div>
 
-        {/* Abas de Navegação Principal */}
-        <div className="flex items-center space-x-1 sm:space-x-3 overflow-x-auto py-2 scrollbar-none border-t border-slate-100 dark:border-slate-800/60">
+        {/* Abas de Navegação Principal (Estilo Pill com scroll suave) */}
+        <div className="flex items-center space-x-1.5 sm:space-x-3 overflow-x-auto py-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none border-t border-slate-100 dark:border-slate-800/60 touch-pan-x">
           {[
             { id: 'leaderboard', label: '🏆 Placar & Pódio' },
             { id: 'teams', label: '🛡️ Equipes' },
             { id: 'activities', label: '🎯 Provas' },
             { id: 'history', label: '📋 Histórico' },
-            ...(isAdmin ? [{ id: 'users', label: '👥 Usuários & Acessos' }] : []),
+            ...(isAdmin ? [{ id: 'users', label: '👥 Acessos' }] : []),
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-3.5 py-1.5 text-xs sm:text-sm font-semibold rounded-lg whitespace-nowrap transition-all cursor-pointer ${
+              className={`px-3 sm:px-3.5 py-1.5 text-xs sm:text-sm font-bold rounded-xl whitespace-nowrap transition-all cursor-pointer flex-shrink-0 active:scale-95 ${
                 activeTab === tab.id
-                  ? 'bg-white dark:bg-slate-800 text-[#0284c7] dark:text-[#78c8fb] shadow-sm font-bold border border-slate-200 dark:border-slate-700'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/40 dark:hover:bg-slate-800/40'
+                  ? 'bg-[#0284c7]/10 dark:bg-[#78c8fb]/20 text-[#0284c7] dark:text-[#78c8fb] shadow-xs border border-[#0284c7]/30 dark:border-[#78c8fb]/40'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60'
               }`}
             >
               {tab.label}

@@ -10,6 +10,33 @@ interface PodiumProps {
   onSelectTeamForScore?: (teamId: string) => void;
 }
 
+// Helper para definir estilo, contraste e texto preto para equipe branca
+function getTeamStyle(team: { name: string; color: string }) {
+  const isWhite =
+    team.name.toLowerCase().includes('branc') ||
+    team.color.toLowerCase() === '#ffffff' ||
+    team.color.toLowerCase() === '#fff' ||
+    team.color.toLowerCase() === '#f8fafc' ||
+    team.color.toLowerCase() === '#e2e8f0';
+
+  const isYellow =
+    team.name.toLowerCase().includes('amar') ||
+    team.color.toLowerCase() === '#f59e0b' ||
+    team.color.toLowerCase() === '#eab308';
+
+  return {
+    isWhite,
+    // Texto PRETO para equipe branca conforme solicitado
+    textColor: isWhite ? 'text-slate-950 font-black' : isYellow ? 'text-amber-950 font-black' : 'text-white font-black',
+    border: isWhite
+      ? 'border-2 border-slate-400/90 dark:border-slate-500 shadow-md'
+      : 'border-2 border-white/60 dark:border-slate-700/60 shadow-md',
+    boxShadow: isWhite
+      ? '0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px #64748b, 0 10px 25px -3px rgba(0,0,0,0.3)'
+      : `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${team.color}, 0 10px 25px -3px ${team.color}80`,
+  };
+}
+
 export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
   if (standings.length === 0) {
     return null;
@@ -44,11 +71,11 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         </div>
         <button
           onClick={triggerPodiumConfetti}
-          className="flex items-center gap-1.5 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-100/80 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/60 rounded-full hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-300 bg-amber-100/90 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-full hover:scale-105 active:scale-95 transition-all shadow-xs cursor-pointer"
           title="Soltar confetes de comemoração"
         >
           <Sparkles className="w-3.5 h-3.5" />
-          Comemorar!
+          <span>Comemorar!</span>
         </button>
       </div>
 
@@ -65,185 +92,209 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         } items-end pt-8 pb-2`}
       >
         {/* 2º LUGAR (Prata - Esquerda) */}
-        {secondPlace ? (
-          <div className="flex flex-col items-center group">
-            {/* Avatar / Badge do Time */}
-            <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+        {secondPlace ? (() => {
+          const style = getTeamStyle(secondPlace.team);
+          return (
+            <div className="flex flex-col items-center group">
+              {/* Avatar / Badge do Time */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+                <div
+                  className={`w-13 h-13 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all ${style.textColor} ${style.border}`}
+                  style={{
+                    backgroundColor: secondPlace.team.color,
+                    boxShadow: style.boxShadow,
+                  }}
+                  title={secondPlace.team.name}
+                >
+                  <span className="text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                    {secondPlace.team.name}
+                  </span>
+                </div>
+                <div className="absolute -bottom-1.5 -right-1 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                  <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-200" />
+                </div>
+              </div>
+
+              {/* Informações da Equipe */}
+              <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
+                {secondPlace.team.name}
+              </h3>
+              <p className="text-xs sm:text-base md:text-xl font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
+                {secondPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
+              </p>
+
+              {/* Pilar do Pódio */}
               <div
-                className="w-12 h-12 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-2xl flex items-center justify-center font-black text-white text-base sm:text-xl md:text-2xl transition-all shadow-md"
-                style={{
-                  backgroundColor: secondPlace.team.color,
-                  boxShadow: `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${secondPlace.team.color}, 0 10px 25px -3px ${secondPlace.team.color}80`,
-                }}
+                onClick={() => onSelectTeamForScore?.(secondPlace.team.id)}
+                className="w-full h-24 sm:h-32 md:h-36 rounded-t-2xl bg-gradient-to-t from-slate-300 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex flex-col items-center justify-center border-t-2 border-x-2 border-slate-300 dark:border-slate-600 shadow-md cursor-pointer hover:brightness-105 active:scale-98 transition-all"
+                title="Clique para lançar pontos para esta equipe"
               >
-                {secondPlace.team.name.substring(0, 2).toUpperCase()}
-              </div>
-              <div className="absolute -bottom-1.5 -right-1 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
-                <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-200" />
+                <span className="text-xl sm:text-3xl md:text-4xl font-black text-slate-600 dark:text-slate-300">
+                  2º
+                </span>
+                <span className="text-[9px] sm:text-xs uppercase font-extrabold text-slate-600 dark:text-slate-400 mt-0.5">
+                  Prata
+                </span>
               </div>
             </div>
-
-            {/* Informações da Equipe */}
-            <h3 className="font-bold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-              {secondPlace.team.name}
-            </h3>
-            <p className="text-xs sm:text-base md:text-xl font-extrabold text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-              {secondPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-            </p>
-
-            {/* Pilar do Pódio */}
-            <div
-              onClick={() => onSelectTeamForScore?.(secondPlace.team.id)}
-              className="w-full h-24 sm:h-32 md:h-36 rounded-t-2xl bg-gradient-to-t from-slate-300 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex flex-col items-center justify-center border-t-2 border-x-2 border-slate-300 dark:border-slate-600 shadow-md cursor-pointer hover:brightness-105 transition-all"
-              title="Clique para lançar pontos para esta equipe"
-            >
-              <span className="text-xl sm:text-3xl md:text-4xl font-black text-slate-500 dark:text-slate-400">
-                2º
-              </span>
-              <span className="text-[9px] sm:text-xs uppercase font-bold text-slate-500 dark:text-slate-400 mt-0.5">
-                Prata
-              </span>
-            </div>
-          </div>
-        ) : null}
+          );
+        })() : null}
 
         {/* 1º LUGAR (Ouro - Centro / Mais Alto) */}
-        {firstPlace ? (
-          <div className="flex flex-col items-center group relative -top-3">
-            {/* Coroa flutuante e Troféu */}
-            <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2">
-              <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2">
-                <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 animate-pulse drop-shadow-md" />
+        {firstPlace ? (() => {
+          const style = getTeamStyle(firstPlace.team);
+          return (
+            <div className="flex flex-col items-center group relative -top-3">
+              {/* Coroa flutuante e Troféu */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2">
+                <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2">
+                  <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 animate-pulse drop-shadow-md" />
+                </div>
+                <div
+                  className={`w-15 h-15 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-lg ${style.textColor} ${style.border}`}
+                  style={{
+                    backgroundColor: firstPlace.team.color,
+                    boxShadow: style.boxShadow,
+                  }}
+                  title={firstPlace.team.name}
+                >
+                  <span className="text-[11px] sm:text-sm md:text-base font-black uppercase tracking-tight break-all line-clamp-2">
+                    {firstPlace.team.name}
+                  </span>
+                </div>
+                <div className="absolute -bottom-1.5 -right-1 bg-amber-400 text-slate-900 rounded-full p-1 sm:p-1.5 shadow-lg border-2 border-white dark:border-slate-800">
+                  <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-amber-950" />
+                </div>
               </div>
+
+              {/* Informações da Equipe Líder */}
+              <div className="text-center px-1">
+                <span className="inline-block px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 mb-0.5">
+                  Líder
+                </span>
+                <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-slate-900 dark:text-white line-clamp-1">
+                  {firstPlace.team.name}
+                </h3>
+              </div>
+              <p className="text-sm sm:text-2xl md:text-3xl font-black text-slate-800 dark:text-white mb-1.5 sm:mb-2">
+                {firstPlace.totalPoints} <span className="text-[10px] sm:text-xs font-semibold">pts</span>
+              </p>
+
+              {/* Pilar do Pódio 1º Lugar */}
               <div
-                className="w-14 h-14 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-2xl sm:rounded-3xl flex items-center justify-center font-black text-white text-lg sm:text-3xl md:text-4xl transition-all shadow-lg"
-                style={{
-                  backgroundColor: firstPlace.team.color,
-                  boxShadow: `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${firstPlace.team.color}, 0 14px 35px -3px ${firstPlace.team.color}90`,
-                }}
+                onClick={() => onSelectTeamForScore?.(firstPlace.team.id)}
+                className="w-full h-32 sm:h-44 md:h-48 rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-t from-amber-400 via-amber-300 to-amber-200 dark:from-amber-600 dark:via-amber-500 dark:to-amber-400 flex flex-col items-center justify-center border-t-4 border-x-4 border-amber-300 dark:border-amber-300 shadow-xl cursor-pointer hover:brightness-105 active:scale-98 transition-all relative overflow-hidden"
+                title="Clique para lançar pontos para esta equipe"
               >
-                {firstPlace.team.name.substring(0, 2).toUpperCase()}
+                <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
+                <span className="text-2xl sm:text-5xl md:text-6xl font-black text-amber-900 dark:text-amber-950 relative z-10">
+                  1º
+                </span>
+                <span className="text-[9px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-900 dark:text-amber-950 relative z-10 flex items-center gap-0.5 sm:gap-1">
+                  <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline" /> Ouro
+                </span>
               </div>
-              <div className="absolute -bottom-1.5 -right-1 bg-amber-400 text-slate-900 rounded-full p-1 sm:p-1.5 shadow-lg border-2 border-white dark:border-slate-800">
-                <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-amber-950" />
-              </div>
             </div>
-
-            {/* Informações da Equipe Líder */}
-            <div className="text-center px-1">
-              <span className="inline-block px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 mb-0.5">
-                Líder
-              </span>
-              <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-slate-900 dark:text-white line-clamp-1">
-                {firstPlace.team.name}
-              </h3>
-            </div>
-            <p className="text-sm sm:text-2xl md:text-3xl font-black text-slate-800 dark:text-white mb-1.5 sm:mb-2">
-              {firstPlace.totalPoints} <span className="text-[10px] sm:text-xs font-semibold">pts</span>
-            </p>
-
-            {/* Pilar do Pódio 1º Lugar */}
-            <div
-              onClick={() => onSelectTeamForScore?.(firstPlace.team.id)}
-              className="w-full h-32 sm:h-44 md:h-48 rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-t from-amber-400 via-amber-300 to-amber-200 dark:from-amber-600 dark:via-amber-500 dark:to-amber-400 flex flex-col items-center justify-center border-t-4 border-x-4 border-amber-300 dark:border-amber-300 shadow-xl cursor-pointer hover:brightness-105 transition-all relative overflow-hidden"
-              title="Clique para lançar pontos para esta equipe"
-            >
-              <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
-              <span className="text-2xl sm:text-5xl md:text-6xl font-black text-amber-900 dark:text-amber-950 relative z-10">
-                1º
-              </span>
-              <span className="text-[9px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-900 dark:text-amber-950 relative z-10 flex items-center gap-0.5 sm:gap-1">
-                <Trophy className="w-3 h-3 sm:w-3.5 sm:h-3.5 inline" /> Ouro
-              </span>
-            </div>
-          </div>
-        ) : null}
+          );
+        })() : null}
 
         {/* 3º LUGAR (Bronze - Direita) */}
-        {thirdPlace ? (
-          <div className="flex flex-col items-center group">
-            {/* Avatar / Badge do Time */}
-            <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+        {thirdPlace ? (() => {
+          const style = getTeamStyle(thirdPlace.team);
+          return (
+            <div className="flex flex-col items-center group">
+              {/* Avatar / Badge do Time */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+                <div
+                  className={`w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  style={{
+                    backgroundColor: thirdPlace.team.color,
+                    boxShadow: style.boxShadow,
+                  }}
+                  title={thirdPlace.team.name}
+                >
+                  <span className="text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                    {thirdPlace.team.name}
+                  </span>
+                </div>
+                <div className="absolute -bottom-1.5 -right-1 bg-amber-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                  <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-200" />
+                </div>
+              </div>
+
+              {/* Informações da Equipe */}
+              <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
+                {thirdPlace.team.name}
+              </h3>
+              <p className="text-xs sm:text-base md:text-xl font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
+                {thirdPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
+              </p>
+
+              {/* Pilar do Pódio */}
               <div
-                className="w-11 h-11 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-2xl flex items-center justify-center font-black text-white text-sm sm:text-lg md:text-xl transition-all shadow-md"
-                style={{
-                  backgroundColor: thirdPlace.team.color,
-                  boxShadow: `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${thirdPlace.team.color}, 0 10px 25px -3px ${thirdPlace.team.color}80`,
-                }}
+                onClick={() => onSelectTeamForScore?.(thirdPlace.team.id)}
+                className="w-full h-20 sm:h-26 md:h-28 rounded-t-2xl bg-gradient-to-t from-amber-700/40 to-amber-600/30 dark:from-amber-900/60 dark:to-amber-800/50 flex flex-col items-center justify-center border-t-2 border-x-2 border-amber-600/40 dark:border-amber-700/50 shadow-md cursor-pointer hover:brightness-105 active:scale-98 transition-all"
+                title="Clique para lançar pontos para esta equipe"
               >
-                {thirdPlace.team.name.substring(0, 2).toUpperCase()}
-              </div>
-              <div className="absolute -bottom-1.5 -right-1 bg-amber-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
-                <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-200" />
+                <span className="text-lg sm:text-2xl md:text-3xl font-black text-amber-800 dark:text-amber-400">
+                  3º
+                </span>
+                <span className="text-[9px] sm:text-xs uppercase font-extrabold text-amber-800 dark:text-amber-400 mt-0.5">
+                  Bronze
+                </span>
               </div>
             </div>
-
-            {/* Informações da Equipe */}
-            <h3 className="font-bold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-              {thirdPlace.team.name}
-            </h3>
-            <p className="text-xs sm:text-base md:text-xl font-extrabold text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-              {thirdPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-            </p>
-
-            {/* Pilar do Pódio */}
-            <div
-              onClick={() => onSelectTeamForScore?.(thirdPlace.team.id)}
-              className="w-full h-20 sm:h-26 md:h-28 rounded-t-2xl bg-gradient-to-t from-amber-700/40 to-amber-600/30 dark:from-amber-900/60 dark:to-amber-800/50 flex flex-col items-center justify-center border-t-2 border-x-2 border-amber-600/40 dark:border-amber-700/50 shadow-md cursor-pointer hover:brightness-105 transition-all"
-              title="Clique para lançar pontos para esta equipe"
-            >
-              <span className="text-lg sm:text-2xl md:text-3xl font-black text-amber-800 dark:text-amber-400">
-                3º
-              </span>
-              <span className="text-[9px] sm:text-xs uppercase font-bold text-amber-800 dark:text-amber-400 mt-0.5">
-                Bronze
-              </span>
-            </div>
-          </div>
-        ) : null}
+          );
+        })() : null}
 
         {/* 4º LUGAR (Honra / Participação) */}
-        {fourthPlace ? (
-          <div className="flex flex-col items-center group">
-            {/* Avatar / Badge do Time */}
-            <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+        {fourthPlace ? (() => {
+          const style = getTeamStyle(fourthPlace.team);
+          return (
+            <div className="flex flex-col items-center group">
+              {/* Avatar / Badge do Time */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+                <div
+                  className={`w-11 h-11 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  style={{
+                    backgroundColor: fourthPlace.team.color,
+                    boxShadow: style.boxShadow,
+                  }}
+                  title={fourthPlace.team.name}
+                >
+                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                    {fourthPlace.team.name}
+                  </span>
+                </div>
+                <div className="absolute -bottom-1.5 -right-1 bg-slate-600 dark:bg-slate-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-300" />
+                </div>
+              </div>
+
+              {/* Informações da Equipe */}
+              <h3 className="font-extrabold text-[10px] sm:text-xs md:text-sm text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
+                {fourthPlace.team.name}
+              </h3>
+              <p className="text-xs sm:text-sm md:text-lg font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
+                {fourthPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
+              </p>
+
+              {/* Pilar do Pódio 4º Lugar */}
               <div
-                className="w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center font-black text-white text-xs sm:text-base md:text-lg transition-all shadow-md"
-                style={{
-                  backgroundColor: fourthPlace.team.color,
-                  boxShadow: `0 0 0 3px rgba(255, 255, 255, 0.95), 0 0 0 6px ${fourthPlace.team.color}, 0 10px 25px -3px ${fourthPlace.team.color}80`,
-                }}
+                onClick={() => onSelectTeamForScore?.(fourthPlace.team.id)}
+                className="w-full h-16 sm:h-20 md:h-22 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-800/90 dark:to-slate-800/60 flex flex-col items-center justify-center border-t-2 border-x-2 border-slate-300 dark:border-slate-700 shadow-md cursor-pointer hover:brightness-105 active:scale-98 transition-all"
+                title="Clique para lançar pontos para esta equipe"
               >
-                {fourthPlace.team.name.substring(0, 2).toUpperCase()}
-              </div>
-              <div className="absolute -bottom-1.5 -right-1 bg-slate-600 dark:bg-slate-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
-                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-300" />
+                <span className="text-base sm:text-xl md:text-2xl font-black text-slate-600 dark:text-slate-300">
+                  4º
+                </span>
+                <span className="text-[8px] sm:text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">
+                  Honra
+                </span>
               </div>
             </div>
-
-            {/* Informações da Equipe */}
-            <h3 className="font-bold text-[10px] sm:text-xs md:text-sm text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-              {fourthPlace.team.name}
-            </h3>
-            <p className="text-xs sm:text-sm md:text-lg font-extrabold text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-              {fourthPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-            </p>
-
-            {/* Pilar do Pódio 4º Lugar */}
-            <div
-              onClick={() => onSelectTeamForScore?.(fourthPlace.team.id)}
-              className="w-full h-16 sm:h-20 md:h-22 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-800/90 dark:to-slate-800/60 flex flex-col items-center justify-center border-t-2 border-x-2 border-slate-300 dark:border-slate-700 shadow-md cursor-pointer hover:brightness-105 transition-all"
-              title="Clique para lançar pontos para esta equipe"
-            >
-              <span className="text-base sm:text-xl md:text-2xl font-black text-slate-600 dark:text-slate-400">
-                4º
-              </span>
-              <span className="text-[8px] sm:text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mt-0.5">
-                Honra
-              </span>
-            </div>
-          </div>
-        ) : null}
+          );
+        })() : null}
       </div>
 
       {/* Demais colocações se houver mais de 4 equipes */}

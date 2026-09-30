@@ -176,7 +176,11 @@ export function Leaderboard({
                     {/* Cor e Nome da Equipe */}
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                       <div
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 shadow-sm border-2 border-white dark:border-slate-800"
+                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 shadow-sm border-2 ${
+                          standing.team.name.toLowerCase().includes('branc') || standing.team.color === '#ffffff'
+                            ? 'border-slate-400 dark:border-slate-400 ring-1 ring-slate-900/10'
+                            : 'border-white dark:border-slate-800'
+                        }`}
                         style={{ backgroundColor: standing.team.color }}
                         title={`Cor da equipe: ${standing.team.color}`}
                       />

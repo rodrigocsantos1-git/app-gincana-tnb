@@ -252,7 +252,11 @@ export function ScoreModal({
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <div
-                        className="w-4 h-4 rounded-full flex-shrink-0 shadow-sm border border-black/10"
+                        className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
+                          team.name.toLowerCase().includes('branc') || team.color === '#ffffff'
+                            ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                            : 'border-black/10'
+                        }`}
                         style={{ backgroundColor: team.color }}
                       />
                       <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate">

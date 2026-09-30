@@ -13,6 +13,7 @@ interface TeamManagerProps {
 }
 
 const PRESET_COLORS = [
+  { name: 'Branco Paz', hex: '#ffffff' },
   { name: 'Vermelho Fogo', hex: '#ef4444' },
   { name: 'Azul Real', hex: '#3b82f6' },
   { name: 'Amarelo Ouro', hex: '#f59e0b' },
@@ -142,24 +143,34 @@ export function TeamManager({
               </label>
               {/* Paleta Rápida de Cores */}
               <div className="flex flex-wrap items-center gap-2 mb-2">
-                {PRESET_COLORS.map((c) => (
-                  <button
-                    key={c.hex}
-                    type="button"
-                    onClick={() => setColor(c.hex)}
-                    style={{ backgroundColor: c.hex }}
-                    className={`w-7 h-7 rounded-full shadow-sm flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
-                      color.toLowerCase() === c.hex.toLowerCase()
-                        ? 'ring-3 ring-offset-2 ring-slate-800 dark:ring-white scale-110'
-                        : ''
-                    }`}
-                    title={c.name}
-                  >
-                    {color.toLowerCase() === c.hex.toLowerCase() && (
-                      <Check className="w-3.5 h-3.5 text-white drop-shadow" />
-                    )}
-                  </button>
-                ))}
+                {PRESET_COLORS.map((c) => {
+                  const isWhitePreset = c.hex.toLowerCase() === '#ffffff';
+                  const isSelected = color.toLowerCase() === c.hex.toLowerCase();
+                  return (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      onClick={() => setColor(c.hex)}
+                      style={{ backgroundColor: c.hex }}
+                      className={`w-7 h-7 rounded-full shadow-sm flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
+                        isWhitePreset ? 'border border-slate-300 dark:border-slate-500' : ''
+                      } ${
+                        isSelected
+                          ? 'ring-3 ring-offset-2 ring-slate-800 dark:ring-white scale-110'
+                          : ''
+                      }`}
+                      title={c.name}
+                    >
+                      {isSelected && (
+                        <Check
+                          className={`w-3.5 h-3.5 drop-shadow ${
+                            isWhitePreset ? 'text-slate-950' : 'text-white'
+                          }`}
+                        />
+                      )}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Seletor Customizado Hex */}
@@ -211,7 +222,13 @@ export function TeamManager({
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div
-                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-white text-base sm:text-lg shadow-sm border-2 border-white dark:border-slate-700 flex-shrink-0"
+                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-base sm:text-lg shadow-sm border-2 flex-shrink-0 ${
+                    team.name.toLowerCase().includes('branc') || team.color.toLowerCase() === '#ffffff' || team.color.toLowerCase() === '#fff'
+                      ? 'text-slate-950 border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                      : team.name.toLowerCase().includes('amar') || team.color.toLowerCase() === '#f59e0b'
+                      ? 'text-amber-950 border-amber-300/80'
+                      : 'text-white border-white dark:border-slate-700'
+                  }`}
                   style={{ backgroundColor: team.color }}
                 >
                   {team.name.substring(0, 2).toUpperCase()}

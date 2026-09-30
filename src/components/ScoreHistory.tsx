@@ -164,7 +164,11 @@ export function ScoreHistory({
                 {/* Lado Esquerdo: Info da Equipe e Prova */}
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-3.5 h-10 rounded-full flex-shrink-0"
+                    className={`w-3.5 h-10 rounded-full flex-shrink-0 border ${
+                      (score.team?.name || '').toLowerCase().includes('branc') || score.team?.color?.toLowerCase() === '#ffffff'
+                        ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                        : 'border-black/10'
+                    }`}
                     style={{ backgroundColor: score.team?.color || '#94a3b8' }}
                     title={`Equipe: ${score.team?.name || 'Desconhecida'}`}
                   />

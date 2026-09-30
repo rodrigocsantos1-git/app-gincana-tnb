@@ -23,20 +23,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem('tnb_theme') as Theme | null;
-    if (savedTheme) {
-      setThemeState(savedTheme);
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+    if (savedTheme === 'dark') {
+      setThemeState('dark');
+      document.documentElement.classList.add('dark');
     } else {
-      // Verifica preferência do sistema
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (prefersDark) {
-        setThemeState('dark');
-        document.documentElement.classList.add('dark');
-      }
+      setThemeState('light');
+      document.documentElement.classList.remove('dark');
     }
   }, []);
 

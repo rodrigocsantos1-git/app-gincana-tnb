@@ -106,7 +106,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                   }}
                   title={secondPlace.team.name}
                 >
-                  <span className="text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
                     {secondPlace.team.name}
                   </span>
                 </div>
@@ -115,13 +115,17 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 </div>
               </div>
 
-              {/* Informações da Equipe */}
-              <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-                {secondPlace.team.name}
-              </h3>
-              <p className="text-xs sm:text-base md:text-xl font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-                {secondPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-              </p>
+              {/* Informações da Equipe em Card de Alto Contraste */}
+              <div className="w-full text-center px-0.5 mb-1.5 flex flex-col items-center">
+                <div className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm border border-white/70 dark:border-slate-700/70 shadow-xs max-w-full">
+                  <h3 className="font-black text-[10px] sm:text-xs md:text-sm text-slate-950 dark:text-white truncate max-w-full">
+                    {secondPlace.team.name}
+                  </h3>
+                  <p className="text-[11px] sm:text-sm md:text-base font-black text-slate-900 dark:text-slate-100 leading-tight">
+                    {secondPlace.totalPoints} <span className="text-[8px] sm:text-[10px] font-bold text-slate-600 dark:text-slate-400">pts</span>
+                  </p>
+                </div>
+              </div>
 
               {/* Pilar do Pódio */}
               <div
@@ -158,7 +162,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                   }}
                   title={firstPlace.team.name}
                 >
-                  <span className="text-[11px] sm:text-sm md:text-base font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-[10px] sm:text-sm md:text-base font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
                     {firstPlace.team.name}
                   </span>
                 </div>
@@ -167,18 +171,20 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 </div>
               </div>
 
-              {/* Informações da Equipe Líder */}
-              <div className="text-center px-1">
-                <span className="inline-block px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950/70 text-amber-700 dark:text-amber-300 border border-amber-300/60 dark:border-amber-700/60 mb-0.5">
-                  Líder
-                </span>
-                <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-slate-900 dark:text-white line-clamp-1">
-                  {firstPlace.team.name}
-                </h3>
+              {/* Informações da Equipe Líder em Card de Alto Contraste */}
+              <div className="w-full text-center px-0.5 mb-1.5 flex flex-col items-center">
+                <div className="inline-flex flex-col items-center px-2.5 py-1 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm border border-amber-300/80 dark:border-amber-500/60 shadow-md max-w-full">
+                  <span className="inline-block px-1.5 py-0.2 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-wider bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 mb-0.5">
+                    Líder
+                  </span>
+                  <h3 className="font-black text-[11px] sm:text-sm md:text-base text-slate-950 dark:text-white truncate max-w-full">
+                    {firstPlace.team.name}
+                  </h3>
+                  <p className="text-xs sm:text-base md:text-lg font-black text-amber-700 dark:text-amber-300 leading-tight">
+                    {firstPlace.totalPoints} <span className="text-[9px] sm:text-xs font-bold text-slate-600 dark:text-slate-400">pts</span>
+                  </p>
+                </div>
               </div>
-              <p className="text-sm sm:text-2xl md:text-3xl font-black text-slate-800 dark:text-white mb-1.5 sm:mb-2">
-                {firstPlace.totalPoints} <span className="text-[10px] sm:text-xs font-semibold">pts</span>
-              </p>
 
               {/* Pilar do Pódio 1º Lugar */}
               <div
@@ -213,7 +219,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                   }}
                   title={thirdPlace.team.name}
                 >
-                  <span className="text-[10px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
                     {thirdPlace.team.name}
                   </span>
                 </div>
@@ -222,13 +228,17 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 </div>
               </div>
 
-              {/* Informações da Equipe */}
-              <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-                {thirdPlace.team.name}
-              </h3>
-              <p className="text-xs sm:text-base md:text-xl font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-                {thirdPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-              </p>
+              {/* Informações da Equipe em Card de Alto Contraste */}
+              <div className="w-full text-center px-0.5 mb-1.5 flex flex-col items-center">
+                <div className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm border border-white/70 dark:border-slate-700/70 shadow-xs max-w-full">
+                  <h3 className="font-black text-[10px] sm:text-xs md:text-sm text-slate-950 dark:text-white truncate max-w-full">
+                    {thirdPlace.team.name}
+                  </h3>
+                  <p className="text-[11px] sm:text-sm md:text-base font-black text-slate-900 dark:text-slate-100 leading-tight">
+                    {thirdPlace.totalPoints} <span className="text-[8px] sm:text-[10px] font-bold text-slate-600 dark:text-slate-400">pts</span>
+                  </p>
+                </div>
+              </div>
 
               {/* Pilar do Pódio */}
               <div
@@ -262,7 +272,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                   }}
                   title={fourthPlace.team.name}
                 >
-                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
                     {fourthPlace.team.name}
                   </span>
                 </div>
@@ -271,13 +281,17 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 </div>
               </div>
 
-              {/* Informações da Equipe */}
-              <h3 className="font-extrabold text-[10px] sm:text-xs md:text-sm text-slate-800 dark:text-slate-100 text-center line-clamp-1 px-1">
-                {fourthPlace.team.name}
-              </h3>
-              <p className="text-xs sm:text-sm md:text-lg font-black text-slate-600 dark:text-slate-300 mb-1.5 sm:mb-2">
-                {fourthPlace.totalPoints} <span className="text-[9px] sm:text-xs font-semibold">pts</span>
-              </p>
+              {/* Informações da Equipe em Card de Alto Contraste */}
+              <div className="w-full text-center px-0.5 mb-1.5 flex flex-col items-center">
+                <div className="inline-flex flex-col items-center px-2 py-0.5 rounded-xl bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm border border-white/70 dark:border-slate-700/70 shadow-xs max-w-full">
+                  <h3 className="font-black text-[9px] sm:text-xs md:text-sm text-slate-950 dark:text-white truncate max-w-full">
+                    {fourthPlace.team.name}
+                  </h3>
+                  <p className="text-[10px] sm:text-xs md:text-base font-black text-slate-900 dark:text-slate-100 leading-tight">
+                    {fourthPlace.totalPoints} <span className="text-[8px] sm:text-[10px] font-bold text-slate-600 dark:text-slate-400">pts</span>
+                  </p>
+                </div>
+              </div>
 
               {/* Pilar do Pódio 4º Lugar */}
               <div

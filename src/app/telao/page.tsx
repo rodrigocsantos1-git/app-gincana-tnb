@@ -169,7 +169,7 @@ export default function TelaoPage() {
                   }}
                   title={secondPlace.team.name}
                 >
-                  <span className="text-xs sm:text-base md:text-xl font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-xs sm:text-base md:text-xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
                     {secondPlace.team.name}
                   </span>
                 </div>
@@ -204,7 +204,7 @@ export default function TelaoPage() {
                   }}
                   title={firstPlace.team.name}
                 >
-                  <span className="text-xs sm:text-lg md:text-2xl font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-xs sm:text-lg md:text-2xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
                     {firstPlace.team.name}
                   </span>
                 </div>
@@ -238,14 +238,14 @@ export default function TelaoPage() {
                   }}
                   title={thirdPlace.team.name}
                 >
-                  <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
                     {thirdPlace.team.name}
                   </span>
                 </div>
                 <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-center truncate max-w-full">
                   {thirdPlace.team.name}
                 </h3>
-                <p className="text-base sm:text-xl md:text-2xl font-black text-amber-600 mb-2">
+                <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 mb-2">
                   {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
                 </p>
                 <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-gradient-to-t from-amber-900 to-amber-800 border-t-4 border-x-4 border-amber-700 flex flex-col items-center justify-center shadow-xl">
@@ -272,7 +272,7 @@ export default function TelaoPage() {
                   }}
                   title={fourthPlace.team.name}
                 >
-                  <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-all line-clamp-2">
+                  <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
                     {fourthPlace.team.name}
                   </span>
                 </div>

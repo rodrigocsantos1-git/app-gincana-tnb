@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Team, Activity, TeamStanding } from '@/lib/types';
-import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check } from 'lucide-react';
+import { Team, Activity, TeamStanding, Score } from '@/lib/types';
+import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check, RotateCw, CheckCircle2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ScoreModalProps {
@@ -10,6 +10,7 @@ interface ScoreModalProps {
   onClose: () => void;
   teams: Team[];
   activities: Activity[];
+  scores?: Score[];
   standings?: TeamStanding[];
   initialTeamId?: string;
   onSubmitScore: (data: {
@@ -23,11 +24,42 @@ interface ScoreModalProps {
 const QUICK_PRESETS_POSITIVE = [5, 10, 20, 50, 100];
 const QUICK_PRESETS_NEGATIVE = [-1, -2, -5, -10, -20];
 
+// Helper para identificar se a atividade possui limite de rodadas (ex: 5 rodadas obrigatórias)
+export function getActivityRoundLimit(activity?: Activity | null): number | null {
+  if (!activity) return null;
+  const text = ((activity.title || '') + ' ' + (activity.description || '')).toLowerCase();
+  
+  if (
+    text.includes('5 vezes') ||
+    text.includes('5 rodadas') ||
+    text.includes('pontuar 5') ||
+    text.includes('prova 1') ||
+    text.includes('prova 2') ||
+    text.includes('prova 3') ||
+    text.includes('prova 4') ||
+    text.includes('prova 5') ||
+    text.includes('jornada') ||
+    text.includes('correr') ||
+    text.includes('corpo') ||
+    text.includes('voz') ||
+    text.includes('jesus')
+  ) {
+    return 5;
+  }
+
+  const match = text.match(/(\d+)\s*(vezes|rodadas)/);
+  if (match && Number(match[1]) > 0) {
+    return Number(match[1]);
+  }
+  return null;
+}
+
 export function ScoreModal({
   isOpen,
   onClose,
   teams,
   activities,
+  scores = [],
   standings = [],
   initialTeamId,
   onSubmitScore,
@@ -39,6 +71,14 @@ export function ScoreModal({
   const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successFeedback, setSuccessFeedback] = useState<{
+    teamName: string;
+    teamColor: string;
+    points: number;
+    round?: number;
+    roundLimit?: number;
+    activityTitle?: string;
+  } | null>(null);
 
   // Mapa de pontuação atual por equipe
   const teamPointsMap = useMemo(() => {
@@ -55,6 +95,7 @@ export function ScoreModal({
       setHasChangedPoints(false);
       setNotes('');
       setErrorMsg(null);
+      setSuccessFeedback(null);
     }
   }, [isOpen, initialTeamId, teams, activities]);
 
@@ -133,11 +174,44 @@ export function ScoreModal({
     setErrorMsg(null);
   };
 
+  const roundLimit = getActivityRoundLimit(selectedActivity);
+
+  // Pontuações da equipe selecionada na atividade atual
+  const selectedTeamActivityScores = useMemo(() => {
+    if (!selectedTeamId || !selectedActivityId) return [];
+    return scores.filter((s) => s.team_id === selectedTeamId && s.activity_id === selectedActivityId);
+  }, [scores, selectedTeamId, selectedActivityId]);
+
+  const roundsCompleted = selectedTeamActivityScores.length;
+  const currentRound = roundsCompleted + 1;
+  const isRoundLimitReached = roundLimit !== null && roundsCompleted >= roundLimit;
+
+  // Mapa de rodadas concluídas por equipe na atividade atual
+  const teamRoundsMap = useMemo(() => {
+    const map = new Map<string, number>();
+    if (selectedActivityId) {
+      scores
+        .filter((s) => s.activity_id === selectedActivityId)
+        .forEach((s) => {
+          map.set(s.team_id, (map.get(s.team_id) || 0) + 1);
+        });
+    }
+    return map;
+  }, [scores, selectedActivityId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedTeamId) {
       setErrorMsg('Por favor, selecione uma equipe.');
+      return;
+    }
+
+    // Regra: Limite de rodadas obrigatório
+    if (isRoundLimitReached) {
+      setErrorMsg(
+        `Limite atingido: A equipe "${selectedTeam?.name}" já realizou todas as ${roundLimit} rodadas desta prova.`
+      );
       return;
     }
 
@@ -158,23 +232,49 @@ export function ScoreModal({
     try {
       setIsSubmitting(true);
       setErrorMsg(null);
+
+      // Auto-rotular a rodada na anotação caso seja prova com rodadas
+      const roundTag = roundLimit ? `Rodada ${currentRound} de ${roundLimit}` : '';
+      let finalNotes = notes.trim();
+      if (roundTag) {
+        if (!finalNotes) {
+          finalNotes = roundTag;
+        } else if (!finalNotes.toLowerCase().includes('rodada')) {
+          finalNotes = `${finalNotes} (${roundTag})`;
+        }
+      }
+
       await onSubmitScore({
         team_id: selectedTeamId,
         activity_id: selectedActivityId || null,
         points: numPoints,
-        notes: notes.trim() || null,
+        notes: finalNotes || null,
       });
 
       if (numPoints > 0) {
         confetti({
-          particleCount: 50,
-          spread: 60,
-          origin: { y: 0.7 },
-          colors: ['#78c8fb', '#bb94ff', '#10b981'],
+          particleCount: 60,
+          spread: 70,
+          origin: { y: 0.65 },
+          colors: ['#78c8fb', '#bb94ff', '#10b981', '#f59e0b'],
         });
       }
 
-      onClose();
+      // Feedback de sucesso elegante para o voluntário
+      setSuccessFeedback({
+        teamName: selectedTeam?.name || 'Equipe',
+        teamColor: selectedTeam?.color || '#3b82f6',
+        points: numPoints,
+        round: roundLimit ? currentRound : undefined,
+        roundLimit: roundLimit || undefined,
+        activityTitle: selectedActivity?.title,
+      });
+
+      // Permanece na mesma tela conforme solicitado pelo usuário!
+      // Reseta inputs de pontos para o próximo lançamento
+      setPoints('');
+      setHasChangedPoints(false);
+      setNotes('');
     } catch (err: any) {
       setErrorMsg('Ocorreu um erro ao salvar o ponto. Tente novamente.');
     } finally {
@@ -213,6 +313,35 @@ export function ScoreModal({
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          {/* Feedback de Sucesso Elegante ao Lançar Ponto (Continua na Tela) */}
+          {successFeedback && (
+            <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <Check className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-xs sm:text-sm">
+                    <strong>+{successFeedback.points} pts</strong> aplicados para{' '}
+                    <strong>{successFeedback.teamName}</strong>
+                    {successFeedback.round && ` • Rodada ${successFeedback.round}/${successFeedback.roundLimit}`}!
+                  </p>
+                  <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 mt-0.5">
+                    Tela mantida aberta para continuar lançando. Selecione a próxima equipe ou finalize abaixo.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSuccessFeedback(null)}
+                className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer flex-shrink-0"
+                title="Dispensar aviso"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {errorMsg && (
             <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-start gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -236,6 +365,9 @@ export function ScoreModal({
               {teams.map((team) => {
                 const isSelected = selectedTeamId === team.id;
                 const pts = teamPointsMap.get(team.id) ?? 0;
+                const completedRoundsForTeam = teamRoundsMap.get(team.id) ?? 0;
+                const isTeamDone = roundLimit !== null && completedRoundsForTeam >= roundLimit;
+
                 return (
                   <button
                     type="button"
@@ -244,28 +376,46 @@ export function ScoreModal({
                       setSelectedTeamId(team.id);
                       setErrorMsg(null);
                     }}
-                    className={`flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                    className={`flex flex-col justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       isSelected
                         ? 'border-[#0284c7] dark:border-[#78c8fb] bg-blue-50/90 dark:bg-blue-950/60 shadow-sm ring-2 ring-[#0284c7]/30 dark:ring-[#78c8fb]/30'
                         : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-                    }`}
+                    } ${isTeamDone ? 'opacity-90' : ''}`}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div
-                        className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
-                          team.name.toLowerCase().includes('branc') || team.color === '#ffffff'
-                            ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
-                            : 'border-black/10'
-                        }`}
-                        style={{ backgroundColor: team.color }}
-                      />
-                      <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
-                        {team.name}
+                    <div className="flex items-center justify-between w-full gap-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
+                            team.name.toLowerCase().includes('branc') || team.color === '#ffffff'
+                              ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                              : 'border-black/10'
+                          }`}
+                          style={{ backgroundColor: team.color }}
+                        />
+                        <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                          {team.name}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex-shrink-0">
+                        {pts}p
                       </span>
                     </div>
-                    <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 ml-1">
-                      {pts}p
-                    </span>
+
+                    {/* Indicador de Rodada por Equipe */}
+                    {roundLimit && (
+                      <div className="mt-1.5 pt-1 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-[10px] w-full">
+                        <span className="text-slate-500 dark:text-slate-400 font-semibold">Rodada:</span>
+                        <span
+                          className={`font-black px-1.5 py-0.2 rounded-md ${
+                            isTeamDone
+                              ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                              : 'bg-blue-100 dark:bg-blue-950 text-[#0284c7] dark:text-[#78c8fb] border border-blue-200 dark:border-blue-900/60'
+                          }`}
+                        >
+                          {isTeamDone ? `✅ 5/5 Concluída` : `${completedRoundsForTeam + 1}ª de ${roundLimit}`}
+                        </span>
+                      </div>
+                    )}
                   </button>
                 );
               })}
@@ -290,6 +440,7 @@ export function ScoreModal({
                 setSelectedActivityId(e.target.value);
                 setPoints('');
                 setHasChangedPoints(false);
+                setErrorMsg(null);
               }}
               className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#78c8fb]"
             >
@@ -315,6 +466,68 @@ export function ScoreModal({
             </div>
           )}
 
+          {/* Rastreador Visual de Rodadas Obrigatórias (Máx 5 Rodadas) */}
+          {roundLimit && selectedTeam && (
+            <div className="p-3.5 rounded-2xl bg-gradient-to-r from-blue-50/90 to-indigo-50/90 dark:from-slate-800/90 dark:to-indigo-950/40 border border-blue-200/80 dark:border-slate-700 space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                  <RotateCw className="w-3.5 h-3.5 text-[#0284c7] dark:text-[#78c8fb]" />
+                  Controle de Rodadas: {roundsCompleted} de {roundLimit} Realizadas
+                </span>
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                  Equipe: <strong className="text-slate-900 dark:text-white">{selectedTeam.name}</strong>
+                </span>
+              </div>
+
+              {/* Barra das 5 Rodadas */}
+              <div className="grid grid-cols-5 gap-1 sm:gap-1.5 pt-1">
+                {Array.from({ length: roundLimit }).map((_, idx) => {
+                  const roundNum = idx + 1;
+                  const isDone = roundNum <= roundsCompleted;
+                  const isCurrent = roundNum === currentRound && !isRoundLimitReached;
+                  const scoreForRound = selectedTeamActivityScores[idx];
+
+                  return (
+                    <div
+                      key={roundNum}
+                      className={`flex flex-col items-center justify-center p-1.5 rounded-xl text-center border transition-all ${
+                        isDone
+                          ? 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-700 text-emerald-950 dark:text-emerald-200 shadow-xs'
+                          : isCurrent
+                          ? 'bg-blue-100 dark:bg-blue-900/60 border-blue-400 dark:border-[#78c8fb] text-[#0284c7] dark:text-white ring-2 ring-[#0284c7]/40 font-black'
+                          : 'bg-white/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500'
+                      }`}
+                    >
+                      <span className="text-[10px] font-black uppercase">
+                        {roundNum}ª Rod.
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] font-extrabold mt-0.5">
+                        {isDone
+                          ? scoreForRound
+                            ? `+${scoreForRound.points}p`
+                            : 'Feito'
+                          : isCurrent
+                          ? '👉 Atual'
+                          : 'Pendente'}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Alerta de 5 Rodadas Concluídas */}
+              {isRoundLimitReached && (
+                <div className="mt-2 p-2.5 rounded-xl bg-amber-100/90 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700 text-amber-950 dark:text-amber-200 text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                  <span>
+                    A equipe <strong>{selectedTeam.name}</strong> já finalizou as {roundLimit} rodadas obrigatórias desta prova (Total:{' '}
+                    <strong>{selectedTeamActivityScores.reduce((acc, s) => acc + s.points, 0)} pts</strong>).
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Botões Rápidos de Colocação Oficial (1-Clique) */}
           {placementPresets && (
             <div>
@@ -328,11 +541,14 @@ export function ScoreModal({
                     <button
                       key={preset.label}
                       type="button"
+                      disabled={isRoundLimitReached}
                       onClick={() => handleSelectPlacement(preset.points, preset.label)}
-                      className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
-                        isSelected
-                          ? 'border-[#0284c7] dark:border-[#78c8fb] bg-[#0284c7]/10 dark:bg-[#78c8fb]/20 shadow-md ring-2 ring-[#0284c7]/40'
-                          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center ${
+                        isRoundLimitReached
+                          ? 'opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800'
+                          : isSelected
+                          ? 'border-[#0284c7] dark:border-[#78c8fb] bg-[#0284c7]/10 dark:bg-[#78c8fb]/20 shadow-md ring-2 ring-[#0284c7]/40 cursor-pointer'
+                          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer'
                       }`}
                     >
                       <span className="text-xl mb-0.5">{preset.icon}</span>
@@ -355,7 +571,7 @@ export function ScoreModal({
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                 {placementPresets ? 'Ou Defina a Quantidade Manualmente:' : '3. Quantidade de Pontos:'}
               </label>
-              {!hasChangedPoints && (
+              {!hasChangedPoints && !isRoundLimitReached && (
                 <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                   ⚠️ Escolha ou digite a pontuação
                 </span>
@@ -365,13 +581,16 @@ export function ScoreModal({
             <div className="flex items-center gap-2 mb-2">
               <input
                 type="number"
+                disabled={isRoundLimitReached}
                 value={points}
                 onChange={(e) => handlePointsInputChange(e.target.value)}
                 placeholder="Ex: 4"
                 step="1"
                 required
                 className={`w-full px-4 py-2.5 rounded-xl text-center text-2xl font-black bg-slate-50 dark:bg-slate-800 border text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#78c8fb] ${
-                  !hasChangedPoints
+                  isRoundLimitReached
+                    ? 'opacity-40 cursor-not-allowed border-slate-200 dark:border-slate-700'
+                    : !hasChangedPoints
                     ? 'border-amber-400/80 bg-amber-50/20 dark:bg-amber-950/10'
                     : 'border-slate-200 dark:border-slate-700'
                 }`}
@@ -398,15 +617,18 @@ export function ScoreModal({
                   <button
                     key={val}
                     type="button"
+                    disabled={isRoundLimitReached}
                     onClick={() => {
                       setPoints(val);
                       setHasChangedPoints(true);
                       setErrorMsg(null);
                     }}
-                    className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      hasChangedPoints && numPoints === val
-                        ? 'bg-emerald-500 text-white shadow-sm'
-                        : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100'
+                    className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                      isRoundLimitReached
+                        ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
+                        : hasChangedPoints && numPoints === val
+                        ? 'bg-emerald-500 text-white shadow-sm cursor-pointer'
+                        : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 cursor-pointer'
                     }`}
                   >
                     +{val}
@@ -422,15 +644,18 @@ export function ScoreModal({
                   <button
                     key={val}
                     type="button"
+                    disabled={isRoundLimitReached}
                     onClick={() => {
                       setPoints(val);
                       setHasChangedPoints(true);
                       setErrorMsg(null);
                     }}
-                    className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                      hasChangedPoints && numPoints === val
-                        ? 'bg-rose-500 text-white shadow-sm'
-                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100'
+                    className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all ${
+                      isRoundLimitReached
+                        ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-slate-800 text-slate-400'
+                        : hasChangedPoints && numPoints === val
+                        ? 'bg-rose-500 text-white shadow-sm cursor-pointer'
+                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 cursor-pointer'
                     }`}
                   >
                     {val}
@@ -455,25 +680,34 @@ export function ScoreModal({
           </div>
 
           {/* Botões de Ação */}
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+          <div className="pt-2 flex items-center justify-between sm:justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-semibold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              className="px-4 py-2.5 text-sm font-bold rounded-xl text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
             >
-              Cancelar
+              Fechar / Concluir
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !hasChangedPoints || points === '' || numPoints === 0 || willBeNegative}
+              disabled={
+                isSubmitting ||
+                isRoundLimitReached ||
+                !hasChangedPoints ||
+                points === '' ||
+                numPoints === 0 ||
+                willBeNegative
+              }
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#0284c7] via-[#78c8fb] to-[#bb94ff] hover:opacity-95 shadow-md active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <span>Salvando...</span>
+              ) : isRoundLimitReached ? (
+                <span>5 Rodadas Concluídas</span>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Confirmar Pontos</span>
+                  <span>Aplicar Pontuação</span>
                 </>
               )}
             </button>

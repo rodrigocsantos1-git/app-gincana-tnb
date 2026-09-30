@@ -203,6 +203,7 @@ export default function HomePage() {
         onClose={() => setIsScoreModalOpen(false)}
         teams={teams}
         activities={activities}
+        scores={scores}
         standings={standings}
         initialTeamId={selectedTeamIdForScore}
         onSubmitScore={addScore}

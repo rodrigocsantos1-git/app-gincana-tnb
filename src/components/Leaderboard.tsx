@@ -248,14 +248,25 @@ export function Leaderboard({
                           className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 shadow-xs"
                           title={score.notes || undefined}
                         >
-                          <div className="flex items-center gap-2 min-w-0 pr-1">
-                            <span
-                              className="w-2 h-2 rounded-full flex-shrink-0"
-                              style={{ backgroundColor: standing.team.color }}
-                            />
-                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                              {score.activity?.title || 'Pontuação Avulsa'}
-                            </span>
+                          <div className="flex flex-col min-w-0 pr-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span
+                                className={`w-2 h-2 rounded-full flex-shrink-0 border ${
+                                  standing.team.name.toLowerCase().includes('branc') || standing.team.color === '#ffffff'
+                                    ? 'border-slate-400'
+                                    : 'border-transparent'
+                                }`}
+                                style={{ backgroundColor: standing.team.color }}
+                              />
+                              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                                {score.activity?.title || 'Pontuação Avulsa'}
+                              </span>
+                            </div>
+                            {score.notes && (
+                              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 truncate pl-3.5">
+                                {score.notes}
+                              </span>
+                            )}
                           </div>
                           <span
                             className={`text-xs font-black px-2 py-0.5 rounded-lg flex-shrink-0 ${

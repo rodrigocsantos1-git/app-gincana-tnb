@@ -1,0 +1,77 @@
+Colocar Descrição ou Regras da Atividade:
+
+Prova 1 - Treino da Palavra: " Mapa da Jornada"
+
+A mesma equipe irá pontuar 5 vezes
+1° ganhará 4 pontos
+2° ganhará 3 pontos
+3° ganhará 2 pontos
+4° ganhará 1 ponto
+
+
+Prova 2 - Treino da disciplina: "Preparar para correr"
+
+A mesma equipe irá pontuar 5 vezes
+1° ganhará 4 pontos
+2° ganhará 3 pontos
+3° ganhará 2 pontos
+4° ganhará 1 ponto
+
+Será 2 fases
+
+fase 2.1 - Cabo de Guerra
+
+Cada time irá duelar um contra o outro, criar regra para pontuação individual de cada time.
+Quem vencer mais, ganhara a pontuação máxima
+
+pontos 4,3,2,1 nesta ordem de importância
+
+
+
+Prova 3 - Treino da união: " Um só corpo"
+
+A mesma equipe irá pontuar 5 vezes
+1° ganhará 4 pontos
+2° ganhará 3 pontos
+3° ganhará 2 pontos
+4° ganhará 1 ponto
+
+
+Prova 4 - Treino da fé: " Ouvir a voz certa"
+
+A mesma equipe irá pontuar 5 vezes
+1° ganhará 4 pontos
+2° ganhará 3 pontos
+3° ganhará 2 pontos
+4° ganhará 1 ponto
+
+Prova 5 - Treino do amor e serviço: " O jeito de Jesus"
+
+A mesma equipe irá pontuar 5 vezes
+1° ganhará 4 pontos
+2° ganhará 3 pontos
+3° ganhará 2 pontos
+4° ganhará 1 ponto
+
+Não deixar salvar, sem trocar a pontuação.
+
+criar botão para zerar pontuação
+criar backup da pontuação
+alterar o layout para aparecer todos os colocados
+não deixar nenhuma equipe negativa
+
+
+Prova - Caça ao tesouro
+1° ganhará 10 pontos
+2° ganhará 8 pontos
+3° ganhará 6 pontos
+4° ganhará 4 ponto
+
+
+Saber quem vai precisar acessar, e-mail das pessoas
+
+Pontuação para
+grito de guerra
+
+
+

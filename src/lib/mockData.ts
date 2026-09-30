@@ -3,131 +3,96 @@ import { Team, Activity, Score } from './types';
 export const INITIAL_TEAMS: Team[] = [
   {
     id: 'team-1',
-    name: 'Leão de Judá',
-    color: '#ef4444', // Vermelho Vibrante
+    name: 'Amarela',
+    color: '#f59e0b', // Amarelo Ouro
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
     id: 'team-2',
-    name: 'Guerreiros da Fé',
+    name: 'Azul',
     color: '#3b82f6', // Azul Real
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
     id: 'team-3',
-    name: 'Águias do Reino',
-    color: '#f59e0b', // Amarelo Ouro
+    name: 'Verde',
+    color: '#10b981', // Verde Esmeralda
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
   {
     id: 'team-4',
-    name: 'Tocha Viva',
-    color: '#10b981', // Verde Esmeralda
+    name: 'Branco',
+    color: '#e2e8f0', // Branco / Prata
     created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
   },
 ];
 
-export const INITIAL_ACTIVITIES: Activity[] = [
+export const OFFICIAL_ACTIVITIES: Activity[] = [
   {
-    id: 'act-1',
-    title: 'Circuito Radical do Acampa',
-    description: 'Corrida de obstáculos com trabalho em equipe e cooperação',
-    max_points: 100,
-    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-  },
-  {
-    id: 'act-2',
-    title: 'Grito de Guerra & Animação',
-    description: 'Apresentação animada, coreografia e grito com respeito e entusiasmo',
-    max_points: 50,
+    id: 'act-prova-1',
+    title: 'Prova 1 - Treino da Palavra: "Mapa da Jornada"',
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
+    max_points: 20,
     created_at: new Date(Date.now() - 3600000 * 10).toISOString(),
   },
   {
-    id: 'act-3',
-    title: 'Quiz Bíblico & Versículos',
-    description: 'Perguntas bíblicas rápidas e memorização de versículos da Palavra',
-    max_points: 80,
+    id: 'act-prova-2',
+    title: 'Prova 2 - Treino da disciplina: "Preparar para correr"',
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.\nSerão 2 fases (incluindo Fase 2.1 - Cabo de Guerra).',
+    max_points: 20,
+    created_at: new Date(Date.now() - 3600000 * 9).toISOString(),
+  },
+  {
+    id: 'act-fase-2-1',
+    title: 'Fase 2.1 - Cabo de Guerra',
+    description: 'Cada time irá duelar um contra o outro. Quem vencer mais ganhará a pontuação máxima.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
+    max_points: 4,
+    created_at: new Date(Date.now() - 3600000 * 8.5).toISOString(),
+  },
+  {
+    id: 'act-prova-3',
+    title: 'Prova 3 - Treino da união: "Um só corpo"',
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
+    max_points: 20,
     created_at: new Date(Date.now() - 3600000 * 8).toISOString(),
   },
   {
-    id: 'act-4',
-    title: 'Caça ao Tesouro do Reino',
-    description: 'Decifrar pistas estratégicas espalhadas pelo acampamento',
-    max_points: 120,
+    id: 'act-prova-4',
+    title: 'Prova 4 - Treino da fé: "Ouvir a voz certa"',
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
+    max_points: 20,
+    created_at: new Date(Date.now() - 3600000 * 7).toISOString(),
+  },
+  {
+    id: 'act-prova-5',
+    title: 'Prova 5 - Treino do amor e serviço: "O jeito de Jesus"',
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
+    max_points: 20,
     created_at: new Date(Date.now() - 3600000 * 6).toISOString(),
   },
   {
-    id: 'act-5',
-    title: 'Torta na Cara Bíblica',
-    description: 'Rodadas eletrizantes de perguntas e respostas bíblicas',
-    max_points: 100,
+    id: 'act-caca-tesouro',
+    title: 'Prova - Caça ao tesouro',
+    description: 'Caça ao tesouro do acampamento.\n1° lugar: 10 pontos | 2° lugar: 8 pontos | 3° lugar: 6 pontos | 4° lugar: 4 pontos.',
+    max_points: 10,
+    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+  },
+  {
+    id: 'act-grito-guerra',
+    title: 'Grito de Guerra',
+    description: 'Pontuação fixa: avaliação do grito de guerra, entusiasmo e animação da equipe.',
+    max_points: 50,
     created_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+  },
+  {
+    id: 'act-melhor-fantasia',
+    title: 'Melhor Fantasia',
+    description: 'Pontuação fixa: avaliação da caracterização, criatividade e fantasia da equipe.',
+    max_points: 50,
+    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
   },
 ];
 
-export const INITIAL_SCORES: Score[] = [
-  {
-    id: 'score-1',
-    team_id: 'team-1',
-    activity_id: 'act-1',
-    points: 100,
-    notes: '1º Lugar no Circuito de Obstáculos',
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-  {
-    id: 'score-2',
-    team_id: 'team-2',
-    activity_id: 'act-1',
-    points: 70,
-    notes: '2º Lugar no Circuito de Obstáculos',
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-  {
-    id: 'score-3',
-    team_id: 'team-3',
-    activity_id: 'act-1',
-    points: 50,
-    notes: '3º Lugar no Circuito de Obstáculos',
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-  {
-    id: 'score-4',
-    team_id: 'team-4',
-    activity_id: 'act-1',
-    points: 40,
-    notes: '4º Lugar no Circuito de Obstáculos',
-    created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-  },
-  {
-    id: 'score-5',
-    team_id: 'team-2',
-    activity_id: 'act-2',
-    points: 50,
-    notes: 'Melhor grito de guerra e união',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-  },
-  {
-    id: 'score-6',
-    team_id: 'team-3',
-    activity_id: 'act-2',
-    points: 45,
-    notes: 'Ótima criatividade no grito',
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-  },
-  {
-    id: 'score-7',
-    team_id: 'team-1',
-    activity_id: 'act-3',
-    points: 60,
-    notes: 'Acertos no Quiz Bíblico',
-    created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
-  },
-  {
-    id: 'score-8',
-    team_id: 'team-4',
-    activity_id: 'act-3',
-    points: 80,
-    notes: 'Gabaritou todas as perguntas bíblicas',
-    created_at: new Date(Date.now() - 3600000 * 1).toISOString(),
-  },
-];
+export const INITIAL_ACTIVITIES: Activity[] = OFFICIAL_ACTIVITIES;
+
+export const INITIAL_SCORES: Score[] = [];

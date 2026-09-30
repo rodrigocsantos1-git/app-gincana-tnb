@@ -26,8 +26,20 @@ export function useGincanaData() {
       const storedActivities = localStorage.getItem(LOCAL_STORAGE_KEYS.ACTIVITIES);
       const storedScores = localStorage.getItem(LOCAL_STORAGE_KEYS.SCORES);
 
-      const parsedTeams: Team[] = storedTeams ? JSON.parse(storedTeams) : INITIAL_TEAMS;
-      const parsedActivities: Activity[] = storedActivities ? JSON.parse(storedActivities) : INITIAL_ACTIVITIES;
+      let parsedTeams: Team[] = storedTeams ? JSON.parse(storedTeams) : INITIAL_TEAMS;
+      const hasOfficialTeams = parsedTeams.some((t) => t.name === 'Amarela' || t.name === 'Branco');
+      if (!hasOfficialTeams) {
+        parsedTeams = INITIAL_TEAMS;
+        localStorage.setItem(LOCAL_STORAGE_KEYS.TEAMS, JSON.stringify(INITIAL_TEAMS));
+      }
+
+      let parsedActivities: Activity[] = storedActivities ? JSON.parse(storedActivities) : INITIAL_ACTIVITIES;
+      const hasOfficialActivities = parsedActivities.some((a) => a.title.includes('Prova 1') || a.id.startsWith('act-prova'));
+      if (!hasOfficialActivities) {
+        parsedActivities = INITIAL_ACTIVITIES;
+        localStorage.setItem(LOCAL_STORAGE_KEYS.ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));
+      }
+
       const parsedScores: Score[] = storedScores ? JSON.parse(storedScores) : INITIAL_SCORES;
 
       setTeams(parsedTeams);
@@ -402,6 +414,108 @@ export function useGincanaData() {
     }
   };
 
+  const clearAllScores = async () => {
+    try {
+      if (!isSupabaseConfigured || isUsingDemo) {
+        setScores([]);
+        persistLocalData(undefined, undefined, []);
+        localStorage.removeItem(LOCAL_STORAGE_KEYS.SCORES);
+        return { success: true };
+      }
+
+      // Deletar todas as pontuações no Supabase
+      const { error } = await supabase.from('scores').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error && scores.length > 0) {
+        const ids = scores.map((s) => s.id);
+        const { error: error2 } = await supabase.from('scores').delete().in('id', ids);
+        if (error2) throw error2;
+      }
+
+      setScores([]);
+      persistLocalData(undefined, undefined, []);
+      localStorage.removeItem(LOCAL_STORAGE_KEYS.SCORES);
+      return { success: true };
+    } catch (err) {
+      console.error('Erro ao zerar pontuações:', err);
+      // Fallback local caso falhe conexão
+      setScores([]);
+      persistLocalData(undefined, undefined, []);
+      return { success: false, error: err };
+    }
+  };
+
+  const exportBackup = () => {
+    try {
+      const now = new Date();
+      const backupData = {
+        appName: 'Gincana Acampa TNB',
+        ministry: 'Ministério Infantil Tô na Bênção (TNB) - Igreja Bíblica da Paz',
+        exportedAt: now.toISOString(),
+        exportedAtFormatted: now.toLocaleString('pt-BR'),
+        totalTeams: teams.length,
+        totalScores: scores.length,
+        standings: standings.map((s) => ({
+          rank: s.rank,
+          teamId: s.team.id,
+          teamName: s.team.name,
+          teamColor: s.team.color,
+          totalPoints: s.totalPoints,
+          scoresCount: s.scoresCount,
+          recentActivity: s.recentActivity || null,
+        })),
+        teams,
+        activities,
+        scores,
+      };
+
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backupData, null, 2));
+      const dateStr = now.toISOString().slice(0, 10);
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}-${String(now.getMinutes()).padStart(2, '0')}`;
+      const fileName = `backup-gincana-tnb-${dateStr}_${timeStr}.json`;
+
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', fileName);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+
+      return { success: true, fileName };
+    } catch (err) {
+      console.error('Erro ao exportar backup:', err);
+      return { success: false, error: err };
+    }
+  };
+
+  const syncOfficialActivities = async () => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      setActivities(INITIAL_ACTIVITIES);
+      persistLocalData(undefined, INITIAL_ACTIVITIES);
+      return { success: true };
+    }
+
+    try {
+      const existingTitles = new Set((activities || []).map((a) => a.title.toLowerCase().trim()));
+      const toInsert = INITIAL_ACTIVITIES.filter(
+        (oa) => !existingTitles.has(oa.title.toLowerCase().trim())
+      ).map((oa) => ({
+        title: oa.title,
+        description: oa.description,
+        max_points: oa.max_points,
+      }));
+
+      if (toInsert.length > 0) {
+        const { data, error } = await supabase.from('activities').insert(toInsert).select();
+        if (error) throw error;
+        setActivities((prev) => [...prev, ...(data || [])]);
+      }
+      return { success: true, insertedCount: toInsert.length };
+    } catch (err) {
+      console.error('Erro ao sincronizar provas oficiais:', err);
+      return { success: false, error: err };
+    }
+  };
+
   const resetToMock = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEYS.TEAMS);
     localStorage.removeItem(LOCAL_STORAGE_KEYS.ACTIVITIES);
@@ -423,6 +537,9 @@ export function useGincanaData() {
     fetchData,
     addScore,
     deleteScore,
+    clearAllScores,
+    exportBackup,
+    syncOfficialActivities,
     addTeam,
     updateTeam,
     deleteTeam,

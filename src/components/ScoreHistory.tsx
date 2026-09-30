@@ -2,13 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import { Score, Team, Activity } from '@/lib/types';
-import { Trash2, History, Filter, AlertTriangle, Clock } from 'lucide-react';
+import { Trash2, History, Filter, AlertTriangle, Clock, Download, RotateCcw } from 'lucide-react';
 
 interface ScoreHistoryProps {
   scores: Score[];
   teams: Team[];
   activities: Activity[];
   onDeleteScore: (id: string) => Promise<any>;
+  onExportBackup?: () => void;
+  onClearScores?: () => Promise<any>;
+  isAdmin?: boolean;
 }
 
 export function ScoreHistory({
@@ -16,10 +19,15 @@ export function ScoreHistory({
   teams,
   activities,
   onDeleteScore,
+  onExportBackup,
+  onClearScores,
+  isAdmin = false,
 }: ScoreHistoryProps) {
   const [filterTeamId, setFilterTeamId] = useState<string>('all');
   const [filterActivityId, setFilterActivityId] = useState<string>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const filteredScores = useMemo(() => {
     return scores.filter((s) => {
@@ -43,9 +51,20 @@ export function ScoreHistory({
     }
   };
 
+  const handleConfirmReset = async () => {
+    if (!onClearScores) return;
+    try {
+      setIsResetting(true);
+      await onClearScores();
+      setIsResetModalOpen(false);
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
   return (
     <div className="w-full">
-      {/* Cabeçalho e Filtros */}
+      {/* Cabeçalho, Filtros e Ações */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 px-1">
         <div className="flex items-center gap-2">
           <History className="w-5 h-5 text-[#0284c7] dark:text-[#78c8fb]" />
@@ -54,8 +73,30 @@ export function ScoreHistory({
           </h2>
         </div>
 
-        {/* Filtros */}
+        {/* Ações e Filtros */}
         <div className="flex flex-wrap items-center gap-2">
+          {onExportBackup && (
+            <button
+              onClick={onExportBackup}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-xs transition-all cursor-pointer"
+              title="Baixar Backup da Pontuação"
+            >
+              <Download className="w-3.5 h-3.5 text-[#0284c7] dark:text-[#78c8fb]" />
+              <span>Backup</span>
+            </button>
+          )}
+
+          {isAdmin && onClearScores && (
+            <button
+              onClick={() => setIsResetModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/40 shadow-xs transition-all cursor-pointer"
+              title="Zerar todas as pontuações da gincana"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Zerar Placar</span>
+            </button>
+          )}
+
           <div className="flex items-center gap-1.5 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-xs">
             <Filter className="w-3.5 h-3.5 text-slate-400" />
             <select
@@ -177,6 +218,70 @@ export function ScoreHistory({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal de Confirmação para Zerar Placar */}
+      {isResetModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+          <div
+            className="w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-rose-200 dark:border-rose-900/60"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-lg font-black text-slate-900 dark:text-white text-center mb-2">
+              Zerar Todas as Pontuações?
+            </h3>
+
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 text-center leading-relaxed mb-4">
+              Esta ação apagará <strong>todos os lançamentos de pontos</strong> realizados na gincana. O placar de todas as equipes voltará para <strong>0 pontos</strong>.
+            </p>
+
+            <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs mb-5">
+              💡 <strong>Dica de Segurança:</strong> As equipes e a lista de provas NÃO serão excluídas. Recomendamos baixar um backup antes de confirmar!
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {onExportBackup && (
+                <button
+                  type="button"
+                  onClick={onExportBackup}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Baixar Backup Primeiro</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsResetModalOpen(false)}
+                  className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={isResetting}
+                  onClick={handleConfirmReset}
+                  className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 transition-colors shadow-sm disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  {isResetting ? (
+                    <span>Zerando...</span>
+                  ) : (
+                    <>
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Sim, Zerar Placar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

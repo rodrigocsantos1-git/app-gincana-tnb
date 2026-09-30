@@ -16,6 +16,7 @@ interface ActivityManagerProps {
     data: { title: string; description?: string; max_points?: number }
   ) => Promise<any>;
   onDeleteActivity: (id: string) => Promise<any>;
+  onSyncOfficial?: () => Promise<any>;
 }
 
 export function ActivityManager({
@@ -23,9 +24,11 @@ export function ActivityManager({
   onAddActivity,
   onUpdateActivity,
   onDeleteActivity,
+  onSyncOfficial,
 }: ActivityManagerProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -101,13 +104,33 @@ export function ActivityManager({
         </div>
 
         {!isAdding && !editingId && (
-          <button
-            onClick={startAdd}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#0284c7] to-[#78c8fb] hover:opacity-95 shadow-md active:scale-95 transition-all cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Nova Prova
-          </button>
+          <div className="flex items-center gap-2">
+            {onSyncOfficial && (
+              <button
+                type="button"
+                disabled={isSyncing}
+                onClick={async () => {
+                  setIsSyncing(true);
+                  try {
+                    await onSyncOfficial();
+                  } finally {
+                    setIsSyncing(false);
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 shadow-xs transition-all cursor-pointer"
+                title="Sincronizar todas as 9 provas oficiais do acampamento"
+              >
+                <span>{isSyncing ? 'Sincronizando...' : 'Provas Oficiais'}</span>
+              </button>
+            )}
+            <button
+              onClick={startAdd}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#0284c7] to-[#78c8fb] hover:opacity-95 shadow-md active:scale-95 transition-all cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Nova Prova
+            </button>
+          </div>
         )}
       </div>
 

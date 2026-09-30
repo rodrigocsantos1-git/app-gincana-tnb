@@ -27,6 +27,9 @@ export default function HomePage() {
     realtimeConnected,
     addScore,
     deleteScore,
+    clearAllScores,
+    exportBackup,
+    syncOfficialActivities,
     addTeam,
     updateTeam,
     deleteTeam,
@@ -131,6 +134,9 @@ export default function HomePage() {
                   standings={standings}
                   scores={scores}
                   onOpenScoreModal={handleOpenScoreModal}
+                  onExportBackup={exportBackup}
+                  onClearScores={clearAllScores}
+                  isAdmin={isAdmin}
                 />
               </div>
             )}
@@ -154,6 +160,7 @@ export default function HomePage() {
                   onAddActivity={addActivity}
                   onUpdateActivity={updateActivity}
                   onDeleteActivity={deleteActivity}
+                  onSyncOfficial={syncOfficialActivities}
                 />
               </div>
             )}
@@ -165,6 +172,9 @@ export default function HomePage() {
                   teams={teams}
                   activities={activities}
                   onDeleteScore={deleteScore}
+                  onExportBackup={exportBackup}
+                  onClearScores={clearAllScores}
+                  isAdmin={isAdmin}
                 />
               </div>
             )}
@@ -193,6 +203,7 @@ export default function HomePage() {
         onClose={() => setIsScoreModalOpen(false)}
         teams={teams}
         activities={activities}
+        standings={standings}
         initialTeamId={selectedTeamIdForScore}
         onSubmitScore={addScore}
       />

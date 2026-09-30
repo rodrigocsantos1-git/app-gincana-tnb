@@ -223,15 +223,15 @@ export function TeamManager({
               <div className="flex items-center gap-3 min-w-0">
                 <div
                   className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-base sm:text-lg shadow-sm border-2 flex-shrink-0 ${
-                    team.name.toLowerCase().includes('branc') || team.color.toLowerCase() === '#ffffff' || team.color.toLowerCase() === '#fff'
+                    (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff' || (team?.color || '').toLowerCase() === '#fff'
                       ? 'text-slate-950 border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
-                      : team.name.toLowerCase().includes('amar') || team.color.toLowerCase() === '#f59e0b'
+                      : (team?.name || '').toLowerCase().includes('amar') || (team?.color || '').toLowerCase() === '#f59e0b'
                       ? 'text-amber-950 border-amber-300/80'
                       : 'text-white border-white dark:border-slate-700'
                   }`}
-                  style={{ backgroundColor: team.color }}
+                  style={{ backgroundColor: team?.color || '#0284c7' }}
                 >
-                  {team.name.substring(0, 2).toUpperCase()}
+                  {(team?.name || 'EQ').substring(0, 2).toUpperCase()}
                 </div>
 
                 <div className="min-w-0">

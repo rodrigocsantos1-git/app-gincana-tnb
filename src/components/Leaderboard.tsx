@@ -177,12 +177,12 @@ export function Leaderboard({
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                       <div
                         className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 shadow-sm border-2 ${
-                          standing.team.name.toLowerCase().includes('branc') || standing.team.color === '#ffffff'
+                          (standing.team?.name || '').toLowerCase().includes('branc') || (standing.team?.color || '').toLowerCase() === '#ffffff'
                             ? 'border-slate-400 dark:border-slate-400 ring-1 ring-slate-900/10'
                             : 'border-white dark:border-slate-800'
                         }`}
-                        style={{ backgroundColor: standing.team.color }}
-                        title={`Cor da equipe: ${standing.team.color}`}
+                        style={{ backgroundColor: standing.team?.color || '#0284c7' }}
+                        title={`Cor da equipe: ${standing.team?.color || ''}`}
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
@@ -252,11 +252,11 @@ export function Leaderboard({
                             <div className="flex items-center gap-1.5 min-w-0">
                               <span
                                 className={`w-2 h-2 rounded-full flex-shrink-0 border ${
-                                  standing.team.name.toLowerCase().includes('branc') || standing.team.color === '#ffffff'
+                                  (standing.team?.name || '').toLowerCase().includes('branc') || (standing.team?.color || '').toLowerCase() === '#ffffff'
                                     ? 'border-slate-400'
                                     : 'border-transparent'
                                 }`}
-                                style={{ backgroundColor: standing.team.color }}
+                                style={{ backgroundColor: standing.team?.color || '#0284c7' }}
                               />
                               <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
                                 {score.activity?.title || 'Pontuação Avulsa'}

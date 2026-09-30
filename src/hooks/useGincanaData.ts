@@ -27,14 +27,14 @@ export function useGincanaData() {
       const storedScores = localStorage.getItem(LOCAL_STORAGE_KEYS.SCORES);
 
       let parsedTeams: Team[] = storedTeams ? JSON.parse(storedTeams) : INITIAL_TEAMS;
-      const hasOfficialTeams = parsedTeams.some((t) => t.name === 'Amarela' || t.name === 'Branco');
+      const hasOfficialTeams = Array.isArray(parsedTeams) && parsedTeams.some((t) => t?.name === 'Amarela' || t?.name === 'Branco');
       if (!hasOfficialTeams) {
         parsedTeams = INITIAL_TEAMS;
         localStorage.setItem(LOCAL_STORAGE_KEYS.TEAMS, JSON.stringify(INITIAL_TEAMS));
       }
 
       let parsedActivities: Activity[] = storedActivities ? JSON.parse(storedActivities) : INITIAL_ACTIVITIES;
-      const hasOfficialActivities = parsedActivities.some((a) => a.title.includes('Prova 1') || a.id.startsWith('act-prova'));
+      const hasOfficialActivities = Array.isArray(parsedActivities) && parsedActivities.some((a) => a?.title?.includes('Prova 1') || a?.id?.startsWith('act-prova'));
       if (!hasOfficialActivities) {
         parsedActivities = INITIAL_ACTIVITIES;
         localStorage.setItem(LOCAL_STORAGE_KEYS.ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));
@@ -158,10 +158,12 @@ export function useGincanaData() {
 
   // Enriquecer pontuações com objetos de equipe e atividade quando carregados localmente
   const enrichedScores: Score[] = useMemo(() => {
-    const teamMap = new Map(teams.map((t) => [t.id, t]));
-    const actMap = new Map(activities.map((a) => [a.id, a]));
+    const validTeams = (teams || []).filter((t): t is Team => Boolean(t && t.id));
+    const validActivities = (activities || []).filter((a): a is Activity => Boolean(a && a.id));
+    const teamMap = new Map(validTeams.map((t) => [t.id, t]));
+    const actMap = new Map(validActivities.map((a) => [a.id, a]));
 
-    return scores.map((s) => ({
+    return (scores || []).filter(Boolean).map((s) => ({
       ...s,
       team: s.team || teamMap.get(s.team_id),
       activity: s.activity || (s.activity_id ? actMap.get(s.activity_id) : undefined),
@@ -170,16 +172,17 @@ export function useGincanaData() {
 
   // Calcular Leaderboard e Pódio ordenados
   const standings: TeamStanding[] = useMemo(() => {
-    if (!teams.length) return [];
+    const validTeams = (teams || []).filter((t): t is Team => Boolean(t && t.id));
+    if (!validTeams.length) return [];
 
     const pointsByTeam: Record<string, { total: number; count: number; recentAct?: string }> = {};
 
-    teams.forEach((t) => {
+    validTeams.forEach((t) => {
       pointsByTeam[t.id] = { total: 0, count: 0 };
     });
 
     enrichedScores.forEach((s) => {
-      if (pointsByTeam[s.team_id]) {
+      if (s?.team_id && pointsByTeam[s.team_id]) {
         pointsByTeam[s.team_id].total += Number(s.points) || 0;
         pointsByTeam[s.team_id].count += 1;
         if (!pointsByTeam[s.team_id].recentAct && s.activity?.title) {
@@ -188,7 +191,7 @@ export function useGincanaData() {
       }
     });
 
-    const list: TeamStanding[] = teams.map((team) => ({
+    const list: TeamStanding[] = validTeams.map((team) => ({
       team,
       totalPoints: pointsByTeam[team.id]?.total ?? 0,
       scoresCount: pointsByTeam[team.id]?.count ?? 0,
@@ -495,9 +498,9 @@ export function useGincanaData() {
     }
 
     try {
-      const existingTitles = new Set((activities || []).map((a) => a.title.toLowerCase().trim()));
+      const existingTitles = new Set((activities || []).map((a) => (a?.title || '').toLowerCase().trim()));
       const toInsert = INITIAL_ACTIVITIES.filter(
-        (oa) => !existingTitles.has(oa.title.toLowerCase().trim())
+        (oa) => !existingTitles.has((oa?.title || '').toLowerCase().trim())
       ).map((oa) => ({
         title: oa.title,
         description: oa.description,

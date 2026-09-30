@@ -83,9 +83,32 @@ export function ScoreModal({
   // Mapa de pontuação atual por equipe
   const teamPointsMap = useMemo(() => {
     const map = new Map<string, number>();
-    standings.forEach((s) => map.set(s.team.id, s.totalPoints));
+    (standings || []).forEach((s) => {
+      if (s?.team?.id) {
+        map.set(s.team.id, s.totalPoints || 0);
+      }
+    });
     return map;
   }, [standings]);
+
+  // Pontuações da equipe selecionada na atividade atual
+  const selectedTeamActivityScores = useMemo(() => {
+    if (!selectedTeamId || !selectedActivityId || !scores) return [];
+    return scores.filter((s) => s.team_id === selectedTeamId && s.activity_id === selectedActivityId);
+  }, [scores, selectedTeamId, selectedActivityId]);
+
+  // Mapa de rodadas concluídas por equipe na atividade atual
+  const teamRoundsMap = useMemo(() => {
+    const map = new Map<string, number>();
+    if (selectedActivityId && scores) {
+      scores
+        .filter((s) => s.activity_id === selectedActivityId)
+        .forEach((s) => {
+          map.set(s.team_id, (map.get(s.team_id) || 0) + 1);
+        });
+    }
+    return map;
+  }, [scores, selectedActivityId]);
 
   useEffect(() => {
     if (isOpen) {
@@ -175,29 +198,9 @@ export function ScoreModal({
   };
 
   const roundLimit = getActivityRoundLimit(selectedActivity);
-
-  // Pontuações da equipe selecionada na atividade atual
-  const selectedTeamActivityScores = useMemo(() => {
-    if (!selectedTeamId || !selectedActivityId) return [];
-    return scores.filter((s) => s.team_id === selectedTeamId && s.activity_id === selectedActivityId);
-  }, [scores, selectedTeamId, selectedActivityId]);
-
   const roundsCompleted = selectedTeamActivityScores.length;
   const currentRound = roundsCompleted + 1;
   const isRoundLimitReached = roundLimit !== null && roundsCompleted >= roundLimit;
-
-  // Mapa de rodadas concluídas por equipe na atividade atual
-  const teamRoundsMap = useMemo(() => {
-    const map = new Map<string, number>();
-    if (selectedActivityId) {
-      scores
-        .filter((s) => s.activity_id === selectedActivityId)
-        .forEach((s) => {
-          map.set(s.team_id, (map.get(s.team_id) || 0) + 1);
-        });
-    }
-    return map;
-  }, [scores, selectedActivityId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -386,14 +389,14 @@ export function ScoreModal({
                       <div className="flex items-center gap-2 min-w-0">
                         <div
                           className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
-                            team.name.toLowerCase().includes('branc') || team.color === '#ffffff'
+                            (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff'
                               ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
                               : 'border-black/10'
                           }`}
-                          style={{ backgroundColor: team.color }}
+                          style={{ backgroundColor: team?.color || '#0284c7' }}
                         />
                         <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
-                          {team.name}
+                          {team?.name || 'Equipe'}
                         </span>
                       </div>
                       <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex-shrink-0">

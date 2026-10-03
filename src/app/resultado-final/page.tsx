@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useGincanaData } from '@/hooks/useGincanaData';
@@ -23,11 +23,11 @@ import {
   AlertTriangle,
   Sun,
   Moon,
+  Drum,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { checkAllActivitiesCompletion } from '@/lib/taskCompletion';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
-import { SuspenseDrumRollButton } from '@/components/SuspenseDrumRollButton';
 import { useTheme } from '@/components/ThemeProvider';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
@@ -78,6 +78,28 @@ export default function ResultadoFinalPage() {
   // 3 = 2º e 1º Lugares revelados juntos (Prata e Grande Campeão Ouro!)
   const [revealStep, setRevealStep] = useState<number>(0);
 
+  // Estados de controle da revelação com áudio dos tambores:
+  // 4º lugar: toca 1 vez os tambores
+  // 3º lugar: toca 2 vezes os tambores
+  // 2º e 1º lugar: toca 4 vezes os tambores
+  const [isDrumming, setIsDrumming] = useState(false);
+  const [targetStep, setTargetStep] = useState<number | null>(null);
+  const [repetitionCount, setRepetitionCount] = useState<number>(0);
+  const [totalRepetitions, setTotalRepetitions] = useState<number>(0);
+
+  const drumAudioRef = useRef<HTMLAudioElement | null>(null);
+  const currentRepetitionRef = useRef<number>(0);
+  const targetRepetitionsRef = useRef<number>(0);
+  const targetStepRef = useRef<number | null>(null);
+  const confettiIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const clearConfettiInterval = () => {
+    if (confettiIntervalRef.current) {
+      clearInterval(confettiIntervalRef.current);
+      confettiIntervalRef.current = null;
+    }
+  };
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
@@ -94,94 +116,261 @@ export default function ResultadoFinalPage() {
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  // Confete moderado para o 4º Lugar
+  // 1. Confete massivo para o 4º Lugar (4 segundos de celebração e salvas contínuas)
   const triggerFourthPlaceConfetti = useCallback(() => {
-    confetti({
-      particleCount: 50,
-      spread: 60,
-      origin: { y: 0.65 },
-      colors: ['#78c8fb', '#94a3b8', '#ffffff'],
-    });
-  }, []);
+    clearConfettiInterval();
+    const end = Date.now() + 4 * 1000;
+    const colors = ['#78c8fb', '#38bdf8', '#f59e0b', '#ffffff', '#a855f7'];
 
-  // Confete moderado para o 3º Lugar
-  const triggerThirdPlaceConfetti = useCallback(() => {
-    confetti({
-      particleCount: 75,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#d97706', '#f59e0b', '#78c8fb', '#ffffff'],
-    });
-  }, []);
-
-  // Confete massivo e prolongado para o 2º e 1º Lugares (Grande Final!)
-  const triggerChampionConfetti = useCallback(() => {
-    // 1ª Salva Central imediata
+    // Salva inicial massiva
     confetti({
       particleCount: 180,
-      spread: 100,
-      origin: { y: 0.5 },
-      colors: ['#f59e0b', '#fbbf24', '#78c8fb', '#bb94ff', '#ffffff', '#10b981'],
+      spread: 85,
+      origin: { y: 0.6 },
+      colors,
     });
 
-    // 2ª Salva Lateral Esquerda após 300ms
-    setTimeout(() => {
+    // Salvas contínuas por 4 segundos
+    const interval = setInterval(() => {
+      if (Date.now() > end) {
+        clearInterval(interval);
+        return;
+      }
       confetti({
-        particleCount: 130,
+        particleCount: 45,
         angle: 60,
-        spread: 75,
-        origin: { x: 0.1, y: 0.6 },
-        colors: ['#f59e0b', '#fbbf24', '#bb94ff', '#ffffff'],
+        spread: 65,
+        origin: { x: 0.1, y: 0.65 },
+        colors,
       });
-    }, 300);
-
-    // 3ª Salva Lateral Direita após 600ms
-    setTimeout(() => {
       confetti({
-        particleCount: 130,
+        particleCount: 45,
         angle: 120,
-        spread: 75,
-        origin: { x: 0.9, y: 0.6 },
-        colors: ['#78c8fb', '#f59e0b', '#bb94ff', '#ffffff'],
+        spread: 65,
+        origin: { x: 0.9, y: 0.65 },
+        colors,
       });
-    }, 600);
-
-    // 4ª Chuva Cascata Dourada após 900ms
-    setTimeout(() => {
       confetti({
-        particleCount: 120,
-        spread: 120,
-        origin: { y: 0.35 },
-        colors: ['#fbbf24', '#f59e0b', '#ffffff', '#10b981'],
+        particleCount: 50,
+        spread: 90,
+        origin: { x: 0.5, y: 0.4 },
+        colors,
       });
-    }, 900);
+    }, 380);
+    confettiIntervalRef.current = interval;
   }, []);
 
-  // Avançar passo com disparo automático do efeito de confete
-  const advanceStep = () => {
-    // Para automaticamente o rufar de tambores no momento da revelação
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('stop-drum-roll'));
+  // 2. Confete massivo para o 3º Lugar (6 segundos de celebração com canhões alternados)
+  const triggerThirdPlaceConfetti = useCallback(() => {
+    clearConfettiInterval();
+    const end = Date.now() + 6 * 1000;
+    const colors = ['#d97706', '#f59e0b', '#fbbf24', '#78c8fb', '#ffffff', '#10b981'];
+
+    // Salva inicial massiva
+    confetti({
+      particleCount: 260,
+      spread: 100,
+      origin: { y: 0.55 },
+      colors,
+    });
+
+    // Canhões contínuos por 6 segundos
+    const interval = setInterval(() => {
+      if (Date.now() > end) {
+        clearInterval(interval);
+        return;
+      }
+      confetti({
+        particleCount: 55,
+        angle: 55,
+        spread: 75,
+        origin: { x: 0.05, y: 0.6 },
+        colors,
+      });
+      confetti({
+        particleCount: 55,
+        angle: 125,
+        spread: 75,
+        origin: { x: 0.95, y: 0.6 },
+        colors,
+      });
+      confetti({
+        particleCount: 65,
+        spread: 110,
+        origin: { x: 0.5, y: 0.35 },
+        colors,
+      });
+    }, 360);
+    confettiIntervalRef.current = interval;
+  }, []);
+
+  // 3. Chuva épica de confete para o 2º e 1º Lugares / Campeão (10 segundos de chuva e fogos contínuos!)
+  const triggerChampionConfetti = useCallback(() => {
+    clearConfettiInterval();
+    const end = Date.now() + 10 * 1000;
+    const colors = ['#f59e0b', '#fbbf24', '#eab308', '#78c8fb', '#bb94ff', '#ffffff', '#10b981', '#ec4899'];
+
+    // Mega explosão inicial no centro e laterais
+    confetti({
+      particleCount: 320,
+      spread: 130,
+      origin: { y: 0.45 },
+      colors,
+    });
+    confetti({
+      particleCount: 160,
+      angle: 60,
+      spread: 85,
+      origin: { x: 0, y: 0.55 },
+      colors,
+    });
+    confetti({
+      particleCount: 160,
+      angle: 120,
+      spread: 85,
+      origin: { x: 1, y: 0.55 },
+      colors,
+    });
+
+    // Canhões contínuos por 10 segundos ininterruptos
+    const interval = setInterval(() => {
+      if (Date.now() > end) {
+        clearInterval(interval);
+        return;
+      }
+      confetti({
+        particleCount: 70,
+        angle: 60,
+        spread: 75,
+        origin: { x: 0.02, y: 0.65 },
+        colors,
+      });
+      confetti({
+        particleCount: 70,
+        angle: 120,
+        spread: 75,
+        origin: { x: 0.98, y: 0.65 },
+        colors,
+      });
+      confetti({
+        particleCount: 85,
+        spread: 120,
+        origin: { x: 0.5, y: 0.25 },
+        colors: ['#fbbf24', '#f59e0b', '#ffffff', '#fef08a'],
+      });
+    }, 340);
+    confettiIntervalRef.current = interval;
+  }, []);
+
+  // Finaliza a bateria de suspense e revela quem ganhou
+  const finishDrumRevelation = useCallback(() => {
+    const step = targetStepRef.current;
+    if (drumAudioRef.current) {
+      drumAudioRef.current.onended = null;
+      drumAudioRef.current.pause();
+      drumAudioRef.current.currentTime = 0;
+    }
+    setIsDrumming(false);
+    setTargetStep(null);
+    setRepetitionCount(0);
+    setTotalRepetitions(0);
+    targetStepRef.current = null;
+
+    if (step !== null) {
+      setRevealStep(step);
+      if (step === 1) triggerFourthPlaceConfetti();
+      else if (step === 2) triggerThirdPlaceConfetti();
+      else if (step === 3) triggerChampionConfetti();
+    }
+  }, [triggerFourthPlaceConfetti, triggerThirdPlaceConfetti, triggerChampionConfetti]);
+
+  // Inicia a execução dos tambores pelo número exato de repetições (1x, 2x ou 4x)
+  const startDrumRevelation = useCallback((step: number, repetitions: number) => {
+    setIsDrumming(true);
+    setTargetStep(step);
+    setTotalRepetitions(repetitions);
+    setRepetitionCount(1);
+
+    targetStepRef.current = step;
+    targetRepetitionsRef.current = repetitions;
+    currentRepetitionRef.current = 1;
+
+    let audio = drumAudioRef.current;
+    if (!audio) {
+      audio = new Audio('/Tambores.mp3');
+      audio.preload = 'auto';
+      audio.volume = 1.0;
+      drumAudioRef.current = audio;
+    }
+
+    audio.onended = () => {
+      if (currentRepetitionRef.current < targetRepetitionsRef.current) {
+        currentRepetitionRef.current += 1;
+        setRepetitionCount(currentRepetitionRef.current);
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      } else {
+        // Tocou exatamente a quantidade de vezes exigida (1x, 2x ou 4x): revela o ganhador!
+        finishDrumRevelation();
+      }
+    };
+
+    audio.currentTime = 0;
+    audio.play().catch((err) => {
+      console.warn('Erro ao reproduzir Tambores.mp3:', err);
+      finishDrumRevelation();
+    });
+  }, [finishDrumRevelation]);
+
+  // Avançar passo com a regra solicitada:
+  // 4º lugar: toca apenas 1 vez os tambores
+  // 3º lugar: toca apenas 2 vezes os tambores
+  // 2º e 1º lugar: toca apenas 4 vezes os tambores
+  const advanceStep = useCallback(() => {
+    // Se o usuário clicar de novo enquanto os tambores estiverem tocando, revela na hora
+    if (isDrumming && targetStepRef.current !== null) {
+      finishDrumRevelation();
+      return;
     }
 
     if (revealStep === 0) {
-      setRevealStep(1);
-      triggerFourthPlaceConfetti();
+      startDrumRevelation(1, 1); // 4º Lugar: 1 vez os tambores
     } else if (revealStep === 1) {
-      setRevealStep(2);
-      triggerThirdPlaceConfetti();
+      startDrumRevelation(2, 2); // 3º Lugar: 2 vezes os tambores
     } else if (revealStep === 2) {
-      setRevealStep(3);
-      triggerChampionConfetti();
+      startDrumRevelation(3, 4); // 2º e 1º Lugares: 4 vezes os tambores
     } else if (revealStep === 3) {
-      // Já está completo, se clicar novamente, comemora com chuva de confetes
+      // Já revelado: comemora soltando confetes massivos
       triggerChampionConfetti();
     }
-  };
+  }, [isDrumming, revealStep, startDrumRevelation, finishDrumRevelation, triggerChampionConfetti]);
 
-  const resetCeremony = () => {
+  const resetCeremony = useCallback(() => {
+    if (drumAudioRef.current) {
+      drumAudioRef.current.onended = null;
+      drumAudioRef.current.pause();
+      drumAudioRef.current.currentTime = 0;
+    }
+    clearConfettiInterval();
+    setIsDrumming(false);
+    setTargetStep(null);
+    setRepetitionCount(0);
+    setTotalRepetitions(0);
+    targetStepRef.current = null;
     setRevealStep(0);
-  };
+  }, []);
+
+  // Limpeza de timers e áudios ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      if (drumAudioRef.current) {
+        drumAudioRef.current.onended = null;
+        drumAudioRef.current.pause();
+        drumAudioRef.current.currentTime = 0;
+      }
+      clearConfettiInterval();
+    };
+  }, []);
 
   // Atalho de teclado: Barra de espaço ou Seta para a direita avança a revelação
   useEffect(() => {
@@ -195,7 +384,7 @@ export default function ResultadoFinalPage() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [revealStep, triggerFourthPlaceConfetti, triggerThirdPlaceConfetti, triggerChampionConfetti]);
+  }, [advanceStep, resetCeremony]);
 
   const firstPlace = standings[0];
   const secondPlace = standings.length > 1 ? standings[1] : null;
@@ -205,6 +394,10 @@ export default function ResultadoFinalPage() {
   const isFourthRevealed = revealStep >= 1;
   const isThirdRevealed = revealStep >= 2;
   const isTopTwoRevealed = revealStep >= 3;
+
+  const isDrumming4th = isDrumming && targetStep === 1;
+  const isDrumming3rd = isDrumming && targetStep === 2;
+  const isDrummingTop = isDrumming && targetStep === 3;
 
   return (
     <div
@@ -322,9 +515,6 @@ export default function ResultadoFinalPage() {
             <span>{realtimeConnected ? 'Ao Vivo' : 'Offline'}</span>
           </div>
 
-          {/* Rufar de Tambores / Bateria de Suspense (ao lado do soltar confetes) */}
-          <SuspenseDrumRollButton />
-
           <button
             onClick={() => {
               if (revealStep === 3) triggerChampionConfetti();
@@ -410,25 +600,33 @@ export default function ResultadoFinalPage() {
           {/* Indicador de Status da Revelação */}
           <div className="text-left w-full sm:w-auto">
             <span className={`text-[10px] sm:text-xs font-black uppercase tracking-widest block ${
-              isLight ? 'text-sky-800' : 'text-[#78c8fb]'
+              isDrumming
+                ? 'text-amber-500 animate-pulse'
+                : isLight ? 'text-sky-800' : 'text-[#78c8fb]'
             }`}>
-              {revealStep === 0 && 'Passo 0 de 3 • Aguardando Início'}
-              {revealStep === 1 && 'Passo 1 de 3 • 4º Lugar Revelado'}
-              {revealStep === 2 && 'Passo 2 de 3 • 3º Lugar Revelado'}
-              {revealStep === 3 && 'Passo 3 de 3 • Pódio Completo Revelado! 🎉'}
+              {isDrumming
+                ? `🥁 Rufando os Tambores (${repetitionCount} de ${totalRepetitions})`
+                : revealStep === 0 ? 'Passo 0 de 3 • Aguardando Início'
+                : revealStep === 1 ? 'Passo 1 de 3 • 4º Lugar Revelado'
+                : revealStep === 2 ? 'Passo 2 de 3 • 3º Lugar Revelado'
+                : 'Passo 3 de 3 • Pódio Completo Revelado! 🎉'}
             </span>
             <h2 className={`text-sm sm:text-base font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
-              {revealStep === 0 && 'Prepare a plateia para o resultado final!'}
-              {revealStep === 1 && 'Parabéns ao 4º Lugar! Próximo: 3º Lugar.'}
-              {revealStep === 2 && 'Hora de conhecer o 2º e o grande Campeão!'}
-              {revealStep === 3 && 'Glória a Deus! Parabéns a todas as equipes!'}
+              {isDrumming ? (
+                targetStep === 1 ? 'Segura a emoção! Revelando o 4º Lugar...'
+                : targetStep === 2 ? 'Quem será o 3º Lugar? Rufem os tambores!'
+                : 'É a grande hora! Conhecendo o Grande Campeão!'
+              ) : (
+                revealStep === 0 ? 'Prepare a plateia para o resultado final!'
+                : revealStep === 1 ? 'Parabéns ao 4º Lugar! Próximo: 3º Lugar.'
+                : revealStep === 2 ? 'Hora de conhecer o 2º e o grande Campeão!'
+                : 'Glória a Deus! Parabéns a todas as equipes!'
+              )}
             </h2>
           </div>
 
           {/* Botões de Ação */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <SuspenseDrumRollButton variant="normal" />
-
             {revealStep > 0 && (
               <button
                 onClick={resetCeremony}
@@ -445,32 +643,38 @@ export default function ResultadoFinalPage() {
             <button
               onClick={advanceStep}
               className={`px-5 py-3 rounded-2xl font-black text-sm sm:text-base transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2 cursor-pointer flex-1 sm:flex-initial ${
-                revealStep === 3
+                isDrumming
+                  ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 text-amber-950 ring-4 ring-amber-400 animate-pulse shadow-amber-500/50'
+                  : revealStep === 3
                   ? 'bg-gradient-to-r from-amber-500 via-amber-400 to-amber-300 text-amber-950 hover:brightness-110 shadow-amber-500/30 ring-2 ring-amber-400'
                   : 'bg-gradient-to-r from-[#0284c7] via-[#78c8fb] to-[#bb94ff] text-white hover:opacity-95 shadow-blue-500/30'
               }`}
             >
-              {revealStep === 0 && (
+              {isDrumming ? (
+                <>
+                  <Drum className="w-5 h-5 text-amber-950 animate-bounce" />
+                  <span>
+                    🥁 Rufando Tambores... ({repetitionCount} de {totalRepetitions})
+                  </span>
+                </>
+              ) : revealStep === 0 ? (
                 <>
                   <PartyPopper className="w-5 h-5" />
                   <span>Iniciar Revelação (Mostrar 4º Lugar)</span>
                 </>
-              )}
-              {revealStep === 1 && (
+              ) : revealStep === 1 ? (
                 <>
                   <Medal className="w-5 h-5" />
                   <span>Revelar 3º Lugar (Bronze)</span>
                   <ChevronRight className="w-4 h-4" />
                 </>
-              )}
-              {revealStep === 2 && (
+              ) : revealStep === 2 ? (
                 <>
                   <Trophy className="w-5 h-5 text-amber-300 animate-bounce" />
                   <span>Revelar 2º e 1º Lugares!</span>
                   <Sparkles className="w-4 h-4" />
                 </>
-              )}
-              {revealStep === 3 && (
+              ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
                   <span>Soltar Mais Confetes! 🎉</span>
@@ -531,19 +735,40 @@ export default function ResultadoFinalPage() {
                 })()
               ) : (
                 /* Card de Suspense - 2º Lugar */
-                <div className="flex flex-col items-center w-full opacity-60">
-                  <div className={`w-full max-w-[260px] py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
-                    isLight ? 'bg-white/70 border-white/90 text-slate-800 shadow-sm' : 'bg-slate-900 border-slate-700'
+                <div className={`flex flex-col items-center w-full transition-all duration-300 ${isDrummingTop ? 'scale-105' : 'opacity-60'}`}>
+                  <div className={`w-full max-w-[260px] py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-center gap-2 ${
+                    isDrummingTop
+                      ? 'bg-slate-200 text-slate-950 border-white ring-4 ring-slate-300 shadow-2xl shadow-slate-300/50 animate-pulse'
+                      : isLight ? 'bg-white/70 border-white/90 text-slate-800 border-dashed shadow-sm' : 'bg-slate-900 border-slate-700 border-dashed'
                   }`}>
-                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
-                    <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                    {isDrummingTop ? (
+                      <>
+                        <Drum className="w-5 h-5 text-slate-950 animate-bounce" />
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wider">
+                          FINAL ({repetitionCount}/{totalRepetitions})
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
+                        <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                      </>
+                    )}
                   </div>
-                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${isLight ? 'text-slate-700' : 'text-slate-600'}`}>? pts</span>
-                  <div className={`w-full h-28 sm:h-38 md:h-44 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
-                    isLight ? 'bg-white/50 border-white/80 text-slate-800' : 'bg-slate-900/60 border-slate-800'
+                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
+                    isDrummingTop ? 'text-slate-200 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    <span className={`text-2xl sm:text-4xl font-black ${isLight ? 'text-slate-700' : 'text-slate-700'}`}>2º</span>
-                    <span className={`text-[9px] sm:text-xs uppercase font-bold mt-1 ${isLight ? 'text-slate-600' : 'text-slate-600'}`}>Aguardando</span>
+                    {isDrummingTop ? '🥁 Rufando...' : '? pts'}
+                  </span>
+                  <div className={`w-full h-28 sm:h-38 md:h-44 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
+                    isDrummingTop
+                      ? 'bg-slate-700/50 border-slate-400 ring-2 ring-slate-300/40 animate-pulse'
+                      : isLight ? 'bg-white/50 border-white/80 text-slate-800 border-dashed' : 'bg-slate-900/60 border-slate-800 border-dashed'
+                  }`}>
+                    <span className={`text-2xl sm:text-4xl font-black ${isDrummingTop ? 'text-slate-200' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>2º</span>
+                    <span className={`text-[9px] sm:text-xs uppercase font-bold mt-1 ${isDrummingTop ? 'text-slate-300' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
+                      {isDrummingTop ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'Aguardando'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -600,19 +825,31 @@ export default function ResultadoFinalPage() {
                 })()
               ) : (
                 /* Card de Suspense - 1º Lugar */
-                <div className="flex flex-col items-center w-full opacity-60">
-                  <div className={`w-full max-w-md py-3 sm:py-4 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
-                    isLight ? 'bg-amber-300/40 border-amber-400 text-amber-950 shadow-md' : 'bg-slate-900 border-amber-500/50'
+                <div className={`flex flex-col items-center w-full transition-all duration-300 ${isDrummingTop ? 'scale-105' : 'opacity-60'}`}>
+                  <div className={`w-full max-w-md py-3 sm:py-4 px-3 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-center gap-2 ${
+                    isDrummingTop
+                      ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-slate-950 border-amber-300 ring-4 ring-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.8)] animate-pulse'
+                      : isLight ? 'bg-amber-300/40 border-amber-400 text-amber-950 border-dashed shadow-md' : 'bg-slate-900 border-amber-500/50 border-dashed'
                   }`}>
-                    <Trophy className="w-6 h-6 text-amber-500 animate-pulse" />
-                    <span className="text-sm sm:text-base font-black text-amber-900 uppercase tracking-widest">???</span>
+                    <Crown className="w-6 h-6 text-amber-950 animate-bounce" />
+                    <span className="text-sm sm:text-lg font-black text-amber-950 uppercase tracking-wider">
+                      {isDrummingTop ? `👑 CAMPEÃO (${repetitionCount}/${totalRepetitions})` : '???'}
+                    </span>
                   </div>
-                  <span className={`text-sm sm:text-base font-black my-1 sm:my-2 ${isLight ? 'text-amber-900' : 'text-amber-500/40'}`}>? pts</span>
-                  <div className={`w-full h-36 sm:h-52 md:h-60 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
-                    isLight ? 'bg-amber-300/30 border-amber-400' : 'bg-slate-900/60 border-amber-500/30'
+                  <span className={`text-sm sm:text-base font-black my-1 sm:my-2 ${
+                    isDrummingTop ? 'text-amber-400 font-black animate-pulse drop-shadow-md' : isLight ? 'text-amber-900' : 'text-amber-500/40'
                   }`}>
-                    <span className={`text-3xl sm:text-6xl font-black ${isLight ? 'text-amber-900' : 'text-slate-700'}`}>1º</span>
-                    <span className={`text-[10px] sm:text-xs uppercase font-bold mt-1 ${isLight ? 'text-amber-950 font-extrabold' : 'text-amber-500/50'}`}>O Grande Campeão</span>
+                    {isDrummingTop ? '🥁 Rufando os Tambores!' : '? pts'}
+                  </span>
+                  <div className={`w-full h-36 sm:h-52 md:h-60 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
+                    isDrummingTop
+                      ? 'bg-amber-500/40 border-amber-300 ring-4 ring-amber-400/50 shadow-[0_0_40px_rgba(245,158,11,0.5)] animate-pulse'
+                      : isLight ? 'bg-amber-300/30 border-amber-400 border-dashed' : 'bg-slate-900/60 border-amber-500/30 border-dashed'
+                  }`}>
+                    <span className={`text-3xl sm:text-6xl font-black ${isDrummingTop ? 'text-amber-300 animate-pulse' : isLight ? 'text-amber-900' : 'text-slate-700'}`}>1º</span>
+                    <span className={`text-[10px] sm:text-xs uppercase font-bold mt-1 ${isDrummingTop ? 'text-amber-200 font-black' : isLight ? 'text-amber-950 font-extrabold' : 'text-amber-500/50'}`}>
+                      {isDrummingTop ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'O Grande Campeão'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -666,19 +903,40 @@ export default function ResultadoFinalPage() {
                 })()
               ) : (
                 /* Card de Suspense - 3º Lugar */
-                <div className="flex flex-col items-center w-full opacity-60">
-                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
-                    isLight ? 'bg-white/70 border-white/90 text-slate-800 shadow-sm' : 'bg-slate-900 border-slate-700'
+                <div className={`flex flex-col items-center w-full transition-all duration-300 ${isDrumming3rd ? 'scale-105' : 'opacity-60'}`}>
+                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-center gap-2 ${
+                    isDrumming3rd
+                      ? 'bg-amber-400 text-slate-950 border-amber-300 ring-4 ring-amber-300 shadow-2xl shadow-amber-500/50 animate-pulse'
+                      : isLight ? 'bg-white/70 border-white/90 text-slate-800 border-dashed shadow-sm' : 'bg-slate-900 border-slate-700 border-dashed'
                   }`}>
-                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
-                    <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                    {isDrumming3rd ? (
+                      <>
+                        <Drum className="w-5 h-5 text-slate-950 animate-bounce" />
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wider">
+                          RUFANDO ({repetitionCount}/{totalRepetitions})
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
+                        <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                      </>
+                    )}
                   </div>
-                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${isLight ? 'text-slate-700' : 'text-slate-600'}`}>? pts</span>
-                  <div className={`w-full h-22 sm:h-30 md:h-36 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
-                    isLight ? 'bg-white/50 border-white/80 text-slate-800' : 'bg-slate-900/60 border-slate-800'
+                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
+                    isDrumming3rd ? 'text-amber-300 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    <span className={`text-xl sm:text-3xl font-black ${isLight ? 'text-slate-700' : 'text-slate-700'}`}>3º</span>
-                    <span className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 ${isLight ? 'text-slate-600' : 'text-slate-600'}`}>Aguardando</span>
+                    {isDrumming3rd ? '🥁 Rufando...' : '? pts'}
+                  </span>
+                  <div className={`w-full h-22 sm:h-30 md:h-36 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
+                    isDrumming3rd
+                      ? 'bg-amber-500/30 border-amber-400 ring-2 ring-amber-300/40 animate-pulse'
+                      : isLight ? 'bg-white/50 border-white/80 text-slate-800 border-dashed' : 'bg-slate-900/60 border-slate-800 border-dashed'
+                  }`}>
+                    <span className={`text-xl sm:text-3xl font-black ${isDrumming3rd ? 'text-amber-300' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>3º</span>
+                    <span className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 ${isDrumming3rd ? 'text-amber-200' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
+                      {isDrumming3rd ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'Aguardando'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -732,19 +990,40 @@ export default function ResultadoFinalPage() {
                 })()
               ) : (
                 /* Card de Suspense - 4º Lugar */
-                <div className="flex flex-col items-center w-full opacity-60">
-                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
-                    isLight ? 'bg-white/70 border-white/90 text-slate-800 shadow-sm' : 'bg-slate-900 border-slate-700'
+                <div className={`flex flex-col items-center w-full transition-all duration-300 ${isDrumming4th ? 'scale-105' : 'opacity-60'}`}>
+                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 flex items-center justify-center gap-2 ${
+                    isDrumming4th
+                      ? 'bg-amber-400 text-slate-950 border-amber-300 ring-4 ring-amber-300 shadow-2xl shadow-amber-500/50 animate-pulse'
+                      : isLight ? 'bg-white/70 border-white/90 text-slate-800 border-dashed shadow-sm' : 'bg-slate-900 border-slate-700 border-dashed'
                   }`}>
-                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
-                    <span className={`text-xs font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                    {isDrumming4th ? (
+                      <>
+                        <Drum className="w-5 h-5 text-slate-950 animate-bounce" />
+                        <span className="text-xs sm:text-sm font-black uppercase tracking-wider">
+                          RUFANDO OS TAMBORES...
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-700' : 'text-slate-500'}`} />
+                        <span className={`text-xs font-bold uppercase tracking-widest ${isLight ? 'text-slate-800' : 'text-slate-500'}`}>???</span>
+                      </>
+                    )}
                   </div>
-                  <span className={`text-xs font-bold my-1 sm:my-2 ${isLight ? 'text-slate-700' : 'text-slate-600'}`}>? pts</span>
-                  <div className={`w-full h-18 sm:h-24 md:h-28 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
-                    isLight ? 'bg-white/50 border-white/80 text-slate-800' : 'bg-slate-900/60 border-slate-800'
+                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
+                    isDrumming4th ? 'text-amber-300 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    <span className={`text-lg sm:text-2xl font-black ${isLight ? 'text-slate-700' : 'text-slate-700'}`}>4º</span>
-                    <span className={`text-[8px] sm:text-[9px] uppercase font-bold mt-1 ${isLight ? 'text-slate-600' : 'text-slate-600'}`}>Aguardando</span>
+                    {isDrumming4th ? '🥁 Rufando...' : '? pts'}
+                  </span>
+                  <div className={`w-full h-18 sm:h-24 md:h-28 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
+                    isDrumming4th
+                      ? 'bg-amber-500/30 border-amber-400 ring-2 ring-amber-300/40 animate-pulse'
+                      : isLight ? 'bg-white/50 border-white/80 text-slate-800 border-dashed' : 'bg-slate-900/60 border-slate-800 border-dashed'
+                  }`}>
+                    <span className={`text-lg sm:text-2xl font-black ${isDrumming4th ? 'text-amber-300' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>4º</span>
+                    <span className={`text-[8px] sm:text-[9px] uppercase font-bold mt-1 ${isDrumming4th ? 'text-amber-200' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
+                      {isDrumming4th ? 'Rufando Tambores' : 'Aguardando'}
+                    </span>
                   </div>
                 </div>
               )}

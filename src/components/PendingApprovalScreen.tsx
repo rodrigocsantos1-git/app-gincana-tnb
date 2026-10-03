@@ -24,14 +24,13 @@ export function PendingApprovalScreen() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-12 relative overflow-hidden">
       <div className="w-full max-w-md space-y-6 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-8 rounded-3xl shadow-2xl text-center border border-white/70 dark:border-slate-800 relative z-10 animate-in fade-in zoom-in-95 duration-300">
-        {/* Logo TNB */}
-        <div className="inline-block p-1 bg-white rounded-2xl shadow-md border-2 border-white dark:border-slate-700 mb-2">
+        <div className="inline-flex items-center justify-center mb-2">
           <Image
-            src="/Logo_TNB.jpg"
-            alt="Logo Tô na Bênção"
-            width={64}
-            height={64}
-            className="rounded-xl object-contain"
+            src="/logo-treinando-campeoes.png"
+            alt="Logo Treinando Campeões - Tô na Bênção"
+            width={88}
+            height={88}
+            className="w-20 h-20 object-contain drop-shadow-md"
             priority
           />
         </div>

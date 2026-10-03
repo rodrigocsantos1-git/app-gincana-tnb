@@ -43,13 +43,13 @@ export function AuthScreen() {
       <div className="w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl p-8 rounded-3xl shadow-2xl border border-white/60 dark:border-slate-800 relative z-10 animate-in fade-in zoom-in-95 duration-300">
         {/* Cabeçalho com Logotipo */}
         <div className="text-center mb-8">
-          <div className="inline-block p-1 bg-white rounded-2xl shadow-md border-2 border-white dark:border-slate-700 mb-3">
+          <div className="inline-flex items-center justify-center mb-3">
             <Image
-              src="/Logo_TNB.jpg"
-              alt="Logo Tô na Bênção"
-              width={72}
-              height={72}
-              className="rounded-xl object-contain"
+              src="/logo-treinando-campeoes.png"
+              alt="Logo Treinando Campeões - Tô na Bênção"
+              width={100}
+              height={100}
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-md"
               priority
             />
           </div>

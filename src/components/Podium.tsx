@@ -100,22 +100,22 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {secondPlace ? (() => {
           const style = getTeamStyle(secondPlace.team);
           return (
-            <div className="flex flex-col items-center group">
-              {/* Avatar / Badge do Time */}
-              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+            <div className="flex flex-col items-center group w-full">
+              {/* Badge da Equipe */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-13 h-13 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[110px] sm:max-w-[150px] md:max-w-[170px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: secondPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={secondPlace.team.name}
                 >
-                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
+                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {secondPlace.team.name}
                   </span>
                 </div>
-                <div className="absolute -bottom-1.5 -right-1 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                <div className="absolute -bottom-1.5 right-1/2 translate-x-7 sm:translate-x-12 bg-slate-300 dark:bg-slate-600 text-slate-800 dark:text-slate-100 rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
                   <Medal className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-700 dark:text-slate-200" />
                 </div>
               </div>
@@ -153,25 +153,25 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {firstPlace ? (() => {
           const style = getTeamStyle(firstPlace.team);
           return (
-            <div className="flex flex-col items-center group relative -top-3">
+            <div className="flex flex-col items-center group relative -top-3 w-full">
               {/* Coroa flutuante e Troféu */}
-              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2">
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-2 w-full flex justify-center">
                 <div className="absolute -top-5 sm:-top-6 left-1/2 -translate-x-1/2">
                   <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 animate-pulse drop-shadow-md" />
                 </div>
                 <div
-                  className={`w-15 h-15 sm:w-22 sm:h-22 md:w-26 md:h-26 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-lg ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[125px] sm:max-w-[170px] md:max-w-[200px] py-2 sm:py-2.5 px-1.5 sm:px-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-lg ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: firstPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={firstPlace.team.name}
                 >
-                  <span className="text-[10px] sm:text-sm md:text-base font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
+                  <span className="text-[10px] sm:text-sm md:text-base font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {firstPlace.team.name}
                   </span>
                 </div>
-                <div className="absolute -bottom-1.5 -right-1 bg-amber-400 text-slate-900 rounded-full p-1 sm:p-1.5 shadow-lg border-2 border-white dark:border-slate-800">
+                <div className="absolute -bottom-1.5 right-1/2 translate-x-8 sm:translate-x-14 bg-amber-400 text-slate-900 rounded-full p-1 sm:p-1.5 shadow-lg border-2 border-white dark:border-slate-800">
                   <Trophy className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-amber-950" />
                 </div>
               </div>
@@ -213,22 +213,22 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {thirdPlace ? (() => {
           const style = getTeamStyle(thirdPlace.team);
           return (
-            <div className="flex flex-col items-center group">
-              {/* Avatar / Badge do Time */}
-              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+            <div className="flex flex-col items-center group w-full">
+              {/* Badge do Time */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[105px] sm:max-w-[145px] md:max-w-[165px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: thirdPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={thirdPlace.team.name}
                 >
-                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
+                  <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {thirdPlace.team.name}
                   </span>
                 </div>
-                <div className="absolute -bottom-1.5 -right-1 bg-amber-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                <div className="absolute -bottom-1.5 right-1/2 translate-x-7 sm:translate-x-11 bg-amber-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
                   <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-200" />
                 </div>
               </div>
@@ -266,22 +266,22 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {fourthPlace ? (() => {
           const style = getTeamStyle(fourthPlace.team);
           return (
-            <div className="flex flex-col items-center group">
-              {/* Avatar / Badge do Time */}
-              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1">
+            <div className="flex flex-col items-center group w-full">
+              {/* Badge do Time */}
+              <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-11 h-11 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-2xl flex items-center justify-center text-center p-1 leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[100px] sm:max-w-[140px] md:max-w-[160px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: fourthPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={fourthPlace.team.name}
                 >
-                  <span className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-tight break-words line-clamp-2 px-0.5">
+                  <span className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {fourthPlace.team.name}
                   </span>
                 </div>
-                <div className="absolute -bottom-1.5 -right-1 bg-slate-600 dark:bg-slate-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                <div className="absolute -bottom-1.5 right-1/2 translate-x-6 sm:translate-x-10 bg-slate-600 dark:bg-slate-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
                   <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-300" />
                 </div>
               </div>

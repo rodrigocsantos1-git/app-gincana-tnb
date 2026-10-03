@@ -110,14 +110,15 @@ export default function TelaoPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white p-1 shadow-lg flex items-center justify-center">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative flex-shrink-0">
               <Image
-                src="/Logo_TNB.jpg"
-                alt="Logo TNB"
-                width={48}
-                height={48}
-                className="object-contain"
+                src="/logo-treinando-campeoes.png"
+                alt="Logo Treinando Campeões - Tô na Bênção"
+                width={80}
+                height={80}
+                className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_rgba(187,148,255,0.45)] transition-transform hover:scale-105"
+                priority
               />
             </div>
             <div>
@@ -130,7 +131,7 @@ export default function TelaoPage() {
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-slate-400 font-medium hidden sm:block">
-                Ministério Infantil Tô na Bênção • Igreja Bíblica da Paz
+                Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
               </p>
             </div>
           </div>
@@ -358,11 +359,11 @@ export default function TelaoPage() {
             <div
               className={`grid ${
                 hasFourTeams
-                  ? 'grid-cols-4 gap-2 sm:gap-4 md:gap-6 max-w-6xl'
+                  ? 'grid-cols-4 gap-2 sm:gap-4 md:gap-6 max-w-[98vw] 2xl:max-w-[1850px]'
                   : standings.length === 3
-                  ? 'grid-cols-3 gap-3 sm:gap-6 max-w-4xl'
+                  ? 'grid-cols-3 gap-3 sm:gap-6 max-w-5xl'
                   : standings.length === 2
-                  ? 'grid-cols-2 gap-4 max-w-2xl'
+                  ? 'grid-cols-2 gap-4 max-w-3xl'
                   : 'grid-cols-1 max-w-md'
               } items-end mx-auto w-full mb-8 pt-8`}
             >
@@ -370,30 +371,28 @@ export default function TelaoPage() {
               {secondPlace && (() => {
                 const style = getTeamStyle(secondPlace.team);
                 return (
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center w-full">
                     <div
-                      className={`w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{
                         backgroundColor: secondPlace.team.color,
                         boxShadow: style.boxShadow,
                       }}
                       title={secondPlace.team.name}
                     >
-                      <span className="text-xs sm:text-base md:text-xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                         {secondPlace.team.name}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-xs sm:text-lg md:text-xl text-center truncate max-w-full">
-                      {secondPlace.team.name}
-                    </h3>
-                    <p className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 mb-2">
-                      {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                    <p className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 my-1 sm:my-2">
+                      {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
                     </p>
-                    <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-gradient-to-t from-slate-800 to-slate-700 border-t-4 border-x-4 border-slate-500 flex flex-col items-center justify-center shadow-2xl">
-                      <Medal className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-slate-300 mb-1" />
-                      <span className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-200">2º</span>
-                      <span className="text-[9px] sm:text-xs uppercase font-bold tracking-widest text-slate-400">
-                        Prata
+                    <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-gradient-to-t from-slate-800 to-slate-700 border-t-4 border-x-4 border-slate-500 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
+                      <div className="absolute inset-0 bg-white/5" />
+                      <Medal className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-slate-300 mb-1 relative z-10" />
+                      <span className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-200 relative z-10">2º</span>
+                      <span className="text-[9px] sm:text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-300 relative z-10 text-center px-1">
+                        Medalha de Prata
                       </span>
                     </div>
                   </div>
@@ -404,31 +403,29 @@ export default function TelaoPage() {
               {firstPlace && (() => {
                 const style = getTeamStyle(firstPlace.team);
                 return (
-                  <div className="flex flex-col items-center relative -top-4 sm:-top-6">
-                    <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
+                  <div className="flex flex-col items-center w-full relative -top-4 sm:-top-6">
+                    <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)] mb-1" />
                     <div
-                      className={`w-16 h-16 sm:w-26 sm:h-26 md:w-32 md:h-32 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all shadow-xl ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
                       style={{
                         backgroundColor: firstPlace.team.color,
                         boxShadow: style.boxShadow,
                       }}
                       title={firstPlace.team.name}
                     >
-                      <span className="text-xs sm:text-lg md:text-2xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                      <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                         {firstPlace.team.name}
                       </span>
                     </div>
-                    <h3 className="font-black text-sm sm:text-xl md:text-2xl text-center text-amber-300 truncate max-w-full">
-                      {firstPlace.team.name}
-                    </h3>
-                    <p className="text-xl sm:text-4xl md:text-5xl font-black text-amber-400 mb-2 sm:mb-3 drop-shadow-md">
-                      {firstPlace.totalPoints} <span className="text-xs sm:text-base font-normal">pts</span>
+                    <p className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-amber-400 my-1 sm:my-2 drop-shadow-lg">
+                      {firstPlace.totalPoints} <span className="text-xs sm:text-base font-bold text-amber-300/80">pts</span>
                     </p>
-                    <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 border-t-4 border-x-4 border-amber-300 flex flex-col items-center justify-center shadow-[0_0_40px_rgba(245,158,11,0.5)]">
-                      <Trophy className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 text-amber-950 mb-1" />
-                      <span className="text-3xl sm:text-6xl md:text-7xl font-black text-amber-950">1º</span>
-                      <span className="text-[10px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-950">
-                        Líder da Gincana
+                    <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 border-t-4 border-x-4 border-amber-300 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.6)] relative overflow-hidden">
+                      <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
+                      <Trophy className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 text-amber-950 mb-1 relative z-10" />
+                      <span className="text-3xl sm:text-6xl md:text-7xl font-black text-amber-950 relative z-10">1º</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-950 relative z-10 text-center px-1">
+                        Campeã Geral TNB!
                       </span>
                     </div>
                   </div>
@@ -439,30 +436,28 @@ export default function TelaoPage() {
               {thirdPlace && (() => {
                 const style = getTeamStyle(thirdPlace.team);
                 return (
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center w-full">
                     <div
-                      className={`w-13 h-13 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{
                         backgroundColor: thirdPlace.team.color,
                         boxShadow: style.boxShadow,
                       }}
                       title={thirdPlace.team.name}
                     >
-                      <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                         {thirdPlace.team.name}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-center truncate max-w-full">
-                      {thirdPlace.team.name}
-                    </h3>
-                    <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 mb-2">
-                      {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                    <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 my-1 sm:my-2">
+                      {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-amber-400/70">pts</span>
                     </p>
-                    <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-gradient-to-t from-amber-900 to-amber-800 border-t-4 border-x-4 border-amber-700 flex flex-col items-center justify-center shadow-xl">
-                      <Award className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-amber-300 mb-0.5" />
-                      <span className="text-xl sm:text-3xl md:text-4xl font-black text-amber-200">3º</span>
-                      <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-bold tracking-widest text-amber-400">
-                        Bronze
+                    <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-gradient-to-t from-amber-900 to-amber-800 border-t-4 border-x-4 border-amber-700 flex flex-col items-center justify-center shadow-xl relative overflow-hidden">
+                      <div className="absolute inset-0 bg-white/5" />
+                      <Award className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-amber-300 mb-0.5 relative z-10" />
+                      <span className="text-xl sm:text-3xl md:text-4xl font-black text-amber-200 relative z-10">3º</span>
+                      <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-amber-300 relative z-10 text-center px-1">
+                        Medalha de Bronze
                       </span>
                     </div>
                   </div>
@@ -473,30 +468,28 @@ export default function TelaoPage() {
               {fourthPlace && (() => {
                 const style = getTeamStyle(fourthPlace.team);
                 return (
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center w-full">
                     <div
-                      className={`w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{
                         backgroundColor: fourthPlace.team.color,
                         boxShadow: style.boxShadow,
                       }}
                       title={fourthPlace.team.name}
                     >
-                      <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                         {fourthPlace.team.name}
                       </span>
                     </div>
-                    <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-center truncate max-w-full">
-                      {fourthPlace.team.name}
-                    </h3>
-                    <p className="text-sm sm:text-lg md:text-xl font-black text-slate-300 mb-2">
-                      {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                    <p className="text-sm sm:text-lg md:text-xl font-black text-slate-300 my-1 sm:my-2">
+                      {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
                     </p>
-                    <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg">
-                      <Star className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-300 mb-0.5" />
-                      <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300">4º</span>
-                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400">
-                        Honra
+                    <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
+                      <div className="absolute inset-0 bg-white/5" />
+                      <Star className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-300 mb-0.5 relative z-10" />
+                      <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 relative z-10">4º</span>
+                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400 relative z-10 text-center px-1">
+                        Honra & Esforço
                       </span>
                     </div>
                   </div>

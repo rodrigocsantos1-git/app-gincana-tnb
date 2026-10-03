@@ -208,14 +208,15 @@ export default function ResultadoFinalPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white p-1 shadow-lg flex items-center justify-center">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative flex-shrink-0">
               <Image
-                src="/Logo_TNB.jpg"
-                alt="Logo TNB"
-                width={48}
-                height={48}
-                className="object-contain"
+                src="/logo-treinando-campeoes.png"
+                alt="Logo Treinando Campeões - Tô na Bênção"
+                width={80}
+                height={80}
+                className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 object-contain drop-shadow-[0_0_15px_rgba(187,148,255,0.45)] transition-transform hover:scale-105"
+                priority
               />
             </div>
             <div>
@@ -229,7 +230,7 @@ export default function ResultadoFinalPage() {
                 </span>
               </div>
               <p className="text-[11px] sm:text-xs text-slate-400 font-medium hidden sm:block">
-                Ministério Infantil Tô na Bênção • Revelação Oficial dos Campeões
+                Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
               </p>
             </div>
           </div>
@@ -345,38 +346,35 @@ export default function ResultadoFinalPage() {
       </section>
 
       {/* O PÓDIO DA REVELAÇÃO (Ordem: 2º Lugar | 1º Lugar | 3º Lugar | 4º Lugar) */}
-      <main className="relative z-10 flex-1 my-2 sm:my-4 flex flex-col justify-center max-w-7xl w-full mx-auto">
-        <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-6 items-end mx-auto w-full max-w-6xl pt-6">
+      <main className="relative z-10 flex-1 my-2 sm:my-4 flex flex-col justify-center w-full max-w-[98vw] 2xl:max-w-[1850px] mx-auto px-1 sm:px-4">
+        <div className="grid grid-cols-4 gap-2 sm:gap-4 md:gap-6 items-end mx-auto w-full max-w-[98vw] 2xl:max-w-[1850px] pt-4 sm:pt-6">
           {/* ========================================================== */}
           {/* 2º LUGAR (Prata - Revelado no Passo 3 junto com o 1º Lugar) */}
           {/* ========================================================== */}
           {secondPlace && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full">
               {isTopTwoRevealed ? (
                 (() => {
                   const style = getTeamStyle(secondPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
-                      {/* Avatar do Time */}
+                      {/* Placa / Banner da Equipe 2º Lugar */}
                       <div
-                        className={`w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{
                           backgroundColor: secondPlace.team.color,
                           boxShadow: style.boxShadow,
                         }}
                         title={secondPlace.team.name}
                       >
-                        <span className="text-xs sm:text-base md:text-xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                        <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                           {secondPlace.team.name}
                         </span>
                       </div>
 
-                      {/* Nome e Pontos */}
-                      <h3 className="font-extrabold text-xs sm:text-lg md:text-xl text-center truncate max-w-full text-slate-100">
-                        {secondPlace.team.name}
-                      </h3>
-                      <p className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 mb-2">
-                        {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                      {/* Pontos da Equipe */}
+                      <p className="text-lg sm:text-2xl md:text-3xl font-black text-slate-200 my-1 sm:my-2">
+                        {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
                       </p>
 
                       {/* Pilar do Pódio 2º Lugar */}
@@ -384,7 +382,7 @@ export default function ResultadoFinalPage() {
                         <div className="absolute inset-0 bg-white/5" />
                         <Medal className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-slate-300 mb-1 relative z-10" />
                         <span className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-200 relative z-10">2º</span>
-                        <span className="text-[9px] sm:text-xs uppercase font-extrabold tracking-widest text-slate-300 relative z-10">
+                        <span className="text-[9px] sm:text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-300 relative z-10 text-center px-1">
                           Medalha de Prata
                         </span>
                       </div>
@@ -394,10 +392,11 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 2º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center mb-2 sm:mb-3">
-                    <HelpCircle className="w-6 h-6 text-slate-500 animate-pulse" />
+                  <div className="w-full max-w-[260px] py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest">???</span>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-500 mb-2">???</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-600 my-1 sm:my-2">? pts</span>
                   <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
                     <span className="text-2xl sm:text-4xl font-black text-slate-700">2º</span>
                     <span className="text-[9px] sm:text-xs uppercase font-bold text-slate-600 mt-1">Aguardando</span>
@@ -411,35 +410,32 @@ export default function ResultadoFinalPage() {
           {/* 1º LUGAR (Ouro / Grande Campeão - Revelado no Passo 3!)     */}
           {/* ========================================================== */}
           {firstPlace && (
-            <div className="flex flex-col items-center relative -top-4 sm:-top-6">
+            <div className="flex flex-col items-center w-full relative -top-4 sm:-top-6">
               {isTopTwoRevealed ? (
                 (() => {
                   const style = getTeamStyle(firstPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-50 fade-in duration-1000">
                       {/* Coroa Flutuante Gloriosa */}
-                      <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)]" />
+                      <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)] mb-1" />
 
-                      {/* Avatar do Time Campeão */}
+                      {/* Placa / Banner do Time Campeão */}
                       <div
-                        className={`w-16 h-16 sm:w-26 sm:h-26 md:w-32 md:h-32 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all shadow-2xl ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
                         style={{
                           backgroundColor: firstPlace.team.color,
                           boxShadow: style.boxShadow,
                         }}
                         title={firstPlace.team.name}
                       >
-                        <span className="text-xs sm:text-lg md:text-2xl font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                        <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                           {firstPlace.team.name}
                         </span>
                       </div>
 
-                      {/* Nome e Pontos do Campeão */}
-                      <h3 className="font-black text-sm sm:text-xl md:text-2xl text-center text-amber-300 truncate max-w-full drop-shadow-md">
-                        {firstPlace.team.name}
-                      </h3>
-                      <p className="text-xl sm:text-4xl md:text-5xl font-black text-amber-400 mb-2 sm:mb-3 drop-shadow-lg">
-                        {firstPlace.totalPoints} <span className="text-xs sm:text-base font-normal">pts</span>
+                      {/* Pontos do Campeão */}
+                      <p className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-amber-400 my-1 sm:my-2 drop-shadow-lg">
+                        {firstPlace.totalPoints} <span className="text-xs sm:text-base font-bold text-amber-300/80">pts</span>
                       </p>
 
                       {/* Pilar do Pódio 1º Lugar */}
@@ -457,10 +453,11 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 1º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-16 h-16 sm:w-26 sm:h-26 md:w-32 md:h-32 rounded-3xl bg-slate-900 border-2 border-dashed border-amber-500/50 flex items-center justify-center mb-2 sm:mb-3">
-                    <Trophy className="w-8 h-8 text-amber-500/40 animate-pulse" />
+                  <div className="w-full max-w-md py-3 sm:py-4 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-amber-500/50 flex items-center justify-center gap-2">
+                    <Trophy className="w-6 h-6 text-amber-500/50 animate-pulse" />
+                    <span className="text-sm sm:text-base font-black text-amber-400/50 uppercase tracking-widest">???</span>
                   </div>
-                  <span className="text-sm sm:text-base font-black text-amber-400/50 mb-2">???</span>
+                  <span className="text-sm sm:text-base font-black text-amber-500/40 my-1 sm:my-2">? pts</span>
                   <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-amber-500/30 flex flex-col items-center justify-center">
                     <span className="text-3xl sm:text-6xl font-black text-slate-700">1º</span>
                     <span className="text-[10px] sm:text-xs uppercase font-bold text-amber-500/50 mt-1">O Grande Campeão</span>
@@ -474,32 +471,29 @@ export default function ResultadoFinalPage() {
           {/* 3º LUGAR (Bronze - Revelado no Passo 2)                     */}
           {/* ========================================================== */}
           {thirdPlace && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full">
               {isThirdRevealed ? (
                 (() => {
                   const style = getTeamStyle(thirdPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
-                      {/* Avatar do Time */}
+                      {/* Placa / Banner da Equipe 3º Lugar */}
                       <div
-                        className={`w-13 h-13 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{
                           backgroundColor: thirdPlace.team.color,
                           boxShadow: style.boxShadow,
                         }}
                         title={thirdPlace.team.name}
                       >
-                        <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                        <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                           {thirdPlace.team.name}
                         </span>
                       </div>
 
-                      {/* Nome e Pontos */}
-                      <h3 className="font-extrabold text-xs sm:text-base md:text-lg text-center truncate max-w-full text-slate-100">
-                        {thirdPlace.team.name}
-                      </h3>
-                      <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 mb-2">
-                        {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                      {/* Pontos da Equipe */}
+                      <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 my-1 sm:my-2">
+                        {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-amber-400/70">pts</span>
                       </p>
 
                       {/* Pilar do Pódio 3º Lugar */}
@@ -507,7 +501,7 @@ export default function ResultadoFinalPage() {
                         <div className="absolute inset-0 bg-white/5" />
                         <Award className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-amber-300 mb-0.5 relative z-10" />
                         <span className="text-xl sm:text-3xl md:text-4xl font-black text-amber-200 relative z-10">3º</span>
-                        <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-amber-300 relative z-10">
+                        <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-amber-300 relative z-10 text-center px-1">
                           Medalha de Bronze
                         </span>
                       </div>
@@ -517,10 +511,11 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 3º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-13 h-13 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center mb-2 sm:mb-3">
-                    <HelpCircle className="w-6 h-6 text-slate-500 animate-pulse" />
+                  <div className="w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
+                    <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
+                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest">???</span>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-500 mb-2">???</span>
+                  <span className="text-xs sm:text-sm font-bold text-slate-600 my-1 sm:my-2">? pts</span>
                   <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
                     <span className="text-xl sm:text-3xl font-black text-slate-700">3º</span>
                     <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-600 mt-1">Aguardando</span>
@@ -534,32 +529,29 @@ export default function ResultadoFinalPage() {
           {/* 4º LUGAR (Honra - Revelado Primeiro, no Passo 1!)           */}
           {/* ========================================================== */}
           {fourthPlace && (
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center w-full">
               {isFourthRevealed ? (
                 (() => {
                   const style = getTeamStyle(fourthPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
-                      {/* Avatar do Time */}
+                      {/* Placa / Banner da Equipe 4º Lugar */}
                       <div
-                        className={`w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-3xl flex items-center justify-center text-center p-2 mb-2 sm:mb-3 transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{
                           backgroundColor: fourthPlace.team.color,
                           boxShadow: style.boxShadow,
                         }}
                         title={fourthPlace.team.name}
                       >
-                        <span className="text-xs sm:text-base md:text-lg font-black uppercase tracking-tight break-words line-clamp-2 px-1">
+                        <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
                           {fourthPlace.team.name}
                         </span>
                       </div>
 
-                      {/* Nome e Pontos */}
-                      <h3 className="font-extrabold text-[11px] sm:text-sm md:text-base text-center truncate max-w-full text-slate-100">
-                        {fourthPlace.team.name}
-                      </h3>
-                      <p className="text-sm sm:text-lg md:text-xl font-black text-slate-300 mb-2">
-                        {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-normal">pts</span>
+                      {/* Pontos da Equipe */}
+                      <p className="text-sm sm:text-lg md:text-xl font-black text-slate-300 my-1 sm:my-2">
+                        {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
                       </p>
 
                       {/* Pilar do Pódio 4º Lugar */}
@@ -567,7 +559,7 @@ export default function ResultadoFinalPage() {
                         <div className="absolute inset-0 bg-white/5" />
                         <Star className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-300 mb-0.5 relative z-10" />
                         <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 relative z-10">4º</span>
-                        <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400 relative z-10">
+                        <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400 relative z-10 text-center px-1">
                           Honra & Esforço
                         </span>
                       </div>
@@ -577,10 +569,11 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 4º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center mb-2 sm:mb-3">
+                  <div className="w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
                     <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">???</span>
                   </div>
-                  <span className="text-xs font-bold text-slate-500 mb-2">???</span>
+                  <span className="text-xs font-bold text-slate-600 my-1 sm:my-2">? pts</span>
                   <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
                     <span className="text-lg sm:text-2xl font-black text-slate-700">4º</span>
                     <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 mt-1">Aguardando</span>

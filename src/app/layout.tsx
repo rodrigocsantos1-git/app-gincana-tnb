@@ -9,21 +9,21 @@ export const metadata: Metadata = {
   description:
     'Ministério Infantil Tô na Bênção (IBP) — Pontuação e gerenciamento da gincana de acampamento em tempo real.',
   icons: {
-    icon: '/Logo_TNB.jpg',
-    apple: '/Logo_TNB.jpg',
+    icon: '/logo-treinando-campeoes.png',
+    apple: '/logo-treinando-campeoes.png',
   },
   openGraph: {
-    title: 'Gincana Acampa TNB • Placar em Tempo Real',
+    title: 'Gincana Acampa TNB • Treinando Campeões',
     description:
       'Ministério Infantil Tô na Bênção (IBP) — Pontuação e gerenciamento da gincana de acampamento em tempo real.',
     url: 'https://gincana-tnb.vercel.app',
     siteName: 'Gincana Acampa TNB',
     images: [
       {
-        url: '/Logo_TNB.jpg',
-        width: 512,
-        height: 512,
-        alt: 'Logo Tô na Bênção',
+        url: '/logo-treinando-campeoes.png',
+        width: 591,
+        height: 591,
+        alt: 'Logo Treinando Campeões - Tô na Bênção',
       },
     ],
     locale: 'pt_BR',
@@ -31,10 +31,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary',
-    title: 'Gincana Acampa TNB • Placar em Tempo Real',
+    title: 'Gincana Acampa TNB • Treinando Campeões',
     description:
       'Ministério Infantil Tô na Bênção (IBP) — Pontuação e gerenciamento da gincana de acampamento em tempo real.',
-    images: ['/Logo_TNB.jpg'],
+    images: ['/logo-treinando-campeoes.png'],
   },
 };
 

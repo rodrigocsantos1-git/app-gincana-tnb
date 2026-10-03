@@ -31,13 +31,13 @@ export function Header({
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo e Título */}
           <div className="flex items-center gap-3">
-            <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl overflow-hidden shadow-md border-2 border-white dark:border-slate-700 bg-white flex items-center justify-center">
+            <div className="relative w-11 h-11 sm:w-13 sm:h-13 flex-shrink-0 flex items-center justify-center">
               <Image
-                src="/Logo_TNB.jpg"
-                alt="Logo Tô na Bênção"
-                width={52}
-                height={52}
-                className="object-contain"
+                src="/logo-treinando-campeoes.png"
+                alt="Logo Treinando Campeões - Tô na Bênção"
+                width={64}
+                height={64}
+                className="w-full h-full object-contain drop-shadow-sm transition-transform hover:scale-105"
                 priority
               />
             </div>

@@ -44,10 +44,12 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<string>('leaderboard');
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const [selectedTeamIdForScore, setSelectedTeamIdForScore] = useState<string | undefined>(undefined);
+  const [selectedActivityIdForScore, setSelectedActivityIdForScore] = useState<string | undefined>(undefined);
   const [editingScore, setEditingScore] = useState<any | null>(null);
 
-  const handleOpenScoreModal = (teamId?: string) => {
+  const handleOpenScoreModal = (teamId?: string, activityId?: string) => {
     setSelectedTeamIdForScore(teamId);
+    setSelectedActivityIdForScore(activityId);
     setIsScoreModalOpen(true);
   };
 
@@ -142,14 +144,28 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    {/* Botão de Destaque Máximo */}
-                    <button
-                      onClick={() => handleOpenScoreModal()}
-                      className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-2xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] hover:brightness-110 shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer ring-2 ring-white/60 dark:ring-slate-800"
-                    >
-                      <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
-                      <span>Lançar Pontuação Agora</span>
-                    </button>
+                    {/* Botões de Destaque */}
+                    <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+                      <button
+                        onClick={() => {
+                          const caboAct = activities.find((a) => (a.title || '').toLowerCase().includes('cabo de guerra'));
+                          handleOpenScoreModal(undefined, caboAct?.id);
+                        }}
+                        className="w-full sm:w-auto px-4 py-3 sm:py-4 rounded-2xl font-black text-xs sm:text-sm text-amber-950 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/70 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                        title="Abrir tabela de duelos e confrontos V e D do Cabo de Guerra"
+                      >
+                        <span className="text-base">⚔️</span>
+                        <span>Cabo de Guerra (Duelos)</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenScoreModal()}
+                        className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-2xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] hover:brightness-110 shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer ring-2 ring-white/60 dark:ring-slate-800"
+                      >
+                        <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                        <span>Lançar Pontuação Agora</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Atalhos Rápidos com 1 Toque por Equipe */}
@@ -284,13 +300,19 @@ export default function HomePage() {
       {/* Modal de Lançamento de Pontos */}
       <ScoreModal
         isOpen={isScoreModalOpen}
-        onClose={() => setIsScoreModalOpen(false)}
+        onClose={() => {
+          setIsScoreModalOpen(false);
+          setSelectedActivityIdForScore(undefined);
+        }}
         teams={teams}
         activities={activities}
         scores={scores}
         standings={standings}
         initialTeamId={selectedTeamIdForScore}
+        initialActivityId={selectedActivityIdForScore}
         onSubmitScore={addScore}
+        onUpdateScore={updateScore}
+        onDeleteScore={deleteScore}
       />
 
       {/* Modal de Correção / Edição de Pontuação */}

@@ -13,6 +13,7 @@ import { UserManager } from '@/components/UserManager';
 import { PendingApprovalScreen } from '@/components/PendingApprovalScreen';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
+import { TaskCompletionAlert } from '@/components/TaskCompletionAlert';
 import { Sparkles, Info, RefreshCw, Database, Zap, ArrowLeft } from 'lucide-react';
 
 export default function HomePage() {
@@ -202,6 +203,14 @@ export default function HomePage() {
                     </div>
                   )}
                 </div>
+
+                {/* Alerta de Verificação de Tarefas Incompletas por Equipe e Fase */}
+                <TaskCompletionAlert
+                  teams={teams}
+                  activities={activities}
+                  scores={scores}
+                  onOpenScoreModal={handleOpenScoreModal}
+                />
 
                 {/* Tabela de Classificação Geral */}
                 <Leaderboard

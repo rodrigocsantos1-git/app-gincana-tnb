@@ -257,7 +257,7 @@ export default function TelaoPage() {
                             <span className="w-full h-full rounded-2xl bg-gradient-to-tr from-slate-400 to-slate-200 text-slate-900 flex items-center justify-center font-black shadow">
                               <Medal className="w-5 h-5 sm:w-6 sm:h-6" />
                             </span>
-                          ) : standing.rank === 3 ? (
+                          ) : standing.rank === 3 || standing.rank === 4 ? (
                             <span className="w-full h-full rounded-2xl bg-gradient-to-tr from-amber-700 to-amber-500 text-amber-100 flex items-center justify-center font-black shadow">
                               <Award className="w-5 h-5 sm:w-6 sm:h-6" />
                             </span>
@@ -487,10 +487,10 @@ export default function TelaoPage() {
                     </p>
                     <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
                       <div className="absolute inset-0 bg-white/5" />
-                      <Star className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-300 mb-0.5 relative z-10" />
+                      <Award className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-300 mb-0.5 relative z-10" />
                       <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 relative z-10">4º</span>
-                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400 relative z-10 text-center px-1">
-                        Honra & Esforço
+                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-amber-300/80 relative z-10 text-center px-1">
+                        Medalha de Honra
                       </span>
                     </div>
                   </div>

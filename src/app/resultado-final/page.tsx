@@ -20,8 +20,10 @@ import {
   Tv,
   HelpCircle,
   PartyPopper,
+  AlertTriangle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { checkAllActivitiesCompletion } from '@/lib/taskCompletion';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
@@ -56,8 +58,11 @@ function getTeamStyle(team?: { name?: string; color?: string } | null) {
 }
 
 export default function ResultadoFinalPage() {
-  const { standings, realtimeConnected } = useGincanaData();
+  const { standings, scores, teams, activities, realtimeConnected } = useGincanaData();
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showPendingDetails, setShowPendingDetails] = useState(false);
+
+  const { incompleteActivities, hasAnyIncomplete } = checkAllActivitiesCompletion(activities, teams, scores);
 
   // Etapas de revelação da cerimônia:
   // 0 = Nenhum revelado (Suspense total)
@@ -274,6 +279,53 @@ export default function ResultadoFinalPage() {
           </button>
         </div>
       </header>
+
+      {/* Aviso Crítico caso haja equipes sem pontuação registrada antes da revelação */}
+      {hasAnyIncomplete && (
+        <section className="relative z-20 my-3 max-w-3xl mx-auto w-full text-left">
+          <div className="p-4 rounded-3xl bg-amber-500/20 border-2 border-amber-400 text-amber-200 backdrop-blur-xl shadow-2xl space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 animate-pulse" />
+                <h3 className="text-sm font-black uppercase tracking-tight text-white">
+                  Atenção: Há tarefas não finalizadas por algumas equipes!
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPendingDetails(!showPendingDetails)}
+                className="text-xs font-bold px-2.5 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              >
+                {showPendingDetails ? 'Ocultar' : `Ver ${incompleteActivities.length} Provas`}
+              </button>
+            </div>
+            <p className="text-xs text-amber-100/90 font-medium">
+              Antes de anunciar o campeão no telão, verifique se todas as notas e rodadas já foram devidamente registradas.
+            </p>
+            {showPendingDetails && (
+              <div className="space-y-1.5 pt-2 border-t border-amber-400/30">
+                {incompleteActivities.map((act) => (
+                  <div key={act.activity.id} className="text-xs bg-black/40 p-2.5 rounded-xl border border-amber-400/20">
+                    <span className="font-black text-amber-300">📌 {act.activity.title}:</span>{' '}
+                    <span className="text-slate-200">
+                      Falta para{' '}
+                      {act.missingTeams.map((m) => `${m.team.name} (${m.scoresCount}/${act.requiredRounds})`).join(', ')}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-1 flex justify-end">
+                  <Link
+                    href="/"
+                    className="text-xs font-black px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors inline-flex items-center gap-1 shadow-sm"
+                  >
+                    <span>Lançar Pontos Pendentes no Painel</span>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Painel Central de Controle do Apresentador (O Botão de Revelação) */}
       <section className="relative z-20 my-4 max-w-3xl mx-auto w-full text-center">
@@ -558,10 +610,10 @@ export default function ResultadoFinalPage() {
                       {/* Pilar do Pódio 4º Lugar */}
                       <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
                         <div className="absolute inset-0 bg-white/5" />
-                        <Star className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-blue-300 mb-0.5 relative z-10" />
+                        <Award className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-300 mb-0.5 relative z-10" />
                         <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 relative z-10">4º</span>
-                        <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-slate-400 relative z-10 text-center px-1">
-                          Honra & Esforço
+                        <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-amber-300/80 relative z-10 text-center px-1">
+                          Medalha de Honra
                         </span>
                       </div>
                     </div>

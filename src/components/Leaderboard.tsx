@@ -164,7 +164,7 @@ export function Leaderboard({
                         <span className="w-full h-full rounded-xl bg-slate-300 text-slate-800 dark:bg-slate-600 dark:text-slate-100 flex items-center justify-center shadow">
                           <Medal className="w-4 h-4 sm:w-5 sm:h-5" />
                         </span>
-                      ) : standing.rank === 3 ? (
+                      ) : standing.rank === 3 || standing.rank === 4 ? (
                         <span className="w-full h-full rounded-xl bg-amber-700 text-amber-100 flex items-center justify-center shadow">
                           <Award className="w-4 h-4 sm:w-5 sm:h-5" />
                         </span>

@@ -2,9 +2,29 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Team, Activity, TeamStanding, Score } from '@/lib/types';
-import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check, RotateCw, CheckCircle2, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
+import {
+  X,
+  Sparkles,
+  AlertCircle,
+  Plus,
+  Minus,
+  Info,
+  Trophy,
+  Medal,
+  Award,
+  Check,
+  RotateCw,
+  CheckCircle2,
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CaboDeGuerraTable } from '@/components/CaboDeGuerraTable';
+import { getActivityRoundLimit, checkActivityCompletion } from '@/lib/taskCompletion';
+
+export { getActivityRoundLimit };
 
 interface ScoreModalProps {
   isOpen: boolean;
@@ -30,36 +50,6 @@ interface ScoreModalProps {
 
 const QUICK_PRESETS_POSITIVE = [5, 10, 20, 50, 100];
 const QUICK_PRESETS_NEGATIVE = [-1, -2, -5, -10, -20];
-
-// Helper para identificar se a atividade possui limite de rodadas (ex: 5 rodadas obrigatórias)
-export function getActivityRoundLimit(activity?: Activity | null): number | null {
-  if (!activity) return null;
-  const text = ((activity.title || '') + ' ' + (activity.description || '')).toLowerCase();
-  
-  if (
-    text.includes('5 vezes') ||
-    text.includes('5 rodadas') ||
-    text.includes('pontuar 5') ||
-    text.includes('prova 1') ||
-    text.includes('prova 2') ||
-    text.includes('prova 3') ||
-    text.includes('prova 4') ||
-    text.includes('prova 5') ||
-    text.includes('jornada') ||
-    text.includes('correr') ||
-    text.includes('corpo') ||
-    text.includes('voz') ||
-    text.includes('jesus')
-  ) {
-    return 5;
-  }
-
-  const match = text.match(/(\d+)\s*(vezes|rodadas)/);
-  if (match && Number(match[1]) > 0) {
-    return Number(match[1]);
-  }
-  return null;
-}
 
 export function ScoreModal({
   isOpen,
@@ -91,6 +81,16 @@ export function ScoreModal({
     roundLimit?: number;
     activityTitle?: string;
     message?: string;
+    isTeamFinished?: boolean;
+    pendingTeams?: {
+      id: string;
+      name: string;
+      color: string;
+      scoresCount: number;
+      requiredRounds: number;
+      missing: number;
+      notStarted: boolean;
+    }[];
   } | null>(null);
 
   // Mapa de pontuação atual por equipe
@@ -180,6 +180,12 @@ export function ScoreModal({
   const numPoints = points === '' ? 0 : Number(points);
   const willBeNegative = numPoints < 0 && currentTeamPoints + numPoints < 0;
   const isCaboDeGuerra = (selectedActivity?.title || '').toLowerCase().includes('cabo de guerra');
+
+  // Status de conclusão da atividade atual por equipe
+  const activityCompletion = useMemo(() => {
+    if (!selectedActivity || teams.length === 0) return null;
+    return checkActivityCompletion(selectedActivity, teams, scores);
+  }, [selectedActivity, teams, scores]);
 
   // Gerador de botões de colocação conforme o regulamento oficial da prova
   const getPlacementPresets = (activity?: Activity) => {
@@ -410,6 +416,17 @@ export function ScoreModal({
         });
       }
 
+      // Se a equipe atingiu o limite de rodadas (ex: 5 rodadas), verifica se faltam outras equipes
+      const willBeTeamFinished = roundLimit ? currentRound >= roundLimit : false;
+      const pendingTeamsAfterThis = teams.filter((t) => {
+        if (t.id === selectedTeamId) {
+          return !willBeTeamFinished;
+        }
+        const tScores = scores.filter((s) => s.activity_id === selectedActivityId && s.team_id === t.id);
+        const req = roundLimit || 1;
+        return tScores.length < req;
+      });
+
       // Feedback de sucesso elegante para o voluntário
       setSuccessFeedback({
         teamName: selectedTeam?.name || 'Equipe',
@@ -418,6 +435,20 @@ export function ScoreModal({
         round: roundLimit ? currentRound : undefined,
         roundLimit: roundLimit || undefined,
         activityTitle: selectedActivity?.title,
+        isTeamFinished: willBeTeamFinished,
+        pendingTeams: pendingTeamsAfterThis.map((t) => {
+          const tScores = scores.filter((s) => s.activity_id === selectedActivityId && s.team_id === t.id);
+          const req = roundLimit || 1;
+          return {
+            id: t.id,
+            name: t.name,
+            color: t.color,
+            scoresCount: tScores.length,
+            requiredRounds: req,
+            missing: Math.max(0, req - tScores.length),
+            notStarted: tScores.length === 0,
+          };
+        }),
       });
 
       // Permanece na mesma tela conforme solicitado pelo usuário!
@@ -464,37 +495,110 @@ export function ScoreModal({
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Feedback de Sucesso Elegante ao Lançar Ponto (Continua na Tela) */}
           {successFeedback && (
-            <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-2">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                  <Check className="w-4 h-4" />
+            successFeedback.isTeamFinished ? (
+              successFeedback.pendingTeams && successFeedback.pendingTeams.length > 0 ? (
+                <div className="p-4 rounded-2xl bg-amber-500/15 dark:bg-amber-950/70 border-2 border-amber-400 dark:border-amber-500 text-amber-950 dark:text-amber-100 shadow-md space-y-2.5 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-start gap-2.5 min-w-0">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+                      <div className="space-y-1 min-w-0">
+                        <p className="text-xs sm:text-sm font-black text-emerald-800 dark:text-emerald-300">
+                          🎉 A equipe &quot;{successFeedback.teamName}&quot; finalizou todas as {successFeedback.roundLimit} rodadas!
+                        </p>
+                        <div className="p-3 rounded-xl bg-amber-100/90 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/80 space-y-2 mt-1">
+                          <p className="text-xs font-black text-amber-950 dark:text-amber-100 flex items-center gap-1.5">
+                            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 animate-pulse" />
+                            <span>ATENÇÃO: Está faltando completar esta tarefa para {successFeedback.pendingTeams.length} {successFeedback.pendingTeams.length === 1 ? 'equipe' : 'equipes'}:</span>
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {successFeedback.pendingTeams.map((pt) => (
+                              <button
+                                type="button"
+                                key={pt.id}
+                                onClick={() => {
+                                  setSelectedTeamId(pt.id);
+                                  setSuccessFeedback(null);
+                                }}
+                                className="px-3 py-2 rounded-xl font-black text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-2 border-amber-400 dark:border-amber-500 shadow-sm hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: pt.color }} />
+                                <span>{pt.name}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200">
+                                  {pt.notStarted ? '0 rodadas' : `${pt.scoresCount}/${pt.requiredRounds}`}
+                                </span>
+                                <span className="text-[11px] text-[#0284c7] dark:text-[#78c8fb] font-black">👉 Pontuar</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSuccessFeedback(null)}
+                      className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer flex-shrink-0"
+                      title="Dispensar aviso"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="truncate text-xs sm:text-sm">
-                    {successFeedback.message ? (
-                      <strong>{successFeedback.message}</strong>
-                    ) : (
-                      <>
-                        <strong>+{successFeedback.points} pts</strong> aplicados para{' '}
-                        <strong>{successFeedback.teamName}</strong>
-                        {successFeedback.round && ` • Rodada ${successFeedback.round}/${successFeedback.roundLimit}`}!
-                      </>
-                    )}
-                  </p>
-                  <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 mt-0.5">
-                    Tela mantida aberta para continuar lançando. Selecione a próxima equipe ou finalize abaixo.
-                  </p>
+              ) : (
+                <div className="p-4 rounded-2xl bg-emerald-500/15 dark:bg-emerald-950/70 border-2 border-emerald-400 dark:border-emerald-500 text-emerald-950 dark:text-emerald-100 shadow-md flex items-center justify-between gap-2 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-center gap-2.5">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs sm:text-sm font-black text-emerald-800 dark:text-emerald-300">
+                        🏆 PARABÉNS! Todas as equipes concluíram com sucesso todas as tarefas desta prova!
+                      </p>
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 font-medium">
+                        Nenhuma equipe possui pontuação pendente nesta atividade.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSuccessFeedback(null)}
+                    className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer flex-shrink-0"
+                    title="Dispensar aviso"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
+              )
+            ) : (
+              <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 text-xs font-bold flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <Check className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-xs sm:text-sm">
+                      {successFeedback.message ? (
+                        <strong>{successFeedback.message}</strong>
+                      ) : (
+                        <>
+                          <strong>+{successFeedback.points} pts</strong> aplicados para{' '}
+                          <strong>{successFeedback.teamName}</strong>
+                          {successFeedback.round && ` • Rodada ${successFeedback.round}/${successFeedback.roundLimit}`}!
+                        </>
+                      )}
+                    </p>
+                    <p className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 mt-0.5">
+                      Tela mantida aberta para continuar lançando. Selecione a próxima equipe ou finalize abaixo.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSuccessFeedback(null)}
+                  className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer flex-shrink-0"
+                  title="Dispensar aviso"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setSuccessFeedback(null)}
-                className="p-1 hover:bg-black/10 dark:hover:bg-white/10 rounded-lg cursor-pointer flex-shrink-0"
-                title="Dispensar aviso"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            )
           )}
 
           {errorMsg && (
@@ -570,6 +674,63 @@ export function ScoreModal({
             </div>
           ) : (
             <>
+              {/* Alerta em Tela: Falta completar a tarefa para equipes pendentes */}
+              {activityCompletion && activityCompletion.hasAnyScore && (
+                activityCompletion.isIncomplete ? (
+                  <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/15 dark:bg-amber-950/50 border-2 border-amber-400 dark:border-amber-500/80 space-y-2 animate-in fade-in">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 dark:text-amber-100">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0 animate-pulse" />
+                        <span>Falta completar esta tarefa para:</span>
+                      </div>
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-200 dark:bg-amber-900/80 text-amber-900 dark:text-amber-200">
+                        {activityCompletion.missingTeams.length} {activityCompletion.missingTeams.length === 1 ? 'equipe pendente' : 'equipes pendentes'}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {activityCompletion.missingTeams.map(({ team, scoresCount, requiredRounds, notStarted }) => {
+                        const isSelected = selectedTeamId === team.id;
+                        return (
+                          <button
+                            type="button"
+                            key={team.id}
+                            onClick={() => {
+                              setSelectedTeamId(team.id);
+                              setErrorMsg(null);
+                              if (editingRoundScore) handleCancelRoundEdit();
+                            }}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5 border shadow-xs transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#0284c7] text-white border-[#0284c7] ring-2 ring-blue-300'
+                                : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-amber-300 dark:border-amber-700 hover:scale-105 active:scale-95'
+                            }`}
+                          >
+                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team.color }} />
+                            <span>{team.name}</span>
+                            <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
+                              isSelected ? 'bg-white/20 text-white' : 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200'
+                            }`}>
+                              {notStarted ? '0 rodadas' : `${scoresCount}/${requiredRounds}`}
+                            </span>
+                            {!isSelected && <span className="text-[10px] text-[#0284c7] dark:text-[#78c8fb]">👉 Selecionar</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : activityCompletion.isFullyCompleted ? (
+                  <div className="p-2.5 rounded-xl bg-emerald-500/15 dark:bg-emerald-950/40 border border-emerald-400 dark:border-emerald-700 flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200 font-bold">
+                    <span className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>Tarefa 100% concluída por todas as {teams.length} equipes!</span>
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-black">
+                      Finalizada ✅
+                    </span>
+                  </div>
+                ) : null
+              )}
+
               {/* 2. Seleção de Equipe */}
               <div>
                 <div className="flex items-center justify-between mb-2">

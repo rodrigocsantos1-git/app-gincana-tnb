@@ -281,8 +281,8 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                     {fourthPlace.team.name}
                   </span>
                 </div>
-                <div className="absolute -bottom-1.5 right-1/2 translate-x-6 sm:translate-x-10 bg-slate-600 dark:bg-slate-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
-                  <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-300" />
+                <div className="absolute -bottom-1.5 right-1/2 translate-x-6 sm:translate-x-10 bg-amber-700 text-white rounded-full p-0.5 sm:p-1 shadow-md border-2 border-white dark:border-slate-800">
+                  <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-200" />
                 </div>
               </div>
 
@@ -304,7 +304,8 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                 className="w-full h-16 sm:h-20 md:h-22 rounded-t-2xl bg-gradient-to-t from-slate-200 to-slate-100 dark:from-slate-800/90 dark:to-slate-800/60 flex flex-col items-center justify-center border-t-2 border-x-2 border-slate-300 dark:border-slate-700 shadow-md cursor-pointer hover:brightness-105 active:scale-98 transition-all"
                 title="Clique para lançar pontos para esta equipe"
               >
-                <span className="text-base sm:text-xl md:text-2xl font-black text-slate-600 dark:text-slate-300">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700 dark:text-amber-400 mb-0.5" />
+                <span className="text-base sm:text-xl md:text-2xl font-black text-slate-700 dark:text-slate-300">
                   4º
                 </span>
                 <span className="text-[8px] sm:text-[10px] uppercase font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">

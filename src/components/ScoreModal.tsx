@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Team, Activity, TeamStanding, Score } from '@/lib/types';
 import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check, RotateCw, CheckCircle2, ArrowLeft, Pencil, Trash2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -126,10 +126,26 @@ export function ScoreModal({
     return map;
   }, [scores, selectedActivityId]);
 
+  const prevIsOpenRef = useRef(false);
+
   useEffect(() => {
-    if (isOpen) {
-      setSelectedTeamId(initialTeamId || (teams.length > 0 ? teams[0].id : ''));
-      setSelectedActivityId(initialActivityId || (activities.length > 0 ? activities[0].id : ''));
+    const wasOpen = prevIsOpenRef.current;
+    prevIsOpenRef.current = isOpen;
+
+    // Quando o modal abre pela primeira vez:
+    if (!wasOpen && isOpen) {
+      setSelectedTeamId((prev) => {
+        if (initialTeamId) return initialTeamId;
+        if (prev && teams.some((t) => t.id === prev)) return prev;
+        return teams.length > 0 ? teams[0].id : '';
+      });
+
+      setSelectedActivityId((prev) => {
+        if (initialActivityId) return initialActivityId;
+        if (prev && activities.some((a) => a.id === prev)) return prev;
+        return activities.length > 0 ? activities[0].id : '';
+      });
+
       setPoints('');
       setHasChangedPoints(false);
       setNotes('');
@@ -137,6 +153,22 @@ export function ScoreModal({
       setSuccessFeedback(null);
       setEditingRoundScore(null);
       setEditingRoundIndex(null);
+    } else if (isOpen) {
+      // Quando o modal JÁ estava aberto e os dados atualizam em segundo plano (ex: ao salvar ou via realtime):
+      // NUNCA altera nem reseta a equipe e nem a tarefa escolhidas pelo voluntário!
+      setSelectedTeamId((prev) => {
+        if (prev && teams.some((t) => t.id === prev)) {
+          return prev; // MANTÉM RIGOROSAMENTE A MESMA EQUIPE ESCOLHIDA!
+        }
+        return prev || initialTeamId || (teams.length > 0 ? teams[0].id : '');
+      });
+
+      setSelectedActivityId((prev) => {
+        if (prev && activities.some((a) => a.id === prev)) {
+          return prev; // MANTÉM RIGOROSAMENTE A MESMA TAREFA ESCOLHIDA!
+        }
+        return prev || initialActivityId || (activities.length > 0 ? activities[0].id : '');
+      });
     }
   }, [isOpen, initialTeamId, initialActivityId, teams, activities]);
 

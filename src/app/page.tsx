@@ -302,6 +302,7 @@ export default function HomePage() {
         isOpen={isScoreModalOpen}
         onClose={() => {
           setIsScoreModalOpen(false);
+          setSelectedTeamIdForScore(undefined);
           setSelectedActivityIdForScore(undefined);
         }}
         teams={teams}

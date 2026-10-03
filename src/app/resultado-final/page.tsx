@@ -159,6 +159,11 @@ export default function ResultadoFinalPage() {
 
   // Avançar passo com disparo automático do efeito de confete
   const advanceStep = () => {
+    // Para automaticamente o rufar de tambores no momento da revelação
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('stop-drum-roll'));
+    }
+
     if (revealStep === 0) {
       setRevealStep(1);
       triggerFourthPlaceConfetti();

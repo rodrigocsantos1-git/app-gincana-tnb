@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import { TeamStanding, Score } from '@/lib/types';
-import { Trophy, Medal, Award, Plus, Sparkles, TrendingUp, Target, Download, RotateCcw, AlertTriangle, X } from 'lucide-react';
+import { Trophy, Medal, Award, Plus, Sparkles, TrendingUp, Target, Download, RotateCcw, AlertTriangle, X, Pencil } from 'lucide-react';
 
 interface LeaderboardProps {
   standings: TeamStanding[];
   scores?: Score[];
   onOpenScoreModal: (teamId?: string) => void;
+  onEditScore?: (score: Score) => void;
   onExportBackup?: () => void;
   onClearScores?: () => Promise<any>;
   isAdmin?: boolean;
@@ -17,6 +18,7 @@ export function Leaderboard({
   standings,
   scores = [],
   onOpenScoreModal,
+  onEditScore,
   onExportBackup,
   onClearScores,
   isAdmin = false,
@@ -245,7 +247,7 @@ export function Leaderboard({
                       {teamScores.map((score) => (
                         <div
                           key={score.id}
-                          className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-white/60 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60 shadow-xs"
+                          className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/70 shadow-xs hover:border-[#0284c7]/40 transition-colors"
                           title={score.notes || undefined}
                         >
                           <div className="flex flex-col min-w-0 pr-1">
@@ -268,15 +270,27 @@ export function Leaderboard({
                               </span>
                             )}
                           </div>
-                          <span
-                            className={`text-xs font-black px-2 py-0.5 rounded-lg flex-shrink-0 ${
-                              score.points >= 0
-                                ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
-                                : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
-                            }`}
-                          >
-                            {score.points >= 0 ? `+${score.points}` : score.points} pts
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span
+                              className={`text-xs font-black px-2 py-0.5 rounded-lg flex-shrink-0 ${
+                                score.points >= 0
+                                  ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800'
+                                  : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800'
+                              }`}
+                            >
+                              {score.points >= 0 ? `+${score.points}` : score.points} pts
+                            </span>
+                            {onEditScore && (
+                              <button
+                                type="button"
+                                onClick={() => onEditScore(score)}
+                                className="p-1 rounded-lg text-slate-400 hover:text-[#0284c7] hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
+                                title="Corrigir ou editar esta pontuação"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

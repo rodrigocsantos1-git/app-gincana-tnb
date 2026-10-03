@@ -2,13 +2,15 @@
 
 import React, { useState, useMemo } from 'react';
 import { Score, Team, Activity } from '@/lib/types';
-import { Trash2, History, Filter, AlertTriangle, Clock, Download, RotateCcw } from 'lucide-react';
+import { Trash2, History, Filter, AlertTriangle, Clock, Download, RotateCcw, Pencil, ArrowLeft } from 'lucide-react';
 
 interface ScoreHistoryProps {
   scores: Score[];
   teams: Team[];
   activities: Activity[];
   onDeleteScore: (id: string) => Promise<any>;
+  onEditScore?: (score: Score) => void;
+  onGoBackToLeaderboard?: () => void;
   onExportBackup?: () => void;
   onClearScores?: () => Promise<any>;
   isAdmin?: boolean;
@@ -19,6 +21,8 @@ export function ScoreHistory({
   teams,
   activities,
   onDeleteScore,
+  onEditScore,
+  onGoBackToLeaderboard,
   onExportBackup,
   onClearScores,
   isAdmin = false,
@@ -64,6 +68,19 @@ export function ScoreHistory({
 
   return (
     <div className="w-full">
+      {/* Botão de Retorno Amigável para Idosos */}
+      {onGoBackToLeaderboard && (
+        <div className="mb-4">
+          <button
+            onClick={onGoBackToLeaderboard}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-black text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer active:scale-95"
+          >
+            <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+            <span>← Voltar ao Placar Geral</span>
+          </button>
+        </div>
+      )}
+
       {/* Cabeçalho, Filtros e Ações */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 px-1">
         <div className="flex items-center gap-2">
@@ -198,8 +215,8 @@ export function ScoreHistory({
                   </div>
                 </div>
 
-                {/* Lado Direito: Pontuação e Botão Excluir */}
-                <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                {/* Lado Direito: Pontuação, Botão Corrigir e Botão Excluir */}
+                <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                   <span
                     className={`text-lg sm:text-2xl font-black tracking-tight ${
                       isPositive
@@ -210,10 +227,21 @@ export function ScoreHistory({
                     {isPositive ? `+${score.points}` : score.points}
                   </span>
 
+                  {onEditScore && (
+                    <button
+                      onClick={() => onEditScore(score)}
+                      className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-black text-[#0284c7] dark:text-[#78c8fb] bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/60 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800 transition-all flex items-center gap-1 active:scale-95 cursor-pointer shadow-xs"
+                      title="Corrigir ou editar este lançamento de pontos"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                      <span>Corrigir</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={() => handleDelete(score)}
                     disabled={deletingId === score.id}
-                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors disabled:opacity-50 cursor-pointer"
                     title="Excluir este lançamento de pontos"
                   >
                     <Trash2 className="w-4 h-4" />

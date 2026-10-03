@@ -105,10 +105,11 @@ export default function TelaoPage() {
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/"
-            className="p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors border border-white/15 shrink-0"
             title="Voltar ao Painel Administrativo"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Voltar</span>
           </Link>
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative flex-shrink-0">

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Team, Activity, TeamStanding, Score } from '@/lib/types';
-import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check, RotateCw, CheckCircle2 } from 'lucide-react';
+import { X, Sparkles, AlertCircle, Plus, Minus, Info, Trophy, Medal, Award, Check, RotateCw, CheckCircle2, ArrowLeft } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface ScoreModalProps {
@@ -291,27 +291,26 @@ export function ScoreModal({
         className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-white/20 dark:border-slate-800 overflow-hidden my-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Header */}
-        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-50/60 to-purple-50/60 dark:from-slate-800/60 dark:to-slate-900/60">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#78c8fb] to-[#bb94ff] flex items-center justify-center text-white shadow-sm">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-900 dark:text-white">
-                Lançar Pontuação
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
-                Atribua os pontos ou penalidade à equipe
-              </p>
-            </div>
-          </div>
+        {/* Top Header com Botão Voltar Evidente para Idosos */}
+        <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-blue-50/70 to-purple-50/70 dark:from-slate-800/80 dark:to-slate-900/80">
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs sm:text-sm font-black bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 shadow-xs cursor-pointer active:scale-95"
+            title="Voltar para a tela anterior"
           >
-            <X className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+            <span>Voltar</span>
           </button>
+
+          <div className="text-right">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+              Lançar Pontuação
+            </h2>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Gincana TNB • Treinando Campeões
+            </p>
+          </div>
         </div>
 
         {/* Formulário */}
@@ -682,14 +681,15 @@ export function ScoreModal({
             />
           </div>
 
-          {/* Botões de Ação */}
-          <div className="pt-2 flex items-center justify-between sm:justify-end gap-3 border-t border-slate-100 dark:border-slate-800">
+          {/* Botões de Ação com Alta Visibilidade para Idosos */}
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-sm font-bold rounded-xl text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700"
+              className="w-full sm:w-auto px-5 py-3 text-sm font-black rounded-xl text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2 order-2 sm:order-1"
             >
-              Fechar / Concluir
+              <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+              <span>Voltar ao Placar</span>
             </button>
             <button
               type="submit"
@@ -701,7 +701,7 @@ export function ScoreModal({
                 numPoints === 0 ||
                 willBeNegative
               }
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#0284c7] via-[#78c8fb] to-[#bb94ff] hover:opacity-95 shadow-md active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] hover:brightness-110 shadow-lg shadow-blue-500/30 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer order-1 sm:order-2"
             >
               {isSubmitting ? (
                 <span>Salvando...</span>
@@ -709,8 +709,8 @@ export function ScoreModal({
                 <span>5 Rodadas Concluídas</span>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Aplicar Pontuação</span>
+                  <Sparkles className="w-5 h-5 text-amber-300" />
+                  <span>Confirmar e Salvar Pontos</span>
                 </>
               )}
             </button>

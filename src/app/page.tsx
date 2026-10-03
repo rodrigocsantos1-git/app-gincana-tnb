@@ -5,6 +5,7 @@ import { useGincanaData } from '@/hooks/useGincanaData';
 import { Header } from '@/components/Header';
 import { Leaderboard } from '@/components/Leaderboard';
 import { ScoreModal } from '@/components/ScoreModal';
+import { EditScoreModal } from '@/components/EditScoreModal';
 import { TeamManager } from '@/components/TeamManager';
 import { ActivityManager } from '@/components/ActivityManager';
 import { ScoreHistory } from '@/components/ScoreHistory';
@@ -12,7 +13,7 @@ import { UserManager } from '@/components/UserManager';
 import { PendingApprovalScreen } from '@/components/PendingApprovalScreen';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
-import { Sparkles, Info, RefreshCw, Database, Zap } from 'lucide-react';
+import { Sparkles, Info, RefreshCw, Database, Zap, ArrowLeft } from 'lucide-react';
 
 export default function HomePage() {
   const { user, profile, isAdmin, isApproved, loading: authLoading } = useAuth();
@@ -25,6 +26,7 @@ export default function HomePage() {
     isUsingDemo,
     realtimeConnected,
     addScore,
+    updateScore,
     deleteScore,
     clearAllScores,
     exportBackup,
@@ -42,6 +44,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<string>('leaderboard');
   const [isScoreModalOpen, setIsScoreModalOpen] = useState(false);
   const [selectedTeamIdForScore, setSelectedTeamIdForScore] = useState<string | undefined>(undefined);
+  const [editingScore, setEditingScore] = useState<any | null>(null);
 
   const handleOpenScoreModal = (teamId?: string) => {
     setSelectedTeamIdForScore(teamId);
@@ -189,6 +192,7 @@ export default function HomePage() {
                   standings={standings}
                   scores={scores}
                   onOpenScoreModal={handleOpenScoreModal}
+                  onEditScore={(score) => setEditingScore(score)}
                   onExportBackup={exportBackup}
                   onClearScores={clearAllScores}
                   isAdmin={isAdmin}
@@ -197,7 +201,14 @@ export default function HomePage() {
             )}
 
             {activeTab === 'teams' && (
-              <div className="animate-in fade-in duration-300">
+              <div className="animate-in fade-in duration-300 space-y-4">
+                <button
+                  onClick={() => setActiveTab('leaderboard')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-black text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+                  <span>← Voltar ao Placar Geral</span>
+                </button>
                 <TeamManager
                   teams={teams}
                   standings={standings}
@@ -209,7 +220,14 @@ export default function HomePage() {
             )}
 
             {activeTab === 'activities' && (
-              <div className="animate-in fade-in duration-300">
+              <div className="animate-in fade-in duration-300 space-y-4">
+                <button
+                  onClick={() => setActiveTab('leaderboard')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-black text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+                  <span>← Voltar ao Placar Geral</span>
+                </button>
                 <ActivityManager
                   activities={activities}
                   onAddActivity={addActivity}
@@ -227,6 +245,8 @@ export default function HomePage() {
                   teams={teams}
                   activities={activities}
                   onDeleteScore={deleteScore}
+                  onEditScore={(score) => setEditingScore(score)}
+                  onGoBackToLeaderboard={() => setActiveTab('leaderboard')}
                   onExportBackup={exportBackup}
                   onClearScores={clearAllScores}
                   isAdmin={isAdmin}
@@ -235,7 +255,14 @@ export default function HomePage() {
             )}
 
             {activeTab === 'users' && isAdmin && (
-              <div className="animate-in fade-in duration-300">
+              <div className="animate-in fade-in duration-300 space-y-4">
+                <button
+                  onClick={() => setActiveTab('leaderboard')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 font-black text-xs sm:text-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+                  <span>← Voltar ao Placar Geral</span>
+                </button>
                 <UserManager />
               </div>
             )}
@@ -264,6 +291,17 @@ export default function HomePage() {
         standings={standings}
         initialTeamId={selectedTeamIdForScore}
         onSubmitScore={addScore}
+      />
+
+      {/* Modal de Correção / Edição de Pontuação */}
+      <EditScoreModal
+        isOpen={!!editingScore}
+        score={editingScore}
+        onClose={() => setEditingScore(null)}
+        teams={teams}
+        activities={activities}
+        onUpdateScore={updateScore}
+        onDeleteScore={deleteScore}
       />
 
       {/* Rodapé Minimalista TNB */}

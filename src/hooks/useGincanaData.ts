@@ -282,6 +282,36 @@ export function useGincanaData() {
     }
   };
 
+  const updateScore = async (
+    scoreId: string,
+    data: { team_id?: string; activity_id?: string | null; points?: number; notes?: string | null }
+  ) => {
+    if (!isSupabaseConfigured || isUsingDemo) {
+      const updated = scores.map((s) => (s.id === scoreId ? { ...s, ...data } : s));
+      setScores(updated);
+      persistLocalData(undefined, undefined, updated);
+      return { success: true };
+    }
+
+    try {
+      const { data: updatedScore, error } = await supabase
+        .from('scores')
+        .update(data)
+        .eq('id', scoreId)
+        .select(`*, team:teams(*), activity:activities(*)`)
+        .single();
+      if (error) throw error;
+      setScores((prev) => prev.map((s) => (s.id === scoreId ? (updatedScore as unknown as Score) : s)));
+      return { success: true, data: updatedScore };
+    } catch (err) {
+      console.error('Erro ao atualizar pontuação no Supabase:', err);
+      // Fallback otimista local
+      const updated = scores.map((s) => (s.id === scoreId ? { ...s, ...data } : s));
+      setScores(updated);
+      return { success: true, warning: 'Atualizado localmente' };
+    }
+  };
+
   // ================= AÇÕES: EQUIPES =================
   const addTeam = async (data: { name: string; color: string }) => {
     if (!isSupabaseConfigured || isUsingDemo) {
@@ -539,6 +569,7 @@ export function useGincanaData() {
     realtimeConnected,
     fetchData,
     addScore,
+    updateScore,
     deleteScore,
     clearAllScores,
     exportBackup,

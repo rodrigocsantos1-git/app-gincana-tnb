@@ -19,6 +19,7 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
@@ -131,15 +132,21 @@ export default function TelaoPage() {
                   AO VIVO
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-400 font-medium hidden sm:block">
+              <p className="text-xs sm:text-sm text-slate-400 font-medium">
                 Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
+              </p>
+              <p className="text-sm sm:text-base md:text-lg font-bold text-amber-200/95 italic leading-snug mt-1 max-w-3xl drop-shadow-sm">
+                “Corro direto para a linha de chegada a fim de conseguir o prêmio da vitória. Esse prêmio é a nova vida para a qual Deus me chamou por meio de Cristo Jesus.”
               </p>
             </div>
           </div>
         </div>
 
         {/* Controles de Apresentação e Alternância */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+          {/* Player de Áudio com Ícone de Vinil */}
+          <VinylAudioPlayer />
+
           {/* Link para a Cerimônia de Resultado Final */}
           <Link
             href="/resultado-final"

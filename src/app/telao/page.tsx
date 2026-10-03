@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
+import { SuspenseDrumRollButton } from '@/components/SuspenseDrumRollButton';
 import { useTheme } from '@/components/ThemeProvider';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
@@ -99,25 +100,29 @@ export default function TelaoPage() {
 
   return (
     <div
-      className={`min-h-screen text-white flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden transition-colors duration-500 ${
+      className={`min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden transition-colors duration-500 ${
         isLight
-          ? 'bg-gradient-to-br from-[#0284c7] via-[#0369a1] to-[#075985]'
-          : 'bg-slate-950'
+          ? 'bg-[#78c8fb] [background-image:radial-gradient(circle_at_12%_14%,rgba(255,255,255,0.55)_0%,transparent_35%),radial-gradient(circle_at_88%_20%,rgba(187,148,255,0.35)_0%,transparent_40%),radial-gradient(circle_at_50%_85%,rgba(159,224,255,0.50)_0%,transparent_55%),linear-gradient(145deg,#78c8fb_0%,#6bc0f5_45%,#7ecdfb_100%)] text-slate-900'
+          : 'bg-slate-950 text-white'
       }`}
     >
       {/* Background Orbs */}
-      <div className="fixed inset-0 pointer-events-none opacity-25">
-        <div className={`absolute top-10 left-10 w-96 h-96 ${isLight ? 'bg-sky-300' : 'bg-[#78c8fb]'} rounded-full blur-[140px]`} />
-        <div className={`absolute bottom-10 right-10 w-96 h-96 ${isLight ? 'bg-blue-300' : 'bg-[#bb94ff]'} rounded-full blur-[140px]`} />
-        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 ${isLight ? 'bg-cyan-400' : 'bg-[#5b21b6]'} rounded-full blur-[160px]`} />
+      <div className={`fixed inset-0 pointer-events-none transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-25'}`}>
+        <div className="absolute top-10 left-10 w-96 h-96 bg-[#78c8fb] rounded-full blur-[140px]" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#bb94ff] rounded-full blur-[140px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#5b21b6] rounded-full blur-[160px]" />
       </div>
 
       {/* Top Bar Telão */}
-      <header className="relative z-10 flex items-center justify-between border-b border-white/10 pb-4">
+      <header className={`relative z-10 flex items-center justify-between border-b pb-4 ${isLight ? 'border-sky-300/60' : 'border-white/10'}`}>
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/"
-            className="flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-colors border border-white/15 shrink-0"
+            className={`flex items-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-colors border shrink-0 ${
+              isLight
+                ? 'bg-white/80 hover:bg-white text-slate-800 border-white/80 shadow-xs'
+                : 'bg-white/10 hover:bg-white/20 text-white border-white/15'
+            }`}
             title="Voltar ao Painel Administrativo"
           >
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -136,17 +141,23 @@ export default function TelaoPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-2xl md:text-3xl font-black tracking-tight uppercase">
+                <h1 className={`text-lg sm:text-2xl md:text-3xl font-black tracking-tight uppercase ${isLight ? 'text-slate-950' : 'text-white'}`}>
                   Gincana Acampa TNB
                 </h1>
-                <span className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full font-bold bg-[#bb94ff]/30 text-[#bb94ff] border border-[#bb94ff]/50">
+                <span className={`text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 rounded-full font-bold ${
+                  isLight
+                    ? 'bg-purple-100 text-purple-900 border border-purple-300'
+                    : 'bg-[#bb94ff]/30 text-[#bb94ff] border border-[#bb94ff]/50'
+                }`}>
                   AO VIVO
                 </span>
               </div>
-              <p className={`text-xs sm:text-sm font-medium ${isLight ? 'text-sky-100' : 'text-slate-400'}`}>
+              <p className={`text-xs sm:text-sm font-semibold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
                 Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
               </p>
-              <p className="text-sm sm:text-base md:text-lg font-bold text-amber-200/95 italic leading-snug mt-1 max-w-3xl drop-shadow-sm">
+              <p className={`text-sm sm:text-base md:text-lg font-extrabold italic leading-snug mt-1 max-w-3xl drop-shadow-sm ${
+                isLight ? 'text-blue-950' : 'text-amber-200/95'
+              }`}>
                 “Corro direto para a linha de chegada a fim de conseguir o prêmio da vitória. Esse prêmio é a nova vida para a qual Deus me chamou por meio de Cristo Jesus.”
               </p>
             </div>
@@ -158,14 +169,18 @@ export default function TelaoPage() {
           {/* Alternador de Modo Claro (Azul TNB) / Modo Noturno */}
           <button
             onClick={toggleTheme}
-            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-md"
+            className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl border font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 ${
+              isLight
+                ? 'bg-white/85 hover:bg-white border-white/80 text-slate-800 shadow-sm'
+                : 'bg-white/10 hover:bg-white/20 border-white/15 text-white shadow-md'
+            }`}
             title={isLight ? 'Mudar para Modo Noturno (Escuro)' : 'Mudar para Modo Claro (Azul TNB)'}
             aria-label="Alternar entre tema Claro (Azul TNB) e Escuro"
           >
             {isLight ? (
               <>
-                <Moon className="w-4 h-4 text-sky-200" />
-                <span className="hidden sm:inline text-sky-100 font-extrabold">Escuro</span>
+                <Moon className="w-4 h-4 text-sky-700" />
+                <span className="hidden sm:inline text-slate-800 font-extrabold">Escuro</span>
               </>
             ) : (
               <>
@@ -189,13 +204,15 @@ export default function TelaoPage() {
           </Link>
 
           {/* Alternador de Modo de Visualização */}
-          <div className="hidden md:flex items-center p-1 rounded-xl bg-white/10 border border-white/10">
+          <div className={`hidden md:flex items-center p-1 rounded-xl border ${
+            isLight ? 'bg-white/70 border-white/80 shadow-xs' : 'bg-white/10 border-white/10'
+          }`}>
             <button
               onClick={() => setViewMode('linhas')}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'linhas'
                   ? 'bg-[#0284c7] text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white'
+                  : isLight ? 'text-slate-700 hover:text-slate-900' : 'text-slate-300 hover:text-white'
               }`}
             >
               <ListOrdered className="w-3.5 h-3.5" />
@@ -206,7 +223,7 @@ export default function TelaoPage() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === 'podio'
                   ? 'bg-[#0284c7] text-white shadow-sm'
-                  : 'text-slate-300 hover:text-white'
+                  : isLight ? 'text-slate-700 hover:text-slate-900' : 'text-slate-300 hover:text-white'
               }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -214,14 +231,24 @@ export default function TelaoPage() {
             </button>
           </div>
 
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white/5 border border-white/10 text-slate-300">
-            <Wifi className={`w-3.5 h-3.5 ${realtimeConnected ? 'text-emerald-400 animate-pulse' : 'text-slate-400'}`} />
+          <div className={`hidden lg:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${
+            isLight ? 'bg-white/60 border-white/80 text-slate-700' : 'bg-white/5 border-white/10 text-slate-300'
+          }`}>
+            <Wifi className={`w-3.5 h-3.5 ${realtimeConnected ? 'text-emerald-500 animate-pulse' : 'text-slate-400'}`} />
             <span>{realtimeConnected ? 'Tempo Real Ativo' : 'Telão'}</span>
           </div>
 
+          {/* Botão de Tocar Bateria de Suspense (Rufar de Tambores) ao lado do Confete */}
+          <SuspenseDrumRollButton />
+
+          {/* Botão de Soltar Confetes */}
           <button
             onClick={fireCelebration}
-            className="p-2 sm:p-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition-all active:scale-95 cursor-pointer"
+            className={`p-2 sm:p-2.5 rounded-xl border transition-all active:scale-95 cursor-pointer ${
+              isLight
+                ? 'bg-amber-400 hover:bg-amber-500 text-amber-950 border-amber-300 shadow-sm'
+                : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
+            }`}
             title="Soltar Confetes no Telão"
           >
             <Sparkles className="w-5 h-5" />
@@ -229,7 +256,11 @@ export default function TelaoPage() {
 
           <button
             onClick={toggleFullscreen}
-            className="p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+            className={`p-2 sm:p-2.5 rounded-xl border transition-colors cursor-pointer ${
+              isLight
+                ? 'bg-white/80 hover:bg-white text-slate-800 border-white/80 shadow-xs'
+                : 'bg-white/10 hover:bg-white/20 text-white border-transparent'
+            }`}
             title={isFullscreen ? 'Sair da Tela Cheia' : 'Modo Tela Cheia (F11)'}
           >
             {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}

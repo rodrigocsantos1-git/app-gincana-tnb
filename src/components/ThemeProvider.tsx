@@ -11,24 +11,28 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'light',
+  theme: 'dark',
   toggleTheme: () => {},
   setTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
+  // Modo escuro como padrão para todos
+  const [theme, setThemeState] = useState<Theme>('dark');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     const savedTheme = localStorage.getItem('tnb_theme') as Theme | null;
-    if (savedTheme === 'dark') {
-      setThemeState('dark');
-      document.documentElement.classList.add('dark');
-    } else {
+    if (savedTheme === 'light') {
       setThemeState('light');
       document.documentElement.classList.remove('dark');
+    } else {
+      setThemeState('dark');
+      document.documentElement.classList.add('dark');
+      if (!savedTheme) {
+        localStorage.setItem('tnb_theme', 'dark');
+      }
     }
   }, []);
 

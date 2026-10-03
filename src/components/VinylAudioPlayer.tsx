@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX, Play, Pause, Music } from 'lucide-react';
 
 interface VinylAudioPlayerProps {
@@ -19,45 +19,8 @@ export function VinylAudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
-  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Tentativa segura de reproduzir o áudio
-  const startAudioPlayback = useCallback(async () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    try {
-      audio.volume = isMuted ? 0 : volume;
-      await audio.play();
-      setIsPlaying(true);
-      setHasError(false);
-    } catch (err) {
-      console.log('Autoplay bloqueado pelo navegador aguardando interação do usuário:', err);
-      // Registra gatilho na primeira interação do usuário na página
-      const handleUserGesture = () => {
-        if (audioRef.current) {
-          audioRef.current.play().then(() => {
-            setIsPlaying(true);
-            setHasError(false);
-          }).catch(() => {});
-        }
-        cleanupGestureListeners();
-      };
-
-      const cleanupGestureListeners = () => {
-        window.removeEventListener('click', handleUserGesture);
-        window.removeEventListener('touchstart', handleUserGesture);
-        window.removeEventListener('pointerdown', handleUserGesture);
-        window.removeEventListener('keydown', handleUserGesture);
-      };
-
-      window.addEventListener('click', handleUserGesture, { once: true });
-      window.addEventListener('touchstart', handleUserGesture, { once: true });
-      window.addEventListener('pointerdown', handleUserGesture, { once: true });
-      window.addEventListener('keydown', handleUserGesture, { once: true });
-    }
-  }, [isMuted, volume]);
+  const manuallyPausedRef = useRef(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -67,10 +30,7 @@ export function VinylAudioPlayer({
 
     const handleEnded = () => setIsPlaying(false);
     const handlePause = () => setIsPlaying(false);
-    const handlePlay = () => {
-      setIsPlaying(true);
-      setHasError(false);
-    };
+    const handlePlay = () => setIsPlaying(true);
 
     const fallbackSources = [
       '/Mais que Vencedores.mpeg',
@@ -82,17 +42,18 @@ export function VinylAudioPlayer({
     ];
 
     const handleError = () => {
+      if (manuallyPausedRef.current) return;
       const currentSrc = audio.currentSrc || audio.src;
-      // Procura próxima fonte disponível
-      const nextSource = fallbackSources.find((src) => !currentSrc.includes(encodeURI(src)) && !currentSrc.includes(src));
+      const nextSource = fallbackSources.find(
+        (src) => !currentSrc.includes(encodeURI(src)) && !currentSrc.includes(src)
+      );
       if (nextSource) {
         audio.src = nextSource;
         audio.load();
-        if (isPlaying || autoPlay) {
+        if (!manuallyPausedRef.current) {
           audio.play().catch(() => {});
         }
       } else {
-        setHasError(true);
         setIsPlaying(false);
       }
     };
@@ -102,9 +63,39 @@ export function VinylAudioPlayer({
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('error', handleError);
 
-    // Se autoPlay ativado, inicia imediatamente ao entrar na tela
-    if (autoPlay) {
-      startAudioPlayback();
+    // Tentativa de autoplay ao entrar na tela
+    if (autoPlay && !manuallyPausedRef.current) {
+      audio
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          // Autoplay foi bloqueado pelo navegador até o primeiro toque na tela
+          const onFirstInteraction = (ev: Event) => {
+            if (manuallyPausedRef.current) return;
+            const target = ev.target as HTMLElement | null;
+            // Se o toque foi no próprio botão do player, não interfere
+            if (target && target.closest('[data-vinyl-player]')) return;
+
+            if (audioRef.current && !manuallyPausedRef.current) {
+              audioRef.current.play().then(() => {
+                setIsPlaying(true);
+              }).catch(() => {});
+            }
+            cleanup();
+          };
+
+          const cleanup = () => {
+            window.removeEventListener('click', onFirstInteraction);
+            window.removeEventListener('touchstart', onFirstInteraction);
+            window.removeEventListener('pointerdown', onFirstInteraction);
+          };
+
+          window.addEventListener('click', onFirstInteraction, { once: true });
+          window.addEventListener('touchstart', onFirstInteraction, { once: true });
+          window.addEventListener('pointerdown', onFirstInteraction, { once: true });
+        });
     }
 
     return () => {
@@ -113,22 +104,34 @@ export function VinylAudioPlayer({
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('error', handleError);
     };
-  }, [autoPlay, startAudioPlayback, volume, isMuted, isPlaying]);
+  }, [autoPlay, isMuted, volume]);
 
-  const togglePlay = () => {
-    if (!audioRef.current) return;
+  const togglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (isPlaying) {
-      audioRef.current.pause();
+      manuallyPausedRef.current = true;
+      audio.pause();
+      setIsPlaying(false);
     } else {
-      audioRef.current.play().catch((err) => {
-        console.warn('Falha ao iniciar áudio:', err);
-        setHasError(true);
-      });
+      manuallyPausedRef.current = false;
+      audio
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((err) => {
+          console.warn('Falha ao reproduzir áudio:', err);
+        });
     }
   };
 
   const toggleMute = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!audioRef.current) return;
     const nextMuted = !isMuted;
     setIsMuted(nextMuted);
@@ -136,7 +139,7 @@ export function VinylAudioPlayer({
   };
 
   return (
-    <div className={`relative inline-flex items-center ${className}`}>
+    <div data-vinyl-player className={`relative inline-flex items-center ${className}`}>
       {/* Audio Element invisível */}
       <audio ref={audioRef} preload="auto" autoPlay={autoPlay}>
         <source src={audioSrc} type="audio/mpeg" />
@@ -153,11 +156,11 @@ export function VinylAudioPlayer({
         onClick={togglePlay}
         className={`relative group flex items-center gap-2.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl border backdrop-blur-md transition-all cursor-pointer active:scale-95 shadow-md ${
           isPlaying
-            ? 'bg-purple-950/70 border-purple-400/80 text-white shadow-purple-500/20'
-            : 'bg-white/10 hover:bg-white/20 border-white/15 text-slate-200 hover:text-white'
+            ? 'bg-purple-950/80 border-purple-400 text-white shadow-purple-500/20'
+            : 'bg-white/15 hover:bg-white/25 border-white/20 text-slate-100 hover:text-white'
         }`}
-        title={isPlaying ? `Clique para pausar ${label}` : `Clique para tocar ${label}`}
-        aria-label={`Tocar ${label}`}
+        title={isPlaying ? 'Clique para pausar: Mais que Vencedores' : 'Clique para tocar: Mais que Vencedores'}
+        aria-label={isPlaying ? 'Pausar Mais que Vencedores' : 'Tocar Mais que Vencedores'}
       >
         {/* O Disco de Vinil Animado */}
         <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
@@ -185,13 +188,7 @@ export function VinylAudioPlayer({
           </div>
 
           {/* Ícone de Play / Pause no Centro do Vinil */}
-          <div
-            className={`absolute inset-0 flex items-center justify-center rounded-full transition-opacity ${
-              isPlaying
-                ? 'bg-black/30 opacity-0 group-hover:opacity-100'
-                : 'bg-black/40 opacity-100'
-            }`}
-          >
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40">
             {isPlaying ? (
               <Pause className="w-3.5 h-3.5 text-white fill-white" />
             ) : (
@@ -200,11 +197,11 @@ export function VinylAudioPlayer({
           </div>
         </div>
 
-        {/* Textos & Barras de Onda de Áudio */}
+        {/* Textos & Nome do Áudio Sempre "Mais que Vencedores" */}
         <div className="flex flex-col text-left pr-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider truncate">
-              {isPlaying ? 'Tocando Áudio' : label}
+            <span className="text-[11px] sm:text-xs font-black uppercase tracking-wider truncate text-amber-300">
+              Mais que Vencedores
             </span>
 
             {/* Equalizador animado em tempo real enquanto toca */}
@@ -220,8 +217,8 @@ export function VinylAudioPlayer({
             )}
           </div>
 
-          <span className="text-[9px] sm:text-[10px] text-slate-300 font-medium truncate">
-            {isPlaying ? 'Toque para pausar' : 'Vinil • Mais que Vencedores'}
+          <span className="text-[9px] sm:text-[10px] text-slate-200 font-medium truncate">
+            {isPlaying ? '⏸ Toque para pausar' : '▶ Toque para ouvir'}
           </span>
         </div>
 

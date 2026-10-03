@@ -14,7 +14,6 @@ import {
   ArrowLeft,
   Sparkles,
   Wifi,
-  Star,
   ListOrdered,
   LayoutGrid,
   Sun,
@@ -25,7 +24,7 @@ import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
 import { SuspenseDrumRollButton } from '@/components/SuspenseDrumRollButton';
 import { useTheme } from '@/components/ThemeProvider';
 
-// Helper para definir estilo, contraste e texto preto para equipe branca
+// Helper de contraste para equipes (garante texto legível para equipe branca e amarela)
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
   const name = (team?.name || '').toLowerCase();
   const color = (team?.color || '').toLowerCase();
@@ -46,7 +45,6 @@ function getTeamStyle(team?: { name?: string; color?: string } | null) {
 
   return {
     isWhite,
-    // Texto PRETO para equipe branca conforme solicitado
     textColor: isWhite ? 'text-slate-950 font-black' : isYellow ? 'text-amber-950 font-black' : 'text-white font-black',
     border: isWhite
       ? 'border-2 border-slate-300 shadow-md'
@@ -82,8 +80,8 @@ export default function TelaoPage() {
 
   const fireCelebration = () => {
     confetti({
-      particleCount: 120,
-      spread: 90,
+      particleCount: 140,
+      spread: 100,
       origin: { y: 0.5 },
       colors: ['#78c8fb', '#bb94ff', '#f59e0b', '#10b981', '#ffffff'],
     });
@@ -103,17 +101,17 @@ export default function TelaoPage() {
       className={`min-h-screen flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden transition-colors duration-500 ${
         isLight
           ? 'bg-[#78c8fb] [background-image:radial-gradient(circle_at_12%_14%,rgba(255,255,255,0.55)_0%,transparent_35%),radial-gradient(circle_at_88%_20%,rgba(187,148,255,0.35)_0%,transparent_40%),radial-gradient(circle_at_50%_85%,rgba(159,224,255,0.50)_0%,transparent_55%),linear-gradient(145deg,#78c8fb_0%,#6bc0f5_45%,#7ecdfb_100%)] text-slate-900'
-          : 'bg-slate-950 text-white'
+          : 'bg-[#090d16] [background-image:radial-gradient(circle_at_12%_14%,rgba(120,200,251,0.12)_0%,transparent_35%),radial-gradient(circle_at_88%_20%,rgba(187,148,255,0.15)_0%,transparent_40%),radial-gradient(circle_at_50%_85%,rgba(91,33,182,0.25)_0%,transparent_60%),linear-gradient(160deg,#090d16_0%,#0f172a_45%,#1e1b4b_100%)] text-white'
       }`}
     >
-      {/* Background Orbs */}
+      {/* Luzes Volumétricas de Fundo */}
       <div className={`fixed inset-0 pointer-events-none transition-opacity duration-500 ${isLight ? 'opacity-0' : 'opacity-25'}`}>
         <div className="absolute top-10 left-10 w-96 h-96 bg-[#78c8fb] rounded-full blur-[140px]" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#bb94ff] rounded-full blur-[140px]" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#5b21b6] rounded-full blur-[160px]" />
       </div>
 
-      {/* Top Bar Telão */}
+      {/* Header Superior do Telão */}
       <header className={`relative z-10 flex items-center justify-between border-b pb-4 ${isLight ? 'border-sky-300/60' : 'border-white/10'}`}>
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
@@ -128,6 +126,7 @@ export default function TelaoPage() {
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>Voltar</span>
           </Link>
+
           <div className="flex items-center gap-3 sm:gap-4">
             <div className="relative flex-shrink-0">
               <Image
@@ -158,15 +157,15 @@ export default function TelaoPage() {
               <p className={`text-sm sm:text-base md:text-lg font-extrabold italic leading-snug mt-1 max-w-3xl drop-shadow-sm ${
                 isLight ? 'text-blue-950' : 'text-amber-200/95'
               }`}>
-                “Corro direto para a linha de chegada a fim de conseguir o prêmio da vitória. Esse prêmio é a nova vida para a qual Deus me chamou por meio de Cristo Jesus.”
+                &ldquo;Corro direto para a linha de chegada a fim de conseguir o prêmio da vitória. Esse prêmio é a nova vida para a qual Deus me chamou por meio de Cristo Jesus.&rdquo;
               </p>
             </div>
           </div>
         </div>
 
-        {/* Controles de Apresentação e Alternância */}
+        {/* Controles de Apresentação */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
-          {/* Alternador de Modo Claro (Azul TNB) / Modo Noturno */}
+          {/* Alternador de Tema Claro / Escuro */}
           <button
             onClick={toggleTheme}
             className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl border font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 ${
@@ -174,8 +173,8 @@ export default function TelaoPage() {
                 ? 'bg-white/85 hover:bg-white border-white/80 text-slate-800 shadow-sm'
                 : 'bg-white/10 hover:bg-white/20 border-white/15 text-white shadow-md'
             }`}
-            title={isLight ? 'Mudar para Modo Noturno (Escuro)' : 'Mudar para Modo Claro (Azul TNB)'}
-            aria-label="Alternar entre tema Claro (Azul TNB) e Escuro"
+            title={isLight ? 'Mudar para Modo Noturno' : 'Mudar para Modo Claro'}
+            aria-label="Alternar tema"
           >
             {isLight ? (
               <>
@@ -185,15 +184,15 @@ export default function TelaoPage() {
             ) : (
               <>
                 <Sun className="w-4 h-4 text-amber-400" />
-                <span className="hidden sm:inline text-amber-300 font-extrabold">Claro (Azul)</span>
+                <span className="hidden sm:inline text-amber-300 font-extrabold">Claro</span>
               </>
             )}
           </button>
 
-          {/* Player de Áudio com Ícone de Vinil */}
+          {/* Player de Vinil */}
           <VinylAudioPlayer />
 
-          {/* Link para a Cerimônia de Resultado Final */}
+          {/* Atalho para a Cerimônia Final */}
           <Link
             href="/resultado-final"
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-black bg-gradient-to-r from-amber-500 to-amber-400 text-amber-950 hover:brightness-110 shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
@@ -203,7 +202,7 @@ export default function TelaoPage() {
             <span className="hidden sm:inline">Cerimônia Final</span>
           </Link>
 
-          {/* Alternador de Modo de Visualização */}
+          {/* Seletor de Modo: Por Provas vs Pódio */}
           <div className={`hidden md:flex items-center p-1 rounded-xl border ${
             isLight ? 'bg-white/70 border-white/80 shadow-xs' : 'bg-white/10 border-white/10'
           }`}>
@@ -231,17 +230,18 @@ export default function TelaoPage() {
             </button>
           </div>
 
+          {/* Status Realtime */}
           <div className={`hidden lg:flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold border ${
             isLight ? 'bg-white/60 border-white/80 text-slate-700' : 'bg-white/5 border-white/10 text-slate-300'
           }`}>
             <Wifi className={`w-3.5 h-3.5 ${realtimeConnected ? 'text-emerald-500 animate-pulse' : 'text-slate-400'}`} />
-            <span>{realtimeConnected ? 'Tempo Real Ativo' : 'Telão'}</span>
+            <span>{realtimeConnected ? 'Ao Vivo' : 'Telão'}</span>
           </div>
 
-          {/* Botão de Tocar Bateria de Suspense (Rufar de Tambores) ao lado do Confete */}
+          {/* Rufar de Tambores */}
           <SuspenseDrumRollButton />
 
-          {/* Botão de Soltar Confetes */}
+          {/* Confetes */}
           <button
             onClick={fireCelebration}
             className={`p-2 sm:p-2.5 rounded-xl border transition-all active:scale-95 cursor-pointer ${
@@ -254,6 +254,7 @@ export default function TelaoPage() {
             <Sparkles className="w-5 h-5" />
           </button>
 
+          {/* Tela Cheia F11 */}
           <button
             onClick={toggleFullscreen}
             className={`p-2 sm:p-2.5 rounded-xl border transition-colors cursor-pointer ${
@@ -268,27 +269,25 @@ export default function TelaoPage() {
         </div>
       </header>
 
-      {/* Conteúdo Principal do Telão */}
+      {/* Conteúdo Principal */}
       <main className="relative z-10 flex-1 my-4 sm:my-6 flex flex-col justify-center max-w-7xl w-full mx-auto">
-        {/* ========================================================================= */}
-        {/* MODO 1: LINHAS HORIZONTAIS COM PONTUAÇÃO POR PROVAS (MODO PRINCIPAL)     */}
-        {/* ========================================================================= */}
+        {/* MODO 1: LINHAS HORIZONTAIS COM PONTUAÇÃO POR PROVA */}
         {viewMode === 'linhas' && (
           <div className="space-y-4 animate-in fade-in duration-300">
-            {/* Cabeçalho da Seção */}
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2">
-                <ListOrdered className="w-5 h-5 text-[#78c8fb]" />
-                <h2 className="text-sm sm:text-base md:text-lg font-black uppercase tracking-wider text-slate-300">
-                  Classificação Geral & Histórico de Provas Executadas
+                <ListOrdered className={`w-5 h-5 ${isLight ? 'text-sky-800' : 'text-[#78c8fb]'}`} />
+                <h2 className={`text-sm sm:text-base md:text-lg font-black uppercase tracking-wider ${
+                  isLight ? 'text-slate-800' : 'text-slate-300'
+                }`}>
+                  Classificação Geral &amp; Histórico de Provas Executadas
                 </h2>
               </div>
-              <span className="text-xs font-semibold text-slate-400">
+              <span className={`text-xs font-semibold ${isLight ? 'text-slate-700' : 'text-slate-400'}`}>
                 Arraste horizontalmente para ver todas as provas
               </span>
             </div>
 
-            {/* Linhas por Equipe */}
             <div className="space-y-3.5">
               {standings.map((standing) => {
                 const teamScores = (scores || []).filter((s) => s.team_id === standing.team.id);
@@ -304,7 +303,6 @@ export default function TelaoPage() {
                       borderLeftColor: standing.team.color || '#0284c7',
                     }}
                   >
-                    {/* Barra de Progresso no Fundo */}
                     <div
                       className="absolute inset-y-0 left-0 opacity-15 pointer-events-none transition-all duration-700"
                       style={{
@@ -313,9 +311,8 @@ export default function TelaoPage() {
                       }}
                     />
 
-                    {/* Lado Esquerdo: Posição, Identificação da Equipe e Total de Pontos */}
+                    {/* Posição, Time e Total */}
                     <div className="relative z-10 flex items-center justify-between sm:justify-start gap-4 sm:gap-6 flex-shrink-0 xl:min-w-[340px]">
-                      {/* Badge de Posição */}
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center font-black text-lg sm:text-xl shadow-lg flex-shrink-0 bg-slate-800 border border-white/20">
                           {standing.rank === 1 ? (
@@ -337,7 +334,6 @@ export default function TelaoPage() {
                           )}
                         </div>
 
-                        {/* Cor e Nome da Equipe */}
                         <div className="flex items-center gap-3 min-w-0">
                           <div
                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center text-center font-black text-sm sm:text-base uppercase flex-shrink-0 shadow-md ${style.textColor} ${style.border}`}
@@ -357,7 +353,6 @@ export default function TelaoPage() {
                         </div>
                       </div>
 
-                      {/* Pontuação Total da Equipe em Destaque Gigante */}
                       <div className="text-right flex-shrink-0 pl-2">
                         <div className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white flex items-baseline justify-end gap-1">
                           <span>{standing.totalPoints}</span>
@@ -366,7 +361,7 @@ export default function TelaoPage() {
                       </div>
                     </div>
 
-                    {/* Lado Direito: Coluna/Faixa Horizontal de Provas Executadas */}
+                    {/* Histórico Horizontal de Provas da Equipe */}
                     <div className="relative z-10 flex-1 min-w-0 border-t xl:border-t-0 xl:border-l border-white/10 pt-3 xl:pt-0 xl:pl-4">
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                         {teamScores.length > 0 ? (
@@ -374,17 +369,13 @@ export default function TelaoPage() {
                             <div
                               key={score.id || idx}
                               className="flex-shrink-0 flex items-center gap-2.5 px-3 sm:px-3.5 py-2 rounded-2xl bg-white/10 hover:bg-white/15 border backdrop-blur-md transition-all shadow-sm"
-                              style={{
-                                borderColor: `${standing.team.color}60`,
-                              }}
+                              style={{ borderColor: `${standing.team.color}60` }}
                               title={score.notes || undefined}
                             >
-                              {/* Bolinha da cor da equipe */}
                               <span
                                 className="w-2.5 h-2.5 rounded-full flex-shrink-0 shadow-sm"
                                 style={{ backgroundColor: standing.team.color }}
                               />
-                              {/* Nome e Rodada da Prova */}
                               <div className="flex flex-col min-w-0 pr-1">
                                 <span className="text-xs sm:text-sm font-extrabold text-white truncate max-w-[130px] sm:max-w-[190px]">
                                   {score.activity?.title || 'Pontuação Avulsa'}
@@ -395,7 +386,6 @@ export default function TelaoPage() {
                                   </span>
                                 )}
                               </div>
-                              {/* Pontos Ganho */}
                               <span
                                 className={`text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl flex-shrink-0 shadow-xs ${
                                   score.points >= 0
@@ -421,9 +411,7 @@ export default function TelaoPage() {
           </div>
         )}
 
-        {/* ========================================================================= */}
-        {/* MODO 2: PÓDIO CLÁSSICO TRADICIONAL                                        */}
-        {/* ========================================================================= */}
+        {/* MODO 2: PÓDIO CLÁSSICO TRADICIONAL */}
         {viewMode === 'podio' && (
           <div className="animate-in fade-in duration-300">
             <div
@@ -432,36 +420,35 @@ export default function TelaoPage() {
                   ? 'grid-cols-4 gap-2 sm:gap-4 md:gap-6 max-w-[98vw] 2xl:max-w-[1850px]'
                   : standings.length === 3
                   ? 'grid-cols-3 gap-3 sm:gap-6 max-w-5xl'
-                  : standings.length === 2
-                  ? 'grid-cols-2 gap-4 max-w-3xl'
-                  : 'grid-cols-1 max-w-md'
+                  : 'grid-cols-2 gap-4 max-w-3xl'
               } items-end mx-auto w-full mb-8 pt-8`}
             >
-              {/* 2º LUGAR (Prata) */}
+              {/* 2º Lugar */}
               {secondPlace && (() => {
                 const style = getTeamStyle(secondPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
                     <div
                       className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
-                      style={{
-                        backgroundColor: secondPlace.team.color,
-                        boxShadow: style.boxShadow,
-                      }}
-                      title={secondPlace.team.name}
+                      style={{ backgroundColor: secondPlace.team.color, boxShadow: style.boxShadow }}
                     >
-                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {secondPlace.team.name}
                       </span>
                     </div>
-                    <p className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 my-1 sm:my-2">
-                      {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
+
+                    <p className={`text-lg sm:text-2xl md:text-3xl font-black my-1 sm:my-2 ${
+                      isLight ? 'text-slate-800' : 'text-slate-300'
+                    }`}>
+                      {secondPlace.totalPoints} <span className={`text-xs sm:text-sm font-semibold ${
+                        isLight ? 'text-slate-700' : 'text-slate-400'
+                      }`}>pts</span>
                     </p>
+
                     <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-gradient-to-t from-slate-800 to-slate-700 border-t-4 border-x-4 border-slate-500 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
-                      <div className="absolute inset-0 bg-white/5" />
-                      <Medal className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-slate-300 mb-1 relative z-10" />
-                      <span className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-200 relative z-10">2º</span>
-                      <span className="text-[9px] sm:text-xs md:text-sm uppercase font-extrabold tracking-widest text-slate-300 relative z-10 text-center px-1">
+                      <Medal className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-slate-300 mb-1 z-10" />
+                      <span className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-200 z-10">2º</span>
+                      <span className="text-[9px] sm:text-xs uppercase font-extrabold tracking-widest text-slate-300 z-10">
                         Medalha de Prata
                       </span>
                     </div>
@@ -469,32 +456,34 @@ export default function TelaoPage() {
                 );
               })()}
 
-              {/* 1º LUGAR (Ouro - Centro / Mais Alto) */}
+              {/* 1º Lugar */}
               {firstPlace && (() => {
                 const style = getTeamStyle(firstPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full relative -top-4 sm:-top-6">
                     <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)] mb-1" />
+
                     <div
                       className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
-                      style={{
-                        backgroundColor: firstPlace.team.color,
-                        boxShadow: style.boxShadow,
-                      }}
-                      title={firstPlace.team.name}
+                      style={{ backgroundColor: firstPlace.team.color, boxShadow: style.boxShadow }}
                     >
-                      <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
+                      <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-wider truncate px-1">
                         {firstPlace.team.name}
                       </span>
                     </div>
-                    <p className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-amber-400 my-1 sm:my-2 drop-shadow-lg">
-                      {firstPlace.totalPoints} <span className="text-xs sm:text-base font-bold text-amber-300/80">pts</span>
+
+                    <p className={`text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black my-1 sm:my-2 drop-shadow-lg ${
+                      isLight ? 'text-amber-900' : 'text-amber-400'
+                    }`}>
+                      {firstPlace.totalPoints} <span className={`text-xs sm:text-base font-bold ${
+                        isLight ? 'text-amber-950' : 'text-amber-300/80'
+                      }`}>pts</span>
                     </p>
+
                     <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 border-t-4 border-x-4 border-amber-300 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.6)] relative overflow-hidden">
-                      <div className="absolute inset-0 bg-white/20 backdrop-blur-[1px]" />
-                      <Trophy className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 text-amber-950 mb-1 relative z-10" />
-                      <span className="text-3xl sm:text-6xl md:text-7xl font-black text-amber-950 relative z-10">1º</span>
-                      <span className="text-[10px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-950 relative z-10 text-center px-1">
+                      <Trophy className="w-7 h-7 sm:w-10 sm:h-10 md:w-14 md:h-14 text-amber-950 mb-1 z-10" />
+                      <span className="text-3xl sm:text-6xl md:text-7xl font-black text-amber-950 z-10">1º</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm uppercase font-black tracking-widest text-amber-950 z-10">
                         Campeã Geral TNB!
                       </span>
                     </div>
@@ -502,31 +491,32 @@ export default function TelaoPage() {
                 );
               })()}
 
-              {/* 3º LUGAR (Bronze) */}
+              {/* 3º Lugar */}
               {thirdPlace && (() => {
                 const style = getTeamStyle(thirdPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
                     <div
                       className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
-                      style={{
-                        backgroundColor: thirdPlace.team.color,
-                        boxShadow: style.boxShadow,
-                      }}
-                      title={thirdPlace.team.name}
+                      style={{ backgroundColor: thirdPlace.team.color, boxShadow: style.boxShadow }}
                     >
-                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {thirdPlace.team.name}
                       </span>
                     </div>
-                    <p className="text-base sm:text-xl md:text-2xl font-black text-amber-500 my-1 sm:my-2">
-                      {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-amber-400/70">pts</span>
+
+                    <p className={`text-base sm:text-xl md:text-2xl font-black my-1 sm:my-2 ${
+                      isLight ? 'text-amber-900' : 'text-amber-500'
+                    }`}>
+                      {thirdPlace.totalPoints} <span className={`text-xs sm:text-sm font-semibold ${
+                        isLight ? 'text-amber-950' : 'text-amber-400/70'
+                      }`}>pts</span>
                     </p>
+
                     <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-gradient-to-t from-amber-900 to-amber-800 border-t-4 border-x-4 border-amber-700 flex flex-col items-center justify-center shadow-xl relative overflow-hidden">
-                      <div className="absolute inset-0 bg-white/5" />
-                      <Award className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-amber-300 mb-0.5 relative z-10" />
-                      <span className="text-xl sm:text-3xl md:text-4xl font-black text-amber-200 relative z-10">3º</span>
-                      <span className="text-[9px] sm:text-[10px] md:text-xs uppercase font-extrabold tracking-widest text-amber-300 relative z-10 text-center px-1">
+                      <Award className="w-5 h-5 sm:w-7 sm:h-7 md:w-9 md:h-9 text-amber-300 mb-0.5 z-10" />
+                      <span className="text-xl sm:text-3xl md:text-4xl font-black text-amber-200 z-10">3º</span>
+                      <span className="text-[9px] sm:text-xs uppercase font-extrabold tracking-widest text-amber-300 z-10">
                         Medalha de Bronze
                       </span>
                     </div>
@@ -534,31 +524,32 @@ export default function TelaoPage() {
                 );
               })()}
 
-              {/* 4º LUGAR (Honra / Participação) */}
+              {/* 4º Lugar */}
               {fourthPlace && (() => {
                 const style = getTeamStyle(fourthPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
                     <div
                       className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
-                      style={{
-                        backgroundColor: fourthPlace.team.color,
-                        boxShadow: style.boxShadow,
-                      }}
-                      title={fourthPlace.team.name}
+                      style={{ backgroundColor: fourthPlace.team.color, boxShadow: style.boxShadow }}
                     >
-                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl xl:text-3xl font-black uppercase tracking-wider whitespace-nowrap overflow-hidden text-ellipsis block text-center px-1">
+                      <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {fourthPlace.team.name}
                       </span>
                     </div>
-                    <p className="text-sm sm:text-lg md:text-xl font-black text-slate-300 my-1 sm:my-2">
-                      {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold text-slate-400">pts</span>
+
+                    <p className={`text-sm sm:text-lg md:text-xl font-black my-1 sm:my-2 ${
+                      isLight ? 'text-slate-800' : 'text-slate-300'
+                    }`}>
+                      {fourthPlace.totalPoints} <span className={`text-xs sm:text-sm font-semibold ${
+                        isLight ? 'text-slate-700' : 'text-slate-400'
+                      }`}>pts</span>
                     </p>
+
                     <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
-                      <div className="absolute inset-0 bg-white/5" />
-                      <Award className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-300 mb-0.5 relative z-10" />
-                      <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 relative z-10">4º</span>
-                      <span className="text-[8px] sm:text-[9px] md:text-[10px] uppercase font-bold tracking-widest text-amber-300/80 relative z-10 text-center px-1">
+                      <Award className="w-4 h-4 sm:w-6 sm:h-6 md:w-8 md:h-8 text-amber-300 mb-0.5 z-10" />
+                      <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-300 z-10">4º</span>
+                      <span className="text-[8px] sm:text-xs uppercase font-bold tracking-widest text-amber-300/80 z-10">
                         Medalha de Honra
                       </span>
                     </div>
@@ -569,10 +560,12 @@ export default function TelaoPage() {
           </div>
         )}
 
-        {/* Demais colocações (se houver mais de 4 equipes) */}
+        {/* Demais Equipes (caso haja > 4) */}
         {otherPlaces.length > 0 && (
           <div className="max-w-4xl mx-auto w-full space-y-2 mt-4">
-            <h4 className="text-xs uppercase tracking-wider font-bold text-slate-400 mb-2">
+            <h4 className={`text-xs uppercase tracking-wider font-bold mb-2 ${
+              isLight ? 'text-slate-700' : 'text-slate-400'
+            }`}>
               Demais Equipes:
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -585,19 +578,13 @@ export default function TelaoPage() {
                   >
                     <div
                       className="absolute inset-y-0 left-0 opacity-20"
-                      style={{
-                        width: `${percentage}%`,
-                        backgroundColor: standing.team.color,
-                      }}
+                      style={{ width: `${percentage}%`, backgroundColor: standing.team.color }}
                     />
                     <div className="relative z-10 flex items-center gap-3">
                       <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-sm">
                         {standing.rank}º
                       </span>
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: standing.team.color }}
-                      />
+                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: standing.team.color }} />
                       <span className="font-bold text-base truncate">{standing.team.name}</span>
                     </div>
                     <div className="relative z-10 text-right">
@@ -613,17 +600,23 @@ export default function TelaoPage() {
       </main>
 
       {/* Footer Telão */}
-      <footer className={`relative z-10 border-t border-white/10 pt-3 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-2 ${
-        isLight ? 'text-sky-100' : 'text-slate-400'
-      }`}>
+      <footer
+        className={`relative z-10 border-t border-white/10 pt-3 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-2 ${
+          isLight ? 'text-slate-800' : 'text-slate-400'
+        }`}
+      >
         <span>© {new Date().getFullYear()} Ministério Infantil Tô na Bênção • IBP</span>
-        <span className={`italic font-bold ${isLight ? 'text-white' : 'text-slate-300'}`}>
-          &quot;Alegrei-me quando me disseram: Vamos à casa do Senhor&quot;
+        <span className={`italic font-bold ${isLight ? 'text-blue-950' : 'text-slate-300'}`}>
+          &ldquo;Alegrei-me quando me disseram: Vamos à casa do Senhor&rdquo; (Salmos 122:1)
         </span>
         <div className="flex items-center gap-3">
-          <Link href="/resultado-final" className="hover:text-amber-300 font-bold transition-colors">Cerimônia Final 🏆</Link>
+          <Link href="/resultado-final" className="hover:text-amber-300 font-bold transition-colors">
+            Cerimônia Final 🏆
+          </Link>
           <span>•</span>
-          <Link href="/" className="hover:text-white transition-colors">Painel Admin</Link>
+          <Link href="/" className="hover:text-white transition-colors">
+            Painel Admin
+          </Link>
         </div>
       </footer>
     </div>

@@ -477,7 +477,7 @@ export function UserManager() {
           </div>
 
           <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-3">
-            💡 <strong>Dica:</strong> Se a pessoa for entrar pelo botão <em>&quot;Entrar com Google&quot;</em>, deixe a senha em branco. Caso use login por e-mail e senha, informe uma senha inicial com pelo menos 6 dígitos.
+            💡 <strong>Dica:</strong> O acesso ao app é realizado exclusivamente pelo botão <em>&quot;Entrar com Google&quot;</em>. Cadastre o e-mail da conta Google do voluntário para liberação imediata.
           </p>
 
           <div className="flex items-center justify-end gap-2 pt-4">

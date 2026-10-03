@@ -8,18 +8,23 @@ import { Trophy, Medal, Award, Crown, Maximize2, Minimize2, ArrowLeft, Sparkles,
 import confetti from 'canvas-confetti';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
-function getTeamStyle(team: { name: string; color: string }) {
+function getTeamStyle(team?: { name?: string; color?: string } | null) {
+  const name = (team?.name || '').toLowerCase();
+  const color = (team?.color || '').toLowerCase();
+
   const isWhite =
-    team.name.toLowerCase().includes('branc') ||
-    team.color.toLowerCase() === '#ffffff' ||
-    team.color.toLowerCase() === '#fff' ||
-    team.color.toLowerCase() === '#f8fafc' ||
-    team.color.toLowerCase() === '#e2e8f0';
+    name.includes('branc') ||
+    color === '#ffffff' ||
+    color === '#fff' ||
+    color === '#f8fafc' ||
+    color === '#e2e8f0';
 
   const isYellow =
-    team.name.toLowerCase().includes('amar') ||
-    team.color.toLowerCase() === '#f59e0b' ||
-    team.color.toLowerCase() === '#eab308';
+    name.includes('amar') ||
+    color === '#f59e0b' ||
+    color === '#eab308';
+
+  const teamColor = team?.color || '#0284c7';
 
   return {
     isWhite,
@@ -30,7 +35,7 @@ function getTeamStyle(team: { name: string; color: string }) {
       : 'border-2 border-white/60 shadow-md',
     boxShadow: isWhite
       ? '0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px #94a3b8, 0 12px 30px -3px rgba(0,0,0,0.4)'
-      : `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${team.color}, 0 12px 30px -3px ${team.color}90`,
+      : `0 0 0 4px rgba(255, 255, 255, 0.95), 0 0 0 8px ${teamColor}, 0 12px 30px -3px ${teamColor}90`,
   };
 }
 

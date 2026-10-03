@@ -129,13 +129,15 @@ export function TaskCompletionAlert({
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {missingTeams.map(({ team, scoresCount, notStarted, missingRounds }) => {
+                      const teamName = team?.name || 'Equipe';
+                      const teamColor = team?.color || '#0284c7';
                       const isWhite =
-                        (team.name || '').toLowerCase().includes('branc') ||
-                        (team.color || '').toLowerCase() === '#ffffff';
+                        teamName.toLowerCase().includes('branc') ||
+                        teamColor.toLowerCase() === '#ffffff';
 
                       return (
                         <div
-                          key={team.id}
+                          key={team?.id || Math.random().toString()}
                           className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80"
                         >
                           <div className="flex items-center gap-2 min-w-0">
@@ -143,11 +145,11 @@ export function TaskCompletionAlert({
                               className={`w-4 h-4 rounded-full flex-shrink-0 border ${
                                 isWhite ? 'border-slate-400' : 'border-transparent'
                               }`}
-                              style={{ backgroundColor: team.color }}
+                              style={{ backgroundColor: teamColor }}
                             />
                             <div className="min-w-0">
                               <p className="text-xs font-black text-slate-900 dark:text-white truncate">
-                                {team.name}
+                                {teamName}
                               </p>
                               <p className="text-[11px] font-bold text-rose-700 dark:text-rose-400">
                                 {notStarted
@@ -161,9 +163,9 @@ export function TaskCompletionAlert({
 
                           <button
                             type="button"
-                            onClick={() => onOpenScoreModal(team.id, activity.id)}
+                            onClick={() => onOpenScoreModal(team?.id, activity?.id)}
                             className="px-3 py-1.5 rounded-xl font-black text-xs text-white bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:brightness-110 shadow-sm cursor-pointer flex items-center gap-1 active:scale-95 flex-shrink-0"
-                            title={`Lançar pontos agora para ${team.name} nesta prova`}
+                            title={`Lançar pontos agora para ${teamName} nesta prova`}
                           >
                             <Plus className="w-3.5 h-3.5 stroke-[3]" />
                             <span>Lançar</span>
@@ -183,14 +185,14 @@ export function TaskCompletionAlert({
                     </span>
                     {completedTeams.map(({ team, scoresCount }) => (
                       <span
-                        key={team.id}
+                        key={team?.id || Math.random().toString()}
                         className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-black bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                       >
                         <span
                           className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: team.color }}
+                          style={{ backgroundColor: team?.color || '#0284c7' }}
                         />
-                        <span>{team.name}</span>
+                        <span>{team?.name || 'Equipe'}</span>
                         <span>({scoresCount}p)</span>
                       </span>
                     ))}

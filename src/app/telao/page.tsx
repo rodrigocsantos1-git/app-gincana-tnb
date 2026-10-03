@@ -17,9 +17,12 @@ import {
   Star,
   ListOrdered,
   LayoutGrid,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
+import { useTheme } from '@/components/ThemeProvider';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
@@ -55,6 +58,8 @@ function getTeamStyle(team?: { name?: string; color?: string } | null) {
 
 export default function TelaoPage() {
   const { standings, scores, realtimeConnected } = useGincanaData();
+  const { theme, toggleTheme } = useTheme();
+  const isLight = theme === 'light';
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewMode, setViewMode] = useState<'linhas' | 'podio'>('linhas');
 
@@ -93,12 +98,18 @@ export default function TelaoPage() {
   const hasFourTeams = standings.length >= 4;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden">
+    <div
+      className={`min-h-screen text-white flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden transition-colors duration-500 ${
+        isLight
+          ? 'bg-gradient-to-br from-[#0284c7] via-[#0369a1] to-[#075985]'
+          : 'bg-slate-950'
+      }`}
+    >
       {/* Background Orbs */}
       <div className="fixed inset-0 pointer-events-none opacity-25">
-        <div className="absolute top-10 left-10 w-96 h-96 bg-[#78c8fb] rounded-full blur-[140px]" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#bb94ff] rounded-full blur-[140px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#5b21b6] rounded-full blur-[160px]" />
+        <div className={`absolute top-10 left-10 w-96 h-96 ${isLight ? 'bg-sky-300' : 'bg-[#78c8fb]'} rounded-full blur-[140px]`} />
+        <div className={`absolute bottom-10 right-10 w-96 h-96 ${isLight ? 'bg-blue-300' : 'bg-[#bb94ff]'} rounded-full blur-[140px]`} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 ${isLight ? 'bg-cyan-400' : 'bg-[#5b21b6]'} rounded-full blur-[160px]`} />
       </div>
 
       {/* Top Bar Telão */}
@@ -132,7 +143,7 @@ export default function TelaoPage() {
                   AO VIVO
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-400 font-medium">
+              <p className={`text-xs sm:text-sm font-medium ${isLight ? 'text-sky-100' : 'text-slate-400'}`}>
                 Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
               </p>
               <p className="text-sm sm:text-base md:text-lg font-bold text-amber-200/95 italic leading-snug mt-1 max-w-3xl drop-shadow-sm">
@@ -144,6 +155,26 @@ export default function TelaoPage() {
 
         {/* Controles de Apresentação e Alternância */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+          {/* Alternador de Modo Claro (Azul TNB) / Modo Noturno */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-md"
+            title={isLight ? 'Mudar para Modo Noturno (Escuro)' : 'Mudar para Modo Claro (Azul TNB)'}
+            aria-label="Alternar entre tema Claro (Azul TNB) e Escuro"
+          >
+            {isLight ? (
+              <>
+                <Moon className="w-4 h-4 text-sky-200" />
+                <span className="hidden sm:inline text-sky-100 font-extrabold">Escuro</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-4 h-4 text-amber-400" />
+                <span className="hidden sm:inline text-amber-300 font-extrabold">Claro (Azul)</span>
+              </>
+            )}
+          </button>
+
           {/* Player de Áudio com Ícone de Vinil */}
           <VinylAudioPlayer />
 
@@ -551,9 +582,13 @@ export default function TelaoPage() {
       </main>
 
       {/* Footer Telão */}
-      <footer className="relative z-10 border-t border-white/10 pt-3 text-center text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className={`relative z-10 border-t border-white/10 pt-3 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-2 ${
+        isLight ? 'text-sky-100' : 'text-slate-400'
+      }`}>
         <span>© {new Date().getFullYear()} Ministério Infantil Tô na Bênção • IBP</span>
-        <span className="italic">&quot;Crianças com os olhos fixos em Jesus!&quot;</span>
+        <span className={`italic font-bold ${isLight ? 'text-white' : 'text-slate-300'}`}>
+          &quot;Alegrei-me quando me disseram: Vamos à casa do Senhor&quot;
+        </span>
         <div className="flex items-center gap-3">
           <Link href="/resultado-final" className="hover:text-amber-300 font-bold transition-colors">Cerimônia Final 🏆</Link>
           <span>•</span>

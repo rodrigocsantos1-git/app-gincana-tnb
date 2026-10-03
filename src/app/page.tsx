@@ -341,8 +341,8 @@ export default function HomePage() {
         <p>
           © {new Date().getFullYear()} <strong>Tô na Bênção (TNB)</strong> • Igreja Bíblica da Paz
         </p>
-        <p className="text-[11px] mt-1 opacity-75">
-          &quot;Crianças com os olhos fixos em Jesus!&quot; • Desenvolvido para o Acampamento TNB
+        <p className="text-[11px] mt-1 opacity-75 font-medium">
+          &quot;Alegrei-me quando me disseram: Vamos à casa do Senhor&quot; • Desenvolvido para o Acampamento TNB
         </p>
       </footer>
     </div>

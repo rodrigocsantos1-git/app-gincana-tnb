@@ -137,4 +137,4 @@ O projeto está 100% configurado para deploy gratuito na **Vercel**.
 ## 📜 Licença e Créditos
 
 Desenvolvido para o **Ministério Infantil Tô na Bênção (TNB)** da **Igreja Bíblica da Paz (IBP)**.
-*"Crianças com os olhos fixos em Jesus!"*
+*"Alegrei-me quando me disseram: Vamos à casa do Senhor"*

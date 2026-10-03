@@ -1,24 +1,63 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
-import { Volume2, VolumeX, Play, Pause, Music, Sparkles } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Volume2, VolumeX, Play, Pause, Music } from 'lucide-react';
 
 interface VinylAudioPlayerProps {
   audioSrc?: string;
   label?: string;
   className?: string;
+  autoPlay?: boolean;
 }
 
 export function VinylAudioPlayer({
-  audioSrc = '/Audio_Acampa.mp3',
-  label = 'Áudio Acampa',
+  audioSrc = '/Mais que Vencedores.mpeg',
+  label = 'Mais que Vencedores',
   className = '',
+  autoPlay = true,
 }: VinylAudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.85);
   const [isMuted, setIsMuted] = useState(false);
   const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Tentativa segura de reproduzir o áudio
+  const startAudioPlayback = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      audio.volume = isMuted ? 0 : volume;
+      await audio.play();
+      setIsPlaying(true);
+      setHasError(false);
+    } catch (err) {
+      console.log('Autoplay bloqueado pelo navegador aguardando interação do usuário:', err);
+      // Registra gatilho na primeira interação do usuário na página
+      const handleUserGesture = () => {
+        if (audioRef.current) {
+          audioRef.current.play().then(() => {
+            setIsPlaying(true);
+            setHasError(false);
+          }).catch(() => {});
+        }
+        cleanupGestureListeners();
+      };
+
+      const cleanupGestureListeners = () => {
+        window.removeEventListener('click', handleUserGesture);
+        window.removeEventListener('touchstart', handleUserGesture);
+        window.removeEventListener('pointerdown', handleUserGesture);
+        window.removeEventListener('keydown', handleUserGesture);
+      };
+
+      window.addEventListener('click', handleUserGesture, { once: true });
+      window.addEventListener('touchstart', handleUserGesture, { once: true });
+      window.addEventListener('pointerdown', handleUserGesture, { once: true });
+      window.addEventListener('keydown', handleUserGesture, { once: true });
+    }
+  }, [isMuted, volume]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -32,13 +71,25 @@ export function VinylAudioPlayer({
       setIsPlaying(true);
       setHasError(false);
     };
+
+    const fallbackSources = [
+      '/Mais que Vencedores.mpeg',
+      '/Mais_que_Vencedores.mpeg',
+      '/Mais que Vencedores.mp3',
+      '/Mais_que_Vencedores.mp3',
+      '/Audio_Acampa.mpeg',
+      '/Audio_Acampa.mp3',
+    ];
+
     const handleError = () => {
-      // Tenta fallback para .mpeg caso falhe no .mp3
-      if (audio.src.endsWith('.mp3')) {
-        audio.src = '/Audio_Acampa.mpeg';
+      const currentSrc = audio.currentSrc || audio.src;
+      // Procura próxima fonte disponível
+      const nextSource = fallbackSources.find((src) => !currentSrc.includes(encodeURI(src)) && !currentSrc.includes(src));
+      if (nextSource) {
+        audio.src = nextSource;
         audio.load();
-        if (isPlaying) {
-          audio.play().catch(() => setHasError(true));
+        if (isPlaying || autoPlay) {
+          audio.play().catch(() => {});
         }
       } else {
         setHasError(true);
@@ -51,13 +102,18 @@ export function VinylAudioPlayer({
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('error', handleError);
 
+    // Se autoPlay ativado, inicia imediatamente ao entrar na tela
+    if (autoPlay) {
+      startAudioPlayback();
+    }
+
     return () => {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('error', handleError);
     };
-  }, [volume, isMuted, isPlaying]);
+  }, [autoPlay, startAudioPlayback, volume, isMuted, isPlaying]);
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -65,15 +121,8 @@ export function VinylAudioPlayer({
       audioRef.current.pause();
     } else {
       audioRef.current.play().catch((err) => {
-        console.warn('Autoplay prevented or audio error:', err);
-        // Tenta fallback .mpeg se ainda não tentou
-        if (audioRef.current && audioRef.current.src.endsWith('.mp3')) {
-          audioRef.current.src = '/Audio_Acampa.mpeg';
-          audioRef.current.load();
-          audioRef.current.play().catch(() => setHasError(true));
-        } else {
-          setHasError(true);
-        }
+        console.warn('Falha ao iniciar áudio:', err);
+        setHasError(true);
       });
     }
   };
@@ -89,8 +138,12 @@ export function VinylAudioPlayer({
   return (
     <div className={`relative inline-flex items-center ${className}`}>
       {/* Audio Element invisível */}
-      <audio ref={audioRef} preload="metadata">
+      <audio ref={audioRef} preload="auto" autoPlay={autoPlay}>
         <source src={audioSrc} type="audio/mpeg" />
+        <source src="/Mais que Vencedores.mpeg" type="audio/mpeg" />
+        <source src="/Mais_que_Vencedores.mpeg" type="audio/mpeg" />
+        <source src="/Mais que Vencedores.mp3" type="audio/mp3" />
+        <source src="/Mais_que_Vencedores.mp3" type="audio/mp3" />
         <source src="/Audio_Acampa.mpeg" type="audio/mpeg" />
         <source src="/Audio_Acampa.mp3" type="audio/mp3" />
       </audio>
@@ -103,8 +156,8 @@ export function VinylAudioPlayer({
             ? 'bg-purple-950/70 border-purple-400/80 text-white shadow-purple-500/20'
             : 'bg-white/10 hover:bg-white/20 border-white/15 text-slate-200 hover:text-white'
         }`}
-        title={isPlaying ? 'Clique para pausar o Áudio do Acampa' : 'Clique para tocar o Áudio do Acampa'}
-        aria-label="Tocar Áudio do Acampa"
+        title={isPlaying ? `Clique para pausar ${label}` : `Clique para tocar ${label}`}
+        aria-label={`Tocar ${label}`}
       >
         {/* O Disco de Vinil Animado */}
         <div className="relative w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0">
@@ -168,7 +221,7 @@ export function VinylAudioPlayer({
           </div>
 
           <span className="text-[9px] sm:text-[10px] text-slate-300 font-medium truncate">
-            {isPlaying ? 'Toque para pausar' : 'Vinil • Música do Acampa'}
+            {isPlaying ? 'Toque para pausar' : 'Vinil • Mais que Vencedores'}
           </span>
         </div>
 

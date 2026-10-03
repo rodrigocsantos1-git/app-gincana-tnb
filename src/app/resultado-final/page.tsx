@@ -21,10 +21,13 @@ import {
   HelpCircle,
   PartyPopper,
   AlertTriangle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { checkAllActivitiesCompletion } from '@/lib/taskCompletion';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
+import { useTheme } from '@/components/ThemeProvider';
 
 // Helper para definir estilo, contraste e texto preto para equipe branca
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
@@ -60,6 +63,8 @@ function getTeamStyle(team?: { name?: string; color?: string } | null) {
 
 export default function ResultadoFinalPage() {
   const { standings, scores, teams, activities, realtimeConnected } = useGincanaData();
+  const { theme, toggleTheme } = useTheme();
+  const isLight = theme === 'light';
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showPendingDetails, setShowPendingDetails] = useState(false);
 
@@ -196,12 +201,18 @@ export default function ResultadoFinalPage() {
   const isTopTwoRevealed = revealStep >= 3;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden relative">
+    <div
+      className={`min-h-screen text-white flex flex-col justify-between p-3 sm:p-6 md:p-8 select-none overflow-x-hidden relative transition-colors duration-500 ${
+        isLight
+          ? 'bg-gradient-to-br from-[#0284c7] via-[#0369a1] to-[#075985]'
+          : 'bg-slate-950'
+      }`}
+    >
       {/* Luzes Volumétricas e Efeitos Visuais de Fundo */}
       <div className="fixed inset-0 pointer-events-none opacity-25">
-        <div className="absolute top-10 left-10 w-96 h-96 bg-[#78c8fb] rounded-full blur-[140px]" />
-        <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#bb94ff] rounded-full blur-[140px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-[#f59e0b] rounded-full blur-[180px] opacity-30" />
+        <div className={`absolute top-10 left-10 w-96 h-96 ${isLight ? 'bg-sky-300' : 'bg-[#78c8fb]'} rounded-full blur-[140px]`} />
+        <div className={`absolute bottom-10 right-10 w-96 h-96 ${isLight ? 'bg-blue-300' : 'bg-[#bb94ff]'} rounded-full blur-[140px]`} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] ${isLight ? 'bg-amber-300' : 'bg-[#f59e0b]'} rounded-full blur-[180px] opacity-30`} />
       </div>
 
       {/* Barra Superior de Navegação e Controles */}
@@ -236,7 +247,7 @@ export default function ResultadoFinalPage() {
                   CERIMÔNIA
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-400 font-medium">
+              <p className={`text-xs sm:text-sm font-medium ${isLight ? 'text-sky-100' : 'text-slate-400'}`}>
                 Ministério Infantil Tô na Bênção • Treinando Campeões (Filipenses 3:14)
               </p>
               <p className="text-sm sm:text-base md:text-lg font-bold text-amber-200/95 italic leading-snug mt-1 max-w-3xl drop-shadow-sm">
@@ -248,6 +259,26 @@ export default function ResultadoFinalPage() {
 
         {/* Controles de Apresentação e Tela Cheia */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+          {/* Alternador de Modo Claro (Azul TNB) / Modo Noturno */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all cursor-pointer active:scale-95 shadow-md"
+            title={isLight ? 'Mudar para Modo Noturno (Escuro)' : 'Mudar para Modo Claro (Azul TNB)'}
+            aria-label="Alternar entre tema Claro (Azul TNB) e Escuro"
+          >
+            {isLight ? (
+              <>
+                <Moon className="w-4 h-4 text-sky-200" />
+                <span className="hidden sm:inline text-sky-100 font-extrabold">Escuro</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-4 h-4 text-amber-400" />
+                <span className="hidden sm:inline text-amber-300 font-extrabold">Claro (Azul)</span>
+              </>
+            )}
+          </button>
+
           {/* Player de Áudio com Ícone de Vinil */}
           <VinylAudioPlayer />
 
@@ -316,7 +347,7 @@ export default function ResultadoFinalPage() {
                     <span className="font-black text-amber-300">📌 {act.activity.title}:</span>{' '}
                     <span className="text-slate-200">
                       Falta para{' '}
-                      {act.missingTeams.map((m) => `${m.team.name} (${m.scoresCount}/${act.requiredRounds})`).join(', ')}
+                      {act.missingTeams.map((m) => `${m.team?.name || 'Equipe'} (${m.scoresCount}/${act.requiredRounds})`).join(', ')}
                     </span>
                   </div>
                 ))}
@@ -452,14 +483,18 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 2º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-full max-w-[260px] py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest">???</span>
+                  <div className={`w-full max-w-[260px] py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
+                    isLight ? 'bg-white/15 border-white/40 text-white' : 'bg-slate-900 border-slate-700'
+                  }`}>
+                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-200' : 'text-slate-500'}`} />
+                    <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-sky-100' : 'text-slate-500'}`}>???</span>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-600 my-1 sm:my-2">? pts</span>
-                  <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
-                    <span className="text-2xl sm:text-4xl font-black text-slate-700">2º</span>
-                    <span className="text-[9px] sm:text-xs uppercase font-bold text-slate-600 mt-1">Aguardando</span>
+                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${isLight ? 'text-sky-200' : 'text-slate-600'}`}>? pts</span>
+                  <div className={`w-full h-28 sm:h-38 md:h-44 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
+                    isLight ? 'bg-white/10 border-white/30 text-white' : 'bg-slate-900/60 border-slate-800'
+                  }`}>
+                    <span className={`text-2xl sm:text-4xl font-black ${isLight ? 'text-sky-200' : 'text-slate-700'}`}>2º</span>
+                    <span className={`text-[9px] sm:text-xs uppercase font-bold mt-1 ${isLight ? 'text-sky-100' : 'text-slate-600'}`}>Aguardando</span>
                   </div>
                 </div>
               )}
@@ -513,14 +548,18 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 1º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-full max-w-md py-3 sm:py-4 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-amber-500/50 flex items-center justify-center gap-2">
-                    <Trophy className="w-6 h-6 text-amber-500/50 animate-pulse" />
-                    <span className="text-sm sm:text-base font-black text-amber-400/50 uppercase tracking-widest">???</span>
+                  <div className={`w-full max-w-md py-3 sm:py-4 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
+                    isLight ? 'bg-amber-400/20 border-amber-300/60 text-amber-100' : 'bg-slate-900 border-amber-500/50'
+                  }`}>
+                    <Trophy className="w-6 h-6 text-amber-400 animate-pulse" />
+                    <span className="text-sm sm:text-base font-black text-amber-300 uppercase tracking-widest">???</span>
                   </div>
-                  <span className="text-sm sm:text-base font-black text-amber-500/40 my-1 sm:my-2">? pts</span>
-                  <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-amber-500/30 flex flex-col items-center justify-center">
-                    <span className="text-3xl sm:text-6xl font-black text-slate-700">1º</span>
-                    <span className="text-[10px] sm:text-xs uppercase font-bold text-amber-500/50 mt-1">O Grande Campeão</span>
+                  <span className={`text-sm sm:text-base font-black my-1 sm:my-2 ${isLight ? 'text-amber-200' : 'text-amber-500/40'}`}>? pts</span>
+                  <div className={`w-full h-36 sm:h-52 md:h-60 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
+                    isLight ? 'bg-amber-400/15 border-amber-300/40' : 'bg-slate-900/60 border-amber-500/30'
+                  }`}>
+                    <span className={`text-3xl sm:text-6xl font-black ${isLight ? 'text-amber-200' : 'text-slate-700'}`}>1º</span>
+                    <span className={`text-[10px] sm:text-xs uppercase font-bold mt-1 ${isLight ? 'text-amber-200' : 'text-amber-500/50'}`}>O Grande Campeão</span>
                   </div>
                 </div>
               )}
@@ -571,14 +610,18 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 3º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
-                    <span className="text-xs sm:text-sm font-bold text-slate-500 uppercase tracking-widest">???</span>
+                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
+                    isLight ? 'bg-white/15 border-white/40 text-white' : 'bg-slate-900 border-slate-700'
+                  }`}>
+                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-200' : 'text-slate-500'}`} />
+                    <span className={`text-xs sm:text-sm font-bold uppercase tracking-widest ${isLight ? 'text-sky-100' : 'text-slate-500'}`}>???</span>
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-600 my-1 sm:my-2">? pts</span>
-                  <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
-                    <span className="text-xl sm:text-3xl font-black text-slate-700">3º</span>
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-slate-600 mt-1">Aguardando</span>
+                  <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${isLight ? 'text-sky-200' : 'text-slate-600'}`}>? pts</span>
+                  <div className={`w-full h-22 sm:h-30 md:h-36 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
+                    isLight ? 'bg-white/10 border-white/30 text-white' : 'bg-slate-900/60 border-slate-800'
+                  }`}>
+                    <span className={`text-xl sm:text-3xl font-black ${isLight ? 'text-sky-200' : 'text-slate-700'}`}>3º</span>
+                    <span className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 ${isLight ? 'text-sky-100' : 'text-slate-600'}`}>Aguardando</span>
                   </div>
                 </div>
               )}
@@ -629,14 +672,18 @@ export default function ResultadoFinalPage() {
               ) : (
                 /* Card de Suspense - 4º Lugar */
                 <div className="flex flex-col items-center w-full opacity-60">
-                  <div className="w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl bg-slate-900 border-2 border-dashed border-slate-700 flex items-center justify-center gap-2">
-                    <HelpCircle className="w-5 h-5 text-slate-500 animate-pulse" />
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">???</span>
+                  <div className={`w-full max-w-sm py-2.5 sm:py-3.5 px-3 rounded-2xl sm:rounded-3xl border-2 border-dashed flex items-center justify-center gap-2 ${
+                    isLight ? 'bg-white/15 border-white/40 text-white' : 'bg-slate-900 border-slate-700'
+                  }`}>
+                    <HelpCircle className={`w-5 h-5 animate-pulse ${isLight ? 'text-sky-200' : 'text-slate-500'}`} />
+                    <span className={`text-xs font-bold uppercase tracking-widest ${isLight ? 'text-sky-100' : 'text-slate-500'}`}>???</span>
                   </div>
-                  <span className="text-xs font-bold text-slate-600 my-1 sm:my-2">? pts</span>
-                  <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-slate-900/60 border-t-2 border-x-2 border-dashed border-slate-800 flex flex-col items-center justify-center">
-                    <span className="text-lg sm:text-2xl font-black text-slate-700">4º</span>
-                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 mt-1">Aguardando</span>
+                  <span className={`text-xs font-bold my-1 sm:my-2 ${isLight ? 'text-sky-200' : 'text-slate-600'}`}>? pts</span>
+                  <div className={`w-full h-18 sm:h-24 md:h-28 rounded-t-3xl border-t-2 border-x-2 border-dashed flex flex-col items-center justify-center ${
+                    isLight ? 'bg-white/10 border-white/30 text-white' : 'bg-slate-900/60 border-slate-800'
+                  }`}>
+                    <span className={`text-lg sm:text-2xl font-black ${isLight ? 'text-sky-200' : 'text-slate-700'}`}>4º</span>
+                    <span className={`text-[8px] sm:text-[9px] uppercase font-bold mt-1 ${isLight ? 'text-sky-100' : 'text-slate-600'}`}>Aguardando</span>
                   </div>
                 </div>
               )}
@@ -646,9 +693,13 @@ export default function ResultadoFinalPage() {
       </main>
 
       {/* Rodapé Oficial da Cerimônia */}
-      <footer className="relative z-20 border-t border-white/10 pt-3 text-center text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <footer className={`relative z-20 border-t border-white/10 pt-3 text-center text-xs flex flex-col sm:flex-row items-center justify-between gap-2 ${
+        isLight ? 'text-sky-100' : 'text-slate-400'
+      }`}>
         <span>© {new Date().getFullYear()} Ministério Infantil Tô na Bênção • IBP</span>
-        <span className="italic font-bold text-slate-300">&quot;Crianças com os olhos fixos em Jesus!&quot;</span>
+        <span className={`italic font-bold ${isLight ? 'text-white' : 'text-slate-300'}`}>
+          &quot;Alegrei-me quando me disseram: Vamos à casa do Senhor&quot;
+        </span>
         <div className="flex items-center gap-3">
           <Link href="/telao" className="hover:text-white transition-colors">Telão Geral</Link>
           <span>•</span>

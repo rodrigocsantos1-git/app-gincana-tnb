@@ -54,24 +54,45 @@ export interface ActivityCompletionStatus {
 
 export function checkActivityCompletion(
   activity: Activity,
-  teams: Team[],
-  scores: Score[]
+  teams: Team[] = [],
+  scores: Score[] = []
 ): ActivityCompletionStatus {
+  if (!activity || !activity.id) {
+    return {
+      activity: activity || { id: '', title: '', description: '', points: 0 },
+      requiredRounds: 1,
+      isCaboDeGuerra: false,
+      hasAnyScore: false,
+      completedTeams: [],
+      missingTeams: [],
+      allTeamsStatus: [],
+      isFullyCompleted: false,
+      isIncomplete: false,
+    };
+  }
+
+  const validTeams = (teams || []).filter((t): t is Team => Boolean(t && t.id));
+  const validScores = (scores || []).filter((s): s is Score => Boolean(s && s.id));
+
   const isCaboDeGuerra = (activity.title || '').toLowerCase().includes('cabo de guerra');
   const roundLimit = getActivityRoundLimit(activity);
   const requiredRounds = isCaboDeGuerra ? 1 : roundLimit || 1;
 
-  const actScores = scores.filter((s) => s.activity_id === activity.id);
+  const actScores = validScores.filter((s) => s.activity_id === activity.id);
   const hasAnyScore = actScores.length > 0;
 
-  const allTeamsStatus: TeamTaskStatus[] = teams.map((team) => {
+  const allTeamsStatus: TeamTaskStatus[] = validTeams.map((team) => {
     const teamScores = actScores.filter((s) => s.team_id === team.id);
     const count = teamScores.length;
     const isCompleted = count >= requiredRounds;
-    const totalPoints = teamScores.reduce((sum, s) => sum + (s.points || 0), 0);
+    const totalPoints = teamScores.reduce((sum, s) => sum + (Number(s.points) || 0), 0);
 
     return {
-      team,
+      team: {
+        ...team,
+        name: team.name || 'Equipe',
+        color: team.color || '#0284c7',
+      },
       scoresCount: count,
       requiredRounds,
       isCompleted,
@@ -84,7 +105,7 @@ export function checkActivityCompletion(
   const completedTeams = allTeamsStatus.filter((t) => t.isCompleted);
   const missingTeams = allTeamsStatus.filter((t) => !t.isCompleted);
 
-  const isFullyCompleted = teams.length > 0 && missingTeams.length === 0;
+  const isFullyCompleted = validTeams.length > 0 && missingTeams.length === 0;
   const isIncomplete = hasAnyScore && missingTeams.length > 0;
 
   return {
@@ -101,11 +122,17 @@ export function checkActivityCompletion(
 }
 
 export function checkAllActivitiesCompletion(
-  activities: Activity[],
-  teams: Team[],
-  scores: Score[]
+  activities: Activity[] = [],
+  teams: Team[] = [],
+  scores: Score[] = []
 ) {
-  const allStatuses = activities.map((act) => checkActivityCompletion(act, teams, scores));
+  const validActivities = (activities || []).filter((a): a is Activity => Boolean(a && a.id));
+  const validTeams = (teams || []).filter((t): t is Team => Boolean(t && t.id));
+  const validScores = (scores || []).filter((s): s is Score => Boolean(s && s.id));
+
+  const allStatuses = validActivities.map((act) =>
+    checkActivityCompletion(act, validTeams, validScores)
+  );
 
   const incompleteActivities = allStatuses.filter((s) => s.isIncomplete);
   const completedActivities = allStatuses.filter((s) => s.isFullyCompleted);
@@ -117,6 +144,6 @@ export function checkAllActivitiesCompletion(
     completedActivities,
     notStartedActivities,
     hasAnyIncomplete: incompleteActivities.length > 0,
-    totalActivities: activities.length,
+    totalActivities: validActivities.length,
   };
 }

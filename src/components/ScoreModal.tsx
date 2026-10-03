@@ -172,20 +172,27 @@ export function ScoreModal({
     }
   }, [isOpen, initialTeamId, initialActivityId, teams, activities]);
 
+  const selectedActivity = useMemo(
+    () => activities.find((a) => a.id === selectedActivityId),
+    [activities, selectedActivityId]
+  );
+  const selectedTeam = useMemo(
+    () => teams.find((t) => t.id === selectedTeamId),
+    [teams, selectedTeamId]
+  );
+
+  // Status de conclusão da atividade atual por equipe (chamado incondicionalmente no topo de hooks)
+  const activityCompletion = useMemo(() => {
+    if (!selectedActivity || !teams || teams.length === 0) return null;
+    return checkActivityCompletion(selectedActivity, teams, scores);
+  }, [selectedActivity, teams, scores]);
+
   if (!isOpen) return null;
 
-  const selectedActivity = activities.find((a) => a.id === selectedActivityId);
-  const selectedTeam = teams.find((t) => t.id === selectedTeamId);
   const currentTeamPoints = selectedTeamId ? teamPointsMap.get(selectedTeamId) ?? 0 : 0;
   const numPoints = points === '' ? 0 : Number(points);
   const willBeNegative = numPoints < 0 && currentTeamPoints + numPoints < 0;
   const isCaboDeGuerra = (selectedActivity?.title || '').toLowerCase().includes('cabo de guerra');
-
-  // Status de conclusão da atividade atual por equipe
-  const activityCompletion = useMemo(() => {
-    if (!selectedActivity || teams.length === 0) return null;
-    return checkActivityCompletion(selectedActivity, teams, scores);
-  }, [selectedActivity, teams, scores]);
 
   // Gerador de botões de colocação conforme o regulamento oficial da prova
   const getPlacementPresets = (activity?: Activity) => {
@@ -689,13 +696,16 @@ export function ScoreModal({
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {activityCompletion.missingTeams.map(({ team, scoresCount, requiredRounds, notStarted }) => {
-                        const isSelected = selectedTeamId === team.id;
+                        const tId = team?.id || '';
+                        const tName = team?.name || 'Equipe';
+                        const tColor = team?.color || '#0284c7';
+                        const isSelected = selectedTeamId === tId;
                         return (
                           <button
                             type="button"
-                            key={team.id}
+                            key={tId || Math.random().toString()}
                             onClick={() => {
-                              setSelectedTeamId(team.id);
+                              if (tId) setSelectedTeamId(tId);
                               setErrorMsg(null);
                               if (editingRoundScore) handleCancelRoundEdit();
                             }}
@@ -705,8 +715,8 @@ export function ScoreModal({
                                 : 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-amber-300 dark:border-amber-700 hover:scale-105 active:scale-95'
                             }`}
                           >
-                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: team.color }} />
-                            <span>{team.name}</span>
+                            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: tColor }} />
+                            <span>{tName}</span>
                             <span className={`text-[10px] px-1.5 py-0.2 rounded-md ${
                               isSelected ? 'bg-white/20 text-white' : 'bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200'
                             }`}>

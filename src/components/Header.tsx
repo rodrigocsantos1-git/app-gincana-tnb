@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useTheme } from './ThemeProvider';
 import { useAuth } from './AuthContext';
-import { Sun, Moon, Tv, Wifi, WifiOff, Sparkles, LogOut } from 'lucide-react';
+import { Sun, Moon, Tv, Wifi, WifiOff, Sparkles, LogOut, Trophy } from 'lucide-react';
 
 interface HeaderProps {
   realtimeConnected: boolean;
@@ -103,6 +103,18 @@ export function Header({
             >
               <Tv className="w-4 h-4 text-[#78c8fb]" />
               <span className="hidden md:inline">Telão</span>
+            </Link>
+
+            {/* Atalho para Cerimônia de Resultado Final */}
+            <Link
+              href="/resultado-final"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-xl text-sm font-black bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/60 dark:hover:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60 transition-colors shadow-xs"
+              title="Abrir Cerimônia de Revelação do Resultado Final"
+            >
+              <Trophy className="w-4 h-4 text-amber-500" />
+              <span className="hidden xl:inline">Resultado Final</span>
             </Link>
 
             {/* Alternador de Tema Claro/Escuro */}

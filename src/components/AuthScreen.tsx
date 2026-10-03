@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from './AuthContext';
-import { AlertCircle, Tv, Sparkles, RefreshCw, ShieldCheck } from 'lucide-react';
+import { AlertCircle, Tv, Sparkles, RefreshCw, ShieldCheck, Trophy } from 'lucide-react';
 
 export function AuthScreen() {
   const { signInWithGoogle } = useAuth();
@@ -119,14 +119,22 @@ export function AuthScreen() {
           </div>
         </div>
 
-        {/* Atalho Público para o Telão */}
-        <div className="mt-8 pt-5 border-t border-slate-100 dark:border-slate-800 text-center">
+        {/* Atalhos Públicos para Apresentação e Telão */}
+        <div className="mt-8 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-center">
           <Link
             href="/telao"
             className="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0284c7] dark:text-slate-400 dark:hover:text-[#78c8fb] transition-colors py-1.5 px-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <Tv className="w-4 h-4" />
-            <span>Abrir Modo Telão sem Login</span>
+            <span>Modo Telão</span>
+          </Link>
+          <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
+          <Link
+            href="/resultado-final"
+            className="inline-flex items-center gap-2 text-xs font-black text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition-colors py-1.5 px-3 rounded-xl hover:bg-amber-50 dark:hover:bg-amber-950/40"
+          >
+            <Trophy className="w-4 h-4" />
+            <span>Cerimônia do Resultado Final</span>
           </Link>
         </div>
       </div>

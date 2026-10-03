@@ -605,7 +605,7 @@ export default function ResultadoFinalPage() {
                 : isLight ? 'text-sky-800' : 'text-[#78c8fb]'
             }`}>
               {isDrumming
-                ? `🥁 Rufando os Tambores (${repetitionCount} de ${totalRepetitions})`
+                ? '🥁 Rufando os Tambores...'
                 : revealStep === 0 ? 'Passo 0 de 3 • Aguardando Início'
                 : revealStep === 1 ? 'Passo 1 de 3 • 4º Lugar Revelado'
                 : revealStep === 2 ? 'Passo 2 de 3 • 3º Lugar Revelado'
@@ -654,7 +654,7 @@ export default function ResultadoFinalPage() {
                 <>
                   <Drum className="w-5 h-5 text-amber-950 animate-bounce" />
                   <span>
-                    🥁 Rufando Tambores... ({repetitionCount} de {totalRepetitions})
+                    🥁 Rufando os Tambores...
                   </span>
                 </>
               ) : revealStep === 0 ? (
@@ -745,7 +745,7 @@ export default function ResultadoFinalPage() {
                       <>
                         <Drum className="w-5 h-5 text-slate-950 animate-bounce" />
                         <span className="text-xs sm:text-sm font-black uppercase tracking-wider">
-                          FINAL ({repetitionCount}/{totalRepetitions})
+                          RUFANDO OS TAMBORES...
                         </span>
                       </>
                     ) : (
@@ -758,7 +758,7 @@ export default function ResultadoFinalPage() {
                   <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
                     isDrummingTop ? 'text-slate-200 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    {isDrummingTop ? '🥁 Rufando...' : '? pts'}
+                    {isDrummingTop ? '🥁 Rufando os Tambores!' : '? pts'}
                   </span>
                   <div className={`w-full h-28 sm:h-38 md:h-44 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
                     isDrummingTop
@@ -767,7 +767,7 @@ export default function ResultadoFinalPage() {
                   }`}>
                     <span className={`text-2xl sm:text-4xl font-black ${isDrummingTop ? 'text-slate-200' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>2º</span>
                     <span className={`text-[9px] sm:text-xs uppercase font-bold mt-1 ${isDrummingTop ? 'text-slate-300' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
-                      {isDrummingTop ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'Aguardando'}
+                      {isDrummingTop ? 'Rufando os Tambores' : 'Aguardando'}
                     </span>
                   </div>
                 </div>
@@ -831,10 +831,21 @@ export default function ResultadoFinalPage() {
                       ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-slate-950 border-amber-300 ring-4 ring-amber-400 shadow-[0_0_50px_rgba(251,191,36,0.8)] animate-pulse'
                       : isLight ? 'bg-amber-300/40 border-amber-400 text-amber-950 border-dashed shadow-md' : 'bg-slate-900 border-amber-500/50 border-dashed'
                   }`}>
-                    <Crown className="w-6 h-6 text-amber-950 animate-bounce" />
-                    <span className="text-sm sm:text-lg font-black text-amber-950 uppercase tracking-wider">
-                      {isDrummingTop ? `👑 CAMPEÃO (${repetitionCount}/${totalRepetitions})` : '???'}
-                    </span>
+                    {isDrummingTop ? (
+                      <>
+                        <Drum className="w-6 h-6 text-amber-950 animate-bounce" />
+                        <span className="text-sm sm:text-lg font-black text-amber-950 uppercase tracking-wider">
+                          👑 RUFANDO OS TAMBORES...
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Crown className="w-6 h-6 text-amber-950 animate-bounce" />
+                        <span className="text-sm sm:text-lg font-black text-amber-950 uppercase tracking-wider">
+                          ???
+                        </span>
+                      </>
+                    )}
                   </div>
                   <span className={`text-sm sm:text-base font-black my-1 sm:my-2 ${
                     isDrummingTop ? 'text-amber-400 font-black animate-pulse drop-shadow-md' : isLight ? 'text-amber-900' : 'text-amber-500/40'
@@ -848,7 +859,7 @@ export default function ResultadoFinalPage() {
                   }`}>
                     <span className={`text-3xl sm:text-6xl font-black ${isDrummingTop ? 'text-amber-300 animate-pulse' : isLight ? 'text-amber-900' : 'text-slate-700'}`}>1º</span>
                     <span className={`text-[10px] sm:text-xs uppercase font-bold mt-1 ${isDrummingTop ? 'text-amber-200 font-black' : isLight ? 'text-amber-950 font-extrabold' : 'text-amber-500/50'}`}>
-                      {isDrummingTop ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'O Grande Campeão'}
+                      {isDrummingTop ? 'Rufando os Tambores' : 'O Grande Campeão'}
                     </span>
                   </div>
                 </div>
@@ -913,7 +924,7 @@ export default function ResultadoFinalPage() {
                       <>
                         <Drum className="w-5 h-5 text-slate-950 animate-bounce" />
                         <span className="text-xs sm:text-sm font-black uppercase tracking-wider">
-                          RUFANDO ({repetitionCount}/{totalRepetitions})
+                          RUFANDO OS TAMBORES...
                         </span>
                       </>
                     ) : (
@@ -926,7 +937,7 @@ export default function ResultadoFinalPage() {
                   <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
                     isDrumming3rd ? 'text-amber-300 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    {isDrumming3rd ? '🥁 Rufando...' : '? pts'}
+                    {isDrumming3rd ? '🥁 Rufando os Tambores!' : '? pts'}
                   </span>
                   <div className={`w-full h-22 sm:h-30 md:h-36 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
                     isDrumming3rd
@@ -935,7 +946,7 @@ export default function ResultadoFinalPage() {
                   }`}>
                     <span className={`text-xl sm:text-3xl font-black ${isDrumming3rd ? 'text-amber-300' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>3º</span>
                     <span className={`text-[9px] sm:text-[10px] uppercase font-bold mt-1 ${isDrumming3rd ? 'text-amber-200' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
-                      {isDrumming3rd ? `Rufando (${repetitionCount}/${totalRepetitions})` : 'Aguardando'}
+                      {isDrumming3rd ? 'Rufando os Tambores' : 'Aguardando'}
                     </span>
                   </div>
                 </div>
@@ -1013,7 +1024,7 @@ export default function ResultadoFinalPage() {
                   <span className={`text-xs sm:text-sm font-bold my-1 sm:my-2 ${
                     isDrumming4th ? 'text-amber-300 font-black animate-pulse' : isLight ? 'text-slate-700' : 'text-slate-600'
                   }`}>
-                    {isDrumming4th ? '🥁 Rufando...' : '? pts'}
+                    {isDrumming4th ? '🥁 Rufando os Tambores!' : '? pts'}
                   </span>
                   <div className={`w-full h-18 sm:h-24 md:h-28 rounded-t-3xl border-t-2 border-x-2 flex flex-col items-center justify-center ${
                     isDrumming4th
@@ -1022,7 +1033,7 @@ export default function ResultadoFinalPage() {
                   }`}>
                     <span className={`text-lg sm:text-2xl font-black ${isDrumming4th ? 'text-amber-300' : isLight ? 'text-slate-700' : 'text-slate-700'}`}>4º</span>
                     <span className={`text-[8px] sm:text-[9px] uppercase font-bold mt-1 ${isDrumming4th ? 'text-amber-200' : isLight ? 'text-slate-600' : 'text-slate-600'}`}>
-                      {isDrumming4th ? 'Rufando Tambores' : 'Aguardando'}
+                      {isDrumming4th ? 'Rufando os Tambores' : 'Aguardando'}
                     </span>
                   </div>
                 </div>

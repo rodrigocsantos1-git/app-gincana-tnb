@@ -86,11 +86,11 @@ export function Header({
             {/* Botão de Lançar Pontos */}
             <button
               onClick={onOpenScoreModal}
-              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#0284c7] via-[#78c8fb] to-[#bb94ff] hover:opacity-95 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-black text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] hover:brightness-110 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer ring-2 ring-white/40 dark:ring-slate-800 flex-shrink-0"
+              title="Abrir tela de lançamento de pontos"
             >
-              <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">Lançar Ponto</span>
-              <span className="sm:hidden">+ Ponto</span>
+              <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+              <span>Lançar Ponto</span>
             </button>
 
             {/* Atalho para Modo Telão */}
@@ -167,7 +167,7 @@ export function Header({
         {/* Abas de Navegação Principal (Estilo Pill com scroll suave) */}
         <div className="flex items-center space-x-1.5 sm:space-x-3 overflow-x-auto py-2.5 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-none border-t border-slate-100 dark:border-slate-800/60 touch-pan-x">
           {[
-            { id: 'leaderboard', label: '🏆 Placar & Pódio' },
+            { id: 'leaderboard', label: '🏆 Placar Geral' },
             { id: 'teams', label: '🛡️ Equipes' },
             { id: 'activities', label: '🎯 Provas' },
             { id: 'history', label: '📋 Histórico' },

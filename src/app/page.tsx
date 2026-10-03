@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useGincanaData } from '@/hooks/useGincanaData';
 import { Header } from '@/components/Header';
-import { Podium } from '@/components/Podium';
 import { Leaderboard } from '@/components/Leaderboard';
 import { ScoreModal } from '@/components/ScoreModal';
 import { TeamManager } from '@/components/TeamManager';
@@ -13,7 +12,7 @@ import { UserManager } from '@/components/UserManager';
 import { PendingApprovalScreen } from '@/components/PendingApprovalScreen';
 import { useAuth } from '@/components/AuthContext';
 import { AuthScreen } from '@/components/AuthScreen';
-import { Sparkles, Info, RefreshCw, Database } from 'lucide-react';
+import { Sparkles, Info, RefreshCw, Database, Zap } from 'lucide-react';
 
 export default function HomePage() {
   const { user, profile, isAdmin, isApproved, loading: authLoading } = useAuth();
@@ -123,11 +122,67 @@ export default function HomePage() {
             {/* Conteúdo Dinâmico por Aba */}
             {activeTab === 'leaderboard' && (
               <div className="animate-in fade-in duration-300 space-y-6">
-                {/* Pódio dos 3 Primeiros */}
-                <Podium
-                  standings={standings}
-                  onSelectTeamForScore={handleOpenScoreModal}
-                />
+                {/* Painel Estratégico de Lançamento Rápido de Pontos (Otimizado para Celular / Voluntários) */}
+                <div className="rounded-3xl p-4 sm:p-6 bg-gradient-to-br from-white via-sky-50/50 to-purple-50/40 dark:from-slate-900 dark:via-slate-900/95 dark:to-slate-800/80 border-2 border-[#0284c7]/25 dark:border-[#78c8fb]/30 shadow-xl backdrop-blur-md">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="p-1.5 rounded-xl bg-[#0284c7]/15 dark:bg-[#78c8fb]/20 text-[#0284c7] dark:text-[#78c8fb]">
+                          <Zap className="w-5 h-5 fill-current" />
+                        </span>
+                        <h2 className="text-base sm:text-xl font-black text-slate-900 dark:text-white tracking-tight">
+                          Lançamento de Pontos da Gincana
+                        </h2>
+                      </div>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">
+                        Toque no botão principal ou selecione a equipe para registrar a pontuação da rodada:
+                      </p>
+                    </div>
+
+                    {/* Botão de Destaque Máximo */}
+                    <button
+                      onClick={() => handleOpenScoreModal()}
+                      className="w-full sm:w-auto px-6 py-3.5 sm:py-4 rounded-2xl font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] hover:brightness-110 shadow-lg shadow-blue-500/30 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer ring-2 ring-white/60 dark:ring-slate-800"
+                    >
+                      <Sparkles className="w-5 h-5 text-amber-300 animate-pulse" />
+                      <span>Lançar Pontuação Agora</span>
+                    </button>
+                  </div>
+
+                  {/* Atalhos Rápidos com 1 Toque por Equipe */}
+                  {teams.length > 0 && (
+                    <div className="mt-4 pt-3.5 border-t border-slate-200/80 dark:border-slate-800">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+                        Atalhos Rápidos Direto por Equipe:
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                        {teams.map((team) => {
+                          const isWhite = (team.name || '').toLowerCase().includes('branc') || (team.color || '').toLowerCase() === '#ffffff';
+                          const isYellow = (team.name || '').toLowerCase().includes('amar') || (team.color || '').toLowerCase() === '#f59e0b';
+                          const textColor = isWhite ? 'text-slate-950 font-black' : isYellow ? 'text-amber-950 font-black' : 'text-white font-black';
+                          const border = isWhite ? 'border-2 border-slate-400 shadow-xs' : 'border border-white/50 shadow-xs';
+
+                          return (
+                            <button
+                              key={team.id}
+                              onClick={() => handleOpenScoreModal(team.id)}
+                              className={`w-full py-2.5 px-3 rounded-xl flex items-center justify-between gap-1.5 transition-all hover:scale-[1.02] active:scale-95 shadow-md cursor-pointer ${textColor} ${border}`}
+                              style={{ backgroundColor: team.color }}
+                              title={`Lançar pontuação direta para ${team.name}`}
+                            >
+                              <span className="text-xs sm:text-sm font-black uppercase truncate">
+                                {team.name}
+                              </span>
+                              <span className="text-[10px] sm:text-xs font-black bg-black/20 text-white px-2 py-0.5 rounded-full flex-shrink-0">
+                                + Pontuar
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Tabela de Classificação Geral */}
                 <Leaderboard
@@ -188,13 +243,15 @@ export default function HomePage() {
         )}
       </main>
 
-      {/* Botão Flutuante (FAB) Mobile para Lançar Ponto Rapidamente em Campo */}
+      {/* Botão Flutuante Estratégico (FAB) Fixo na Tela para Acesso Imediato no Celular */}
       <button
         onClick={() => handleOpenScoreModal()}
-        className="sm:hidden fixed bottom-6 right-6 z-40 p-4 rounded-full text-white bg-gradient-to-r from-[#0284c7] to-[#bb94ff] shadow-2xl shadow-blue-500/40 active:scale-90 transition-transform flex items-center justify-center cursor-pointer"
-        aria-label="Lançar Pontuação"
+        className="fixed bottom-5 right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5 px-5 py-3.5 sm:px-6 sm:py-4 rounded-full font-black text-sm sm:text-base text-white bg-gradient-to-r from-[#0284c7] via-[#0284c7] to-[#7c3aed] shadow-2xl shadow-blue-500/50 hover:shadow-blue-500/80 hover:scale-105 active:scale-95 transition-all cursor-pointer ring-4 ring-white/80 dark:ring-slate-900/80 group"
+        aria-label="Lançar Pontuação da Gincana"
+        title="Clique para lançar pontos de qualquer tela"
       >
-        <Sparkles className="w-6 h-6" />
+        <Sparkles className="w-5 h-5 text-amber-300 animate-pulse group-hover:rotate-12 transition-transform" />
+        <span className="tracking-wide uppercase font-black">Lançar Ponto</span>
       </button>
 
       {/* Modal de Lançamento de Pontos */}

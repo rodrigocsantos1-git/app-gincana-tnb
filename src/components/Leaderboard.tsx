@@ -222,11 +222,11 @@ export function Leaderboard({
 
                     <button
                       onClick={() => onOpenScoreModal(standing.team.id)}
-                      className="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-100 hover:bg-[#78c8fb]/20 dark:bg-slate-800 dark:hover:bg-[#78c8fb]/20 text-slate-700 dark:text-slate-200 hover:text-[#0284c7] dark:hover:text-[#78c8fb] border border-slate-200 dark:border-slate-700 font-bold text-xs sm:text-sm flex items-center gap-1 transition-all active:scale-95 cursor-pointer"
+                      className="px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-[#0284c7] to-[#0ea5e9] hover:brightness-110 text-white shadow-md font-black text-xs sm:text-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer flex-shrink-0 ring-2 ring-white/40 dark:ring-slate-800"
                       title={`Lançar pontuação para ${standing.team.name}`}
                     >
-                      <Plus className="w-4 h-4" />
-                      <span className="hidden sm:inline">Pontuar</span>
+                      <Plus className="w-4 h-4 stroke-[3]" />
+                      <span>Pontuar</span>
                     </button>
                   </div>
                 </div>

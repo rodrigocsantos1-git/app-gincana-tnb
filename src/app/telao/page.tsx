@@ -434,51 +434,75 @@ export default function TelaoPage() {
                   }}
                 >
                   {/* Bloco 1: Badge de Posição + Logotipo da Equipe + Identificação + Pontuação */}
-                  <div className="relative z-10 flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-shrink-0 xl:min-w-[440px]">
+                  <div className="relative z-10 flex items-center justify-between sm:justify-start gap-3.5 sm:gap-5 flex-shrink-0 xl:min-w-[480px]">
                     {/* Badge da Posição */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 shadow-lg border border-white/20">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 shadow-lg border border-white/20">
                       {displayRank === 1 ? (
                         <div className="w-full h-full rounded-2xl bg-gradient-to-b from-amber-400 to-amber-600 text-amber-950 font-black flex flex-col items-center justify-center shadow-lg border border-amber-300">
-                          <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />
-                          <span className="text-xs sm:text-sm leading-none font-black">1º</span>
+                          <Trophy className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+                          <span className="text-xs sm:text-sm md:text-base leading-none font-black">1º</span>
                         </div>
                       ) : displayRank === 2 ? (
                         <div className="w-full h-full rounded-2xl bg-gradient-to-b from-slate-200 to-slate-400 text-slate-900 font-black flex flex-col items-center justify-center shadow-lg border border-slate-100">
-                          <Medal className="w-5 h-5 sm:w-6 sm:h-6" />
-                          <span className="text-xs sm:text-sm leading-none font-black">2º</span>
+                          <Medal className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+                          <span className="text-xs sm:text-sm md:text-base leading-none font-black">2º</span>
                         </div>
                       ) : displayRank === 3 ? (
                         <div className="w-full h-full rounded-2xl bg-gradient-to-b from-amber-700 to-amber-900 text-amber-100 font-black flex flex-col items-center justify-center shadow-lg border border-amber-600">
-                          <Award className="w-5 h-5 sm:w-6 sm:h-6" />
-                          <span className="text-xs sm:text-sm leading-none font-black">3º</span>
+                          <Award className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
+                          <span className="text-xs sm:text-sm md:text-base leading-none font-black">3º</span>
                         </div>
                       ) : (
                         <div className="w-full h-full rounded-2xl bg-white text-slate-950 font-black flex flex-col items-center justify-center shadow-lg border-2 border-slate-300">
-                          <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-slate-950 text-slate-950" />
-                          <span className="text-xs sm:text-sm leading-none font-black">{displayRank}º</span>
+                          <Star className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 fill-slate-950 text-slate-950" />
+                          <span className="text-xs sm:text-sm md:text-base leading-none font-black">{displayRank}º</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Escudo / Logotipo Oficial da Equipe */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shadow-lg border-2 border-white/30 bg-white/10 flex items-center justify-center flex-shrink-0 relative group-hover:scale-105 transition-transform">
-                      {teamLogo ? (
-                        <Image
-                          src={teamLogo}
-                          alt={`Logotipo da Equipe ${standing.team.name}`}
-                          fill
-                          className="object-contain p-1"
-                          priority={idx < 2}
-                        />
-                      ) : (
-                        <div
-                          className="w-full h-full flex items-center justify-center font-black text-xl sm:text-2xl text-white shadow-inner"
-                          style={{ backgroundColor: standing.team.color }}
-                        >
-                          {standing.team.name.charAt(0).toUpperCase()}
+                    {/* Escudo / Logotipo Oficial da Equipe (Em Destaque Maior) */}
+                    {(() => {
+                      const nameLow = (standing.team.name || '').toLowerCase();
+                      const colorLow = (standing.team.color || '').toLowerCase();
+                      const isWhiteTeam =
+                        nameLow.includes('branc') ||
+                        colorLow === '#ffffff' ||
+                        colorLow === '#fff' ||
+                        colorLow === '#f8fafc' ||
+                        colorLow === '#e2e8f0';
+                      const isYellowTeam =
+                        nameLow.includes('amar') ||
+                        colorLow === '#f59e0b' ||
+                        colorLow === '#eab308';
+                      const letterColor = isWhiteTeam
+                        ? 'text-slate-950 font-black'
+                        : isYellowTeam
+                        ? 'text-amber-950 font-black'
+                        : 'text-white font-black';
+
+                      return (
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-2 border-white/40 bg-white/10 flex items-center justify-center flex-shrink-0 relative group-hover:scale-105 transition-transform">
+                          {teamLogo ? (
+                            <Image
+                              src={teamLogo}
+                              alt={`Logotipo da Equipe ${standing.team.name}`}
+                              fill
+                              className="object-contain p-0.5"
+                              priority={idx < 2}
+                            />
+                          ) : (
+                            <div
+                              className={`w-full h-full flex items-center justify-center ${letterColor} text-3xl sm:text-4xl md:text-5xl font-black shadow-inner ${
+                                isWhiteTeam ? 'border-2 border-slate-300' : ''
+                              }`}
+                              style={{ backgroundColor: standing.team.color }}
+                            >
+                              {standing.team.name.charAt(0).toUpperCase()}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      );
+                    })()}
 
                     {/* Nome e Metadados da Equipe EXATAMENTE como no Painel Administrativo */}
                     <div className="min-w-0">

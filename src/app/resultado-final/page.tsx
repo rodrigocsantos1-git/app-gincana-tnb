@@ -28,6 +28,7 @@ import confetti from 'canvas-confetti';
 import { checkAllActivitiesCompletion } from '@/lib/taskCompletion';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
 import { useTheme } from '@/components/ThemeProvider';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 // Helper de contraste para equipes (garante texto legível para equipe branca e amarela)
 function getTeamStyle(team?: { name?: string; color?: string } | null) {
@@ -644,12 +645,24 @@ export default function ResultadoFinalPage() {
               {isTopTwoRevealed ? (
                 (() => {
                   const style = getTeamStyle(secondPlace.team);
+                  const logo = getTeamLogo(secondPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
+                      {logo && (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                          <Image src={logo} alt={`Logo ${secondPlace.team.name}`} fill className="object-contain p-1" />
+                        </div>
+                      )}
+
                       <div
-                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{ backgroundColor: secondPlace.team.color, boxShadow: style.boxShadow }}
                       >
+                        {logo && (
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        )}
                         <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                           {secondPlace.team.name}
                         </span>
@@ -706,14 +719,26 @@ export default function ResultadoFinalPage() {
               {isTopTwoRevealed ? (
                 (() => {
                   const style = getTeamStyle(firstPlace.team);
+                  const logo = getTeamLogo(firstPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-50 fade-in duration-1000">
                       <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)] mb-1" />
 
+                      {logo && (
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden mb-2 shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-amber-300 bg-white/20 relative hover:scale-105 transition-transform flex-shrink-0">
+                          <Image src={logo} alt={`Logo ${firstPlace.team.name}`} fill className="object-contain p-1" />
+                        </div>
+                      )}
+
                       <div
-                        className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
                         style={{ backgroundColor: firstPlace.team.color, boxShadow: style.boxShadow }}
                       >
+                        {logo && (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/50 bg-white/10">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        )}
                         <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-wider truncate px-1">
                           {firstPlace.team.name}
                         </span>
@@ -770,12 +795,24 @@ export default function ResultadoFinalPage() {
               {isThirdRevealed ? (
                 (() => {
                   const style = getTeamStyle(thirdPlace.team);
+                  const logo = getTeamLogo(thirdPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
+                      {logo && (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                          <Image src={logo} alt={`Logo ${thirdPlace.team.name}`} fill className="object-contain p-1" />
+                        </div>
+                      )}
+
                       <div
-                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{ backgroundColor: thirdPlace.team.color, boxShadow: style.boxShadow }}
                       >
+                        {logo && (
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        )}
                         <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                           {thirdPlace.team.name}
                         </span>
@@ -832,12 +869,24 @@ export default function ResultadoFinalPage() {
               {isFourthRevealed ? (
                 (() => {
                   const style = getTeamStyle(fourthPlace.team);
+                  const logo = getTeamLogo(fourthPlace.team);
                   return (
                     <div className="flex flex-col items-center w-full animate-in zoom-in-75 fade-in duration-700">
+                      {logo && (
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                          <Image src={logo} alt={`Logo ${fourthPlace.team.name}`} fill className="object-contain p-1" />
+                        </div>
+                      )}
+
                       <div
-                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                        className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                         style={{ backgroundColor: fourthPlace.team.color, boxShadow: style.boxShadow }}
                       >
+                        {logo && (
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        )}
                         <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                           {fourthPlace.team.name}
                         </span>
@@ -899,18 +948,27 @@ export default function ResultadoFinalPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {standings.map((st) => (
-                  <tr key={st.team.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-3 font-black text-amber-400">{st.rank}º Lugar</td>
-                    <td className="py-3 font-bold flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full" style={{ backgroundColor: st.team.color }} />
-                      <span className="text-white">{st.team.name}</span>
-                    </td>
-                    <td className="py-3 font-black text-right text-white text-base">
-                      {st.totalPoints} pts
-                    </td>
-                  </tr>
-                ))}
+                {standings.map((st) => {
+                  const logo = getTeamLogo(st.team);
+                  return (
+                    <tr key={st.team.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-3 font-black text-amber-400">{st.rank}º Lugar</td>
+                      <td className="py-3 font-bold flex items-center gap-2.5">
+                        {logo ? (
+                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/30 bg-white/10">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        ) : (
+                          <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.team.color }} />
+                        )}
+                        <span className="text-white font-bold">{st.team.name}</span>
+                      </td>
+                      <td className="py-3 font-black text-right text-white text-base">
+                        {st.totalPoints} pts
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

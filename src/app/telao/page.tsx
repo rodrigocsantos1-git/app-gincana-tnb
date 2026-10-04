@@ -27,6 +27,7 @@ import confetti from 'canvas-confetti';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
 import { SuspenseDrumRollButton } from '@/components/SuspenseDrumRollButton';
 import { useTheme } from '@/components/ThemeProvider';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 // Estilo visual dinâmico baseado na cor e nome configurados no Gerenciamento de Equipes
 function getTeamAppearance(team?: { name?: string; color?: string } | null, isLight: boolean = false) {
@@ -416,6 +417,7 @@ export default function TelaoPage() {
             {standings.map((standing, idx) => {
               const teamScores = (scores || []).filter((s) => s.team_id === standing.team.id);
               const appearance = getTeamAppearance(standing.team, isLight);
+              const teamLogo = getTeamLogo(standing.team);
               // Posição: usa o rank real quando há pontos, ou o índice quando todos estão com 0 pts
               const displayRank = standing.totalPoints > 0 ? standing.rank : idx + 1;
 
@@ -431,8 +433,8 @@ export default function TelaoPage() {
                     borderLeftColor: appearance.accentColor,
                   }}
                 >
-                  {/* Bloco 1: Badge de Posição + Identificação da Equipe + Pontuação */}
-                  <div className="relative z-10 flex items-center justify-between sm:justify-start gap-4 sm:gap-6 flex-shrink-0 xl:min-w-[420px]">
+                  {/* Bloco 1: Badge de Posição + Logotipo da Equipe + Identificação + Pontuação */}
+                  <div className="relative z-10 flex items-center justify-between sm:justify-start gap-3 sm:gap-4 flex-shrink-0 xl:min-w-[440px]">
                     {/* Badge da Posição */}
                     <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex flex-col items-center justify-center flex-shrink-0 shadow-lg border border-white/20">
                       {displayRank === 1 ? (
@@ -454,6 +456,26 @@ export default function TelaoPage() {
                         <div className="w-full h-full rounded-2xl bg-white text-slate-950 font-black flex flex-col items-center justify-center shadow-lg border-2 border-slate-300">
                           <Star className="w-5 h-5 sm:w-6 sm:h-6 fill-slate-950 text-slate-950" />
                           <span className="text-xs sm:text-sm leading-none font-black">{displayRank}º</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Escudo / Logotipo Oficial da Equipe */}
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden shadow-lg border-2 border-white/30 bg-white/10 flex items-center justify-center flex-shrink-0 relative group-hover:scale-105 transition-transform">
+                      {teamLogo ? (
+                        <Image
+                          src={teamLogo}
+                          alt={`Logotipo da Equipe ${standing.team.name}`}
+                          fill
+                          className="object-contain p-1"
+                          priority={idx < 2}
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center font-black text-xl sm:text-2xl text-white shadow-inner"
+                          style={{ backgroundColor: standing.team.color }}
+                        >
+                          {standing.team.name.charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
@@ -581,12 +603,24 @@ export default function TelaoPage() {
               {/* 2º Lugar */}
               {secondPlace && (() => {
                 const style = getTeamStyle(secondPlace.team);
+                const logo = getTeamLogo(secondPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
+                    {logo && (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                        <Image src={logo} alt={`Logo ${secondPlace.team.name}`} fill className="object-contain p-1" />
+                      </div>
+                    )}
+
                     <div
-                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{ backgroundColor: secondPlace.team.color, boxShadow: style.boxShadow }}
                     >
+                      {logo && (
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                          <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                        </div>
+                      )}
                       <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {secondPlace.team.name}
                       </span>
@@ -610,14 +644,26 @@ export default function TelaoPage() {
               {/* 1º Lugar */}
               {firstPlace && (() => {
                 const style = getTeamStyle(firstPlace.team);
+                const logo = getTeamLogo(firstPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full relative -top-4 sm:-top-6">
                     <Crown className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-amber-400 animate-bounce drop-shadow-[0_0_20px_rgba(251,191,36,0.9)] mb-1" />
 
+                    {logo && (
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-2xl overflow-hidden mb-2 shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-amber-300 bg-white/20 relative hover:scale-105 transition-transform flex-shrink-0">
+                        <Image src={logo} alt={`Logo ${firstPlace.team.name}`} fill className="object-contain p-1" />
+                      </div>
+                    )}
+
                     <div
-                      className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-md py-3 sm:py-4 px-2 sm:px-5 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-2xl transition-all ${style.textColor} ${style.border}`}
                       style={{ backgroundColor: firstPlace.team.color, boxShadow: style.boxShadow }}
                     >
+                      {logo && (
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/50 bg-white/10">
+                          <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                        </div>
+                      )}
                       <span className="text-sm sm:text-xl md:text-2xl lg:text-3xl font-black uppercase tracking-wider truncate px-1">
                         {firstPlace.team.name}
                       </span>
@@ -641,12 +687,24 @@ export default function TelaoPage() {
               {/* 3º Lugar */}
               {thirdPlace && (() => {
                 const style = getTeamStyle(thirdPlace.team);
+                const logo = getTeamLogo(thirdPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
+                    {logo && (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                        <Image src={logo} alt={`Logo ${thirdPlace.team.name}`} fill className="object-contain p-1" />
+                      </div>
+                    )}
+
                     <div
-                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{ backgroundColor: thirdPlace.team.color, boxShadow: style.boxShadow }}
                     >
+                      {logo && (
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                          <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                        </div>
+                      )}
                       <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {thirdPlace.team.name}
                       </span>
@@ -670,12 +728,24 @@ export default function TelaoPage() {
               {/* 4º Lugar */}
               {fourthPlace && (() => {
                 const style = getTeamStyle(fourthPlace.team);
+                const logo = getTeamLogo(fourthPlace.team);
                 return (
                   <div className="flex flex-col items-center w-full">
+                    {logo && (
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-2xl overflow-hidden mb-2 shadow-2xl border-2 border-white/60 bg-white/10 relative hover:scale-105 transition-transform flex-shrink-0">
+                        <Image src={logo} alt={`Logo ${fourthPlace.team.name}`} fill className="object-contain p-1" />
+                      </div>
+                    )}
+
                     <div
-                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
+                      className={`w-full max-w-sm py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-2xl sm:rounded-3xl flex items-center justify-center gap-2 text-center shadow-xl transition-all ${style.textColor} ${style.border}`}
                       style={{ backgroundColor: fourthPlace.team.color, boxShadow: style.boxShadow }}
                     >
+                      {logo && (
+                        <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/40 bg-white/10">
+                          <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                        </div>
+                      )}
                       <span className="text-xs sm:text-base md:text-xl lg:text-2xl font-black uppercase tracking-wider truncate px-1">
                         {fourthPlace.team.name}
                       </span>
@@ -709,6 +779,7 @@ export default function TelaoPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {otherPlaces.map((standing) => {
                 const percentage = Math.max(Math.round((standing.totalPoints / maxPoints) * 100), 5);
+                const logo = getTeamLogo(standing.team);
                 return (
                   <div
                     key={standing.team.id}
@@ -722,7 +793,13 @@ export default function TelaoPage() {
                       <span className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center font-bold text-sm">
                         {standing.rank}º
                       </span>
-                      <div className="w-4 h-4 rounded-full" style={{ backgroundColor: standing.team.color }} />
+                      {logo ? (
+                        <div className="w-6 h-6 rounded-md overflow-hidden relative flex-shrink-0 border border-white/30 bg-white/10">
+                          <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: standing.team.color }} />
+                      )}
                       <span className="font-bold text-base truncate">{standing.team.name}</span>
                     </div>
                     <div className="relative z-10 text-right">

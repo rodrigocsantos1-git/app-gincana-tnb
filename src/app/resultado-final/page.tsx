@@ -926,53 +926,7 @@ export default function ResultadoFinalPage() {
           )}
         </div>
 
-        {/* Tabela Oficial Detalhada (Aparece ao final ou para consulta) */}
-        <div className="mt-8 p-4 sm:p-6 rounded-3xl bg-slate-900/80 border border-white/10 backdrop-blur-md shadow-2xl">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-slate-200 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-400" />
-              <span>Tabela Oficial Auditada da Gincana</span>
-            </h3>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-white/10 text-slate-300 font-bold">
-              Total de Equipes: {standings.length}
-            </span>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs sm:text-sm">
-              <thead>
-                <tr className="border-b border-white/10 text-slate-400 text-[11px] uppercase tracking-wider">
-                  <th className="pb-3 font-black">Posição</th>
-                  <th className="pb-3 font-black">Equipe</th>
-                  <th className="pb-3 font-black text-right">Total Acumulado</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {standings.map((st) => {
-                  const logo = getTeamLogo(st.team);
-                  return (
-                    <tr key={st.team.id} className="hover:bg-white/5 transition-colors">
-                      <td className="py-3 font-black text-amber-400">{st.rank}º Lugar</td>
-                      <td className="py-3 font-bold flex items-center gap-2.5">
-                        {logo ? (
-                          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden relative flex-shrink-0 border border-white/30 bg-white/10">
-                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
-                          </div>
-                        ) : (
-                          <span className="w-3.5 h-3.5 rounded-full flex-shrink-0" style={{ backgroundColor: st.team.color }} />
-                        )}
-                        <span className="text-white font-bold">{st.team.name}</span>
-                      </td>
-                      <td className="py-3 font-black text-right text-white text-base">
-                        {st.totalPoints} pts
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}

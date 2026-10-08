@@ -114,9 +114,7 @@ export function TaskCompletionAlert({
                     </h4>
                   </div>
                   <span className="text-[11px] font-bold text-amber-700 dark:text-amber-300">
-                    {isCaboDeGuerra
-                      ? 'Duelos Cabo de Guerra'
-                      : requiredRounds > 1
+                    {requiredRounds > 1
                       ? `Exige ${requiredRounds} rodadas por equipe`
                       : 'Pontuação obrigatória'}
                   </span>

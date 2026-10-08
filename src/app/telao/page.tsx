@@ -28,6 +28,7 @@ import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
 import { SuspenseDrumRollButton } from '@/components/SuspenseDrumRollButton';
 import { useTheme } from '@/components/ThemeProvider';
 import { getTeamLogo } from '@/lib/teamLogos';
+import { getDeduplicatedTeamScores, sortScoresNumerically } from '@/lib/taskCompletion';
 
 // Estilo visual dinâmico baseado na cor e nome configurados no Gerenciamento de Equipes
 function getTeamAppearance(team?: { name?: string; color?: string } | null, isLight: boolean = false) {
@@ -415,7 +416,8 @@ export default function TelaoPage() {
         {viewMode === 'linhas' && (
           <div className="space-y-3.5 animate-in fade-in duration-300">
             {standings.map((standing, idx) => {
-              const teamScores = (scores || []).filter((s) => s.team_id === standing.team.id);
+              const rawTeamScores = (scores || []).filter((s) => s.team_id === standing.team.id);
+              const teamScores = sortScoresNumerically(getDeduplicatedTeamScores(rawTeamScores));
               const appearance = getTeamAppearance(standing.team, isLight);
               const teamLogo = getTeamLogo(standing.team);
               // Posição: usa o rank real quando há pontos, ou o índice quando todos estão com 0 pts

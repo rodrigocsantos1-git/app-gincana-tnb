@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { Team, Activity, Score, TeamStanding } from '@/lib/types';
 import { INITIAL_TEAMS, INITIAL_ACTIVITIES, INITIAL_SCORES } from '@/lib/mockData';
+import { sortActivitiesNumerically, getDeduplicatedTeamScores } from '@/lib/taskCompletion';
 
 const LOCAL_STORAGE_KEYS = {
   TEAMS: 'tnb_gincana_teams',
@@ -43,13 +44,13 @@ export function useGincanaData() {
       const parsedScores: Score[] = storedScores ? JSON.parse(storedScores) : INITIAL_SCORES;
 
       setTeams(parsedTeams);
-      setActivities(parsedActivities);
+      setActivities(sortActivitiesNumerically(parsedActivities));
       setScores(parsedScores);
       setIsUsingDemo(true);
     } catch (e) {
       console.error('Erro ao ler localStorage, utilizando dados padrão:', e);
       setTeams(INITIAL_TEAMS);
-      setActivities(INITIAL_ACTIVITIES);
+      setActivities(sortActivitiesNumerically(INITIAL_ACTIVITIES));
       setScores(INITIAL_SCORES);
       setIsUsingDemo(true);
     }
@@ -102,7 +103,7 @@ export function useGincanaData() {
       }
 
       setTeams(teamsRes.data || []);
-      setActivities(actRes.data || []);
+      setActivities(sortActivitiesNumerically(actRes.data || []));
       setScores(scoresRes.data || []);
       setIsUsingDemo(false);
     } catch (err) {
@@ -178,17 +179,11 @@ export function useGincanaData() {
     const pointsByTeam: Record<string, { total: number; count: number; recentAct?: string }> = {};
 
     validTeams.forEach((t) => {
-      pointsByTeam[t.id] = { total: 0, count: 0 };
-    });
-
-    enrichedScores.forEach((s) => {
-      if (s?.team_id && pointsByTeam[s.team_id]) {
-        pointsByTeam[s.team_id].total += Number(s.points) || 0;
-        pointsByTeam[s.team_id].count += 1;
-        if (!pointsByTeam[s.team_id].recentAct && s.activity?.title) {
-          pointsByTeam[s.team_id].recentAct = s.activity.title;
-        }
-      }
+      const teamRaw = enrichedScores.filter((s) => s.team_id === t.id);
+      const teamDedup = getDeduplicatedTeamScores(teamRaw);
+      const total = teamDedup.reduce((acc, s) => acc + (Number(s.points) || 0), 0);
+      const recentAct = teamDedup.find((s) => s.activity?.title)?.activity?.title;
+      pointsByTeam[t.id] = { total, count: teamDedup.length, recentAct };
     });
 
     const list: TeamStanding[] = validTeams.map((team) => ({
@@ -559,9 +554,11 @@ export function useGincanaData() {
     setIsUsingDemo(true);
   };
 
+  const sortedActivities = useMemo(() => sortActivitiesNumerically(activities), [activities]);
+
   return {
     teams,
-    activities,
+    activities: sortedActivities,
     scores: enrichedScores,
     standings,
     loading,

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Activity } from '@/lib/types';
 import { Plus, Edit2, Trash2, Target, Award } from 'lucide-react';
+import { sortActivitiesNumerically } from '@/lib/taskCompletion';
 
 interface ActivityManagerProps {
   activities: Activity[];
@@ -29,6 +30,7 @@ export function ActivityManager({
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  const sortedActivities = React.useMemo(() => sortActivitiesNumerically(activities), [activities]);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -209,7 +211,7 @@ export function ActivityManager({
 
       {/* Grid de Provas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {activities.map((act) => (
+        {sortedActivities.map((act) => (
           <div
             key={act.id}
             className="glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between gap-3 transition-all hover:shadow-md"

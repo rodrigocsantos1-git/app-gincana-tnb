@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Score, Team, Activity } from '@/lib/types';
 import { Trash2, History, Filter, AlertTriangle, Clock, Download, RotateCcw, Pencil, ArrowLeft } from 'lucide-react';
+import { sortActivitiesNumerically } from '@/lib/taskCompletion';
 
 interface ScoreHistoryProps {
   scores: Score[];
@@ -32,6 +33,7 @@ export function ScoreHistory({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const sortedActivities = useMemo(() => sortActivitiesNumerically(activities), [activities]);
 
   const filteredScores = useMemo(() => {
     return scores.filter((s) => {
@@ -137,7 +139,7 @@ export function ScoreHistory({
               className="bg-transparent font-semibold text-slate-700 dark:text-slate-200 focus:outline-none"
             >
               <option value="all">Todas as Provas</option>
-              {activities.map((a) => (
+              {sortedActivities.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.title}
                 </option>

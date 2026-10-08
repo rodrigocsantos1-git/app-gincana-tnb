@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Score, Team, Activity } from '@/lib/types';
 import { ArrowLeft, Check, Trash2, AlertCircle, Sparkles, Trophy, HelpCircle } from 'lucide-react';
 import { getActivityRoundLimit } from '@/components/ScoreModal';
+import { sortActivitiesNumerically } from '@/lib/taskCompletion';
 
 interface EditScoreModalProps {
   isOpen: boolean;
@@ -47,6 +48,7 @@ export function EditScoreModal({
 
   if (!isOpen || !score) return null;
 
+  const sortedActivities = React.useMemo(() => sortActivitiesNumerically(activities), [activities]);
   const selectedActivity = activities.find((a) => a.id === selectedActivityId);
   const selectedTeam = teams.find((t) => t.id === selectedTeamId);
   const numPoints = points === '' ? 0 : Number(points);
@@ -229,7 +231,7 @@ export function EditScoreModal({
               className="w-full px-4 py-3 rounded-2xl text-sm font-bold bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#0284c7] cursor-pointer"
             >
               <option value="">Nenhuma Prova Específica (Pontuação Avulsa)</option>
-              {activities.map((a) => (
+              {sortedActivities.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.title}
                 </option>

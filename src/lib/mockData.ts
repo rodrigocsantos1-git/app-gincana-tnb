@@ -45,8 +45,8 @@ export const OFFICIAL_ACTIVITIES: Activity[] = [
   {
     id: 'act-fase-2-1',
     title: 'Fase 2.1 - Cabo de Guerra',
-    description: 'Cada time irá duelar um contra o outro. Quem vencer mais ganhará a pontuação máxima.\n1° lugar: 4 pontos | 2° lugar: 3 pontos | 3° lugar: 2 pontos | 4° lugar: 1 ponto.',
-    max_points: 4,
+    description: 'A mesma equipe irá pontuar 5 vezes.\n1º lugar: 4 pontos | 2º lugar: 3 pontos | 3º lugar: 2 pontos | 4º lugar: 1 ponto.',
+    max_points: 20,
     created_at: new Date(Date.now() - 3600000 * 8.5).toISOString(),
   },
   {

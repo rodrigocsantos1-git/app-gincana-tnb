@@ -153,10 +153,10 @@ export default function HomePage() {
                           handleOpenScoreModal(undefined, caboAct?.id);
                         }}
                         className="w-full sm:w-auto px-4 py-3 sm:py-4 rounded-2xl font-black text-xs sm:text-sm text-amber-950 dark:text-amber-200 bg-amber-100 hover:bg-amber-200 dark:bg-amber-950/70 dark:hover:bg-amber-900 border border-amber-300 dark:border-amber-700 shadow-sm active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                        title="Abrir tabela de duelos e confrontos V e D do Cabo de Guerra"
+                        title="Lançar pontuação das 5 rodadas da Fase 2.1 - Cabo de Guerra"
                       >
                         <span className="text-base">⚔️</span>
-                        <span>Cabo de Guerra (Duelos)</span>
+                        <span>Cabo de Guerra (5 Rodadas)</span>
                       </button>
 
                       <button

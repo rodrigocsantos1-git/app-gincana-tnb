@@ -19,10 +19,11 @@ import {
   Pencil,
   Trash2,
   AlertTriangle,
+  Swords,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { CaboDeGuerraTable } from '@/components/CaboDeGuerraTable';
-import { getActivityRoundLimit, checkActivityCompletion } from '@/lib/taskCompletion';
+import { getActivityRoundLimit, checkActivityCompletion, sortActivitiesNumerically } from '@/lib/taskCompletion';
 
 export { getActivityRoundLimit };
 
@@ -73,6 +74,7 @@ export function ScoreModal({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [editingRoundScore, setEditingRoundScore] = useState<Score | null>(null);
   const [editingRoundIndex, setEditingRoundIndex] = useState<number | null>(null);
+  const [caboMode, setCaboMode] = useState<'rodadas' | 'duelos'>('rodadas');
   const [successFeedback, setSuccessFeedback] = useState<{
     teamName: string;
     teamColor: string;
@@ -153,6 +155,7 @@ export function ScoreModal({
       setSuccessFeedback(null);
       setEditingRoundScore(null);
       setEditingRoundIndex(null);
+      setCaboMode('rodadas');
     } else if (isOpen) {
       // Quando o modal JÁ estava aberto e os dados atualizam em segundo plano (ex: ao salvar ou via realtime):
       // NUNCA altera nem reseta a equipe e nem a tarefa escolhidas pelo voluntário!
@@ -172,6 +175,10 @@ export function ScoreModal({
     }
   }, [isOpen, initialTeamId, initialActivityId, teams, activities]);
 
+  const sortedActivities = useMemo(
+    () => sortActivitiesNumerically(activities),
+    [activities]
+  );
   const selectedActivity = useMemo(
     () => activities.find((a) => a.id === selectedActivityId),
     [activities, selectedActivityId]
@@ -407,12 +414,25 @@ export function ScoreModal({
         }
       }
 
-      await onSubmitScore({
-        team_id: selectedTeamId,
-        activity_id: selectedActivityId || null,
-        points: numPoints,
-        notes: finalNotes || null,
-      });
+      const isSingleActWithExistingScore = !roundLimit && selectedTeamActivityScores.length > 0;
+      if (isSingleActWithExistingScore && onUpdateScore) {
+        // Prova de resultado único que já possui lançamento gravado:
+        // Atualiza a pontuação existente em vez de duplicar na tabela!
+        const existingScore = selectedTeamActivityScores[selectedTeamActivityScores.length - 1];
+        await onUpdateScore(existingScore.id, {
+          team_id: selectedTeamId,
+          activity_id: selectedActivityId || null,
+          points: numPoints,
+          notes: finalNotes || null,
+        });
+      } else {
+        await onSubmitScore({
+          team_id: selectedTeamId,
+          activity_id: selectedActivityId || null,
+          points: numPoints,
+          notes: finalNotes || null,
+        });
+      }
 
       if (numPoints > 0) {
         confetti({
@@ -442,6 +462,9 @@ export function ScoreModal({
         round: roundLimit ? currentRound : undefined,
         roundLimit: roundLimit || undefined,
         activityTitle: selectedActivity?.title,
+        message: isSingleActWithExistingScore
+          ? `Pontuação de "${selectedActivity?.title || 'Atividade'}" da equipe "${selectedTeam?.name}" ajustada com sucesso para ${numPoints} pts!`
+          : undefined,
         isTeamFinished: willBeTeamFinished,
         pendingTeams: pendingTeamsAfterThis.map((t) => {
           const tScores = scores.filter((s) => s.activity_id === selectedActivityId && s.team_id === t.id);
@@ -641,7 +664,7 @@ export function ScoreModal({
               className="w-full px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#78c8fb]"
             >
               <option value="">-- Prova Geral / Sem Prova Específica --</option>
-              {activities.map((act) => (
+              {sortedActivities.map((act) => (
                 <option key={act.id} value={act.id}>
                   {act.title}
                 </option>
@@ -649,8 +672,37 @@ export function ScoreModal({
             </select>
           </div>
 
-          {/* CABO DE GUERRA: Duelos Todos Contra Todos com Seleção de V (Vitória) e D (Derrota) */}
-          {isCaboDeGuerra && selectedActivity ? (
+          {/* SELETOR DE MODO PARA CABO DE GUERRA: 5 Rodadas (Padrão Oficial) vs Confrontos de Duelo */}
+          {isCaboDeGuerra && selectedActivity && (
+            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => setCaboMode('rodadas')}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  caboMode === 'rodadas'
+                    ? 'bg-[#0284c7] text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                }`}
+              >
+                <RotateCw className="w-3.5 h-3.5" />
+                <span>Lançar 5 Rodadas (Oficial)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCaboMode('duelos')}
+                className={`flex-1 py-2 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  caboMode === 'duelos'
+                    ? 'bg-[#0284c7] text-white shadow-sm'
+                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-700/60'
+                }`}
+              >
+                <Swords className="w-3.5 h-3.5" />
+                <span>Tabela de Duelos V/D</span>
+              </button>
+            </div>
+          )}
+
+          {isCaboDeGuerra && selectedActivity && caboMode === 'duelos' ? (
             <div className="space-y-4 pt-1">
               <CaboDeGuerraTable
                 teams={teams}
@@ -945,10 +997,10 @@ export function ScoreModal({
 
               {/* Lançamentos Anteriores em Provas Sem Limite de Rodadas */}
               {!roundLimit && selectedTeamActivityScores.length > 0 && (
-                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                    <Pencil className="w-3.5 h-3.5 text-amber-500" />
-                    Lançamentos já realizados para esta equipe:
+                <div className="p-3 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    Pontuação atual gravada: <strong>+{selectedTeamActivityScores[selectedTeamActivityScores.length - 1].points} pts</strong> (ao salvar, o valor será ajustado)
                   </span>
                   <div className="flex flex-wrap items-center gap-1.5">
                     {selectedTeamActivityScores.map((scoreItem, sIdx) => (
@@ -959,7 +1011,7 @@ export function ScoreModal({
                         className="px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-amber-50 hover:border-amber-400 cursor-pointer shadow-xs active:scale-95"
                       >
                         <Pencil className="w-3 h-3 text-amber-500" />
-                        <span>✏️ Editar ({scoreItem.points}p)</span>
+                        <span>✏️ Corrigir ({scoreItem.points}p)</span>
                       </button>
                     ))}
                   </div>

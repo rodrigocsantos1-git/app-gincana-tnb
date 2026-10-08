@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { TeamStanding, Score } from '@/lib/types';
 import { Trophy, Medal, Award, Plus, Sparkles, TrendingUp, Target, Download, RotateCcw, AlertTriangle, X, Pencil } from 'lucide-react';
+import { getDeduplicatedTeamScores, sortScoresNumerically } from '@/lib/taskCompletion';
 
 interface LeaderboardProps {
   standings: TeamStanding[];
@@ -128,8 +129,9 @@ export function Leaderboard({
       <div className="space-y-3">
         {standings.map((standing) => {
           const percentage = Math.max(Math.round((standing.totalPoints / maxPoints) * 100), 4);
-          // Filtra todas as pontuações individuais desta equipe
-          const teamScores = scores.filter((s) => s.team_id === standing.team.id);
+          // Filtra todas as pontuações individuais desta equipe, deduplicando ajustes e ordenando numericamente
+          const rawTeamScores = scores.filter((s) => s.team_id === standing.team.id);
+          const teamScores = sortScoresNumerically(getDeduplicatedTeamScores(rawTeamScores));
 
           return (
             <div

@@ -21,6 +21,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { CaboDeGuerraTable } from '@/components/CaboDeGuerraTable';
 import { getActivityRoundLimit, checkActivityCompletion, sortActivitiesNumerically } from '@/lib/taskCompletion';
 
 export { getActivityRoundLimit };
@@ -195,6 +196,7 @@ export function ScoreModal({
   const currentTeamPoints = selectedTeamId ? teamPointsMap.get(selectedTeamId) ?? 0 : 0;
   const numPoints = points === '' ? 0 : Number(points);
   const willBeNegative = numPoints < 0 && currentTeamPoints + numPoints < 0;
+  const isCaboDeGuerra = (selectedActivity?.title || '').toLowerCase().includes('cabo de guerra');
 
   // Gerador de botões de colocação conforme o regulamento oficial da prova
   const getPlacementPresets = (activity?: Activity) => {
@@ -667,7 +669,39 @@ export function ScoreModal({
             </select>
           </div>
 
-          {/* Alerta em Tela: Falta completar a tarefa para equipes pendentes */}
+          {isCaboDeGuerra && selectedActivity ? (
+            <div className="space-y-4 pt-1">
+              <CaboDeGuerraTable
+                teams={teams}
+                activity={selectedActivity}
+                scores={scores || []}
+                onSubmitScore={onSubmitScore}
+                onUpdateScore={onUpdateScore}
+                onSuccess={() => {
+                  setSuccessFeedback({
+                    teamName: 'Todas as Equipes',
+                    teamColor: '#f59e0b',
+                    points: 4,
+                    message: 'Pontuações do Cabo de Guerra calculadas e salvas com sucesso!',
+                  });
+                }}
+                onClose={onClose}
+              />
+
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-3.5 px-5 text-sm font-black rounded-xl text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition-colors cursor-pointer border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#0284c7]" />
+                  <span>Voltar ao Placar</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Alerta em Tela: Falta completar a tarefa para equipes pendentes */}
               {activityCompletion && activityCompletion.hasAnyScore && (
                 activityCompletion.isIncomplete ? (
                   <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/15 dark:bg-amber-950/50 border-2 border-amber-400 dark:border-amber-500/80 space-y-2 animate-in fade-in">
@@ -1209,6 +1243,8 @@ export function ScoreModal({
                   </>
                 )}
               </div>
+            </>
+          )}
         </form>
       </div>
     </div>

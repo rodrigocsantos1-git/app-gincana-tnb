@@ -41,6 +41,19 @@ export function useGincanaData() {
         localStorage.setItem(LOCAL_STORAGE_KEYS.ACTIVITIES, JSON.stringify(INITIAL_ACTIVITIES));
       }
 
+      parsedActivities = parsedActivities.map((a) => {
+        const titleLower = (a.title || '').toLowerCase();
+        if (titleLower.includes('cabo de guerra') || titleLower.includes('fase 2.1')) {
+          return {
+            ...a,
+            description:
+              'A mesma equipe irá pontuar 5 vezes.\n1º lugar: 4 pontos | 2º lugar: 3 pontos | 3º lugar: 2 pontos | 4º lugar: 1 ponto.',
+            max_points: 20,
+          };
+        }
+        return a;
+      });
+
       const parsedScores: Score[] = storedScores ? JSON.parse(storedScores) : INITIAL_SCORES;
 
       setTeams(parsedTeams);
@@ -102,8 +115,34 @@ export function useGincanaData() {
         return;
       }
 
+      const normalizedActivities = (actRes.data || []).map((a) => {
+        const titleLower = (a.title || '').toLowerCase();
+        if (titleLower.includes('cabo de guerra') || titleLower.includes('fase 2.1')) {
+          const needsFix = a.max_points !== 20 || !(a.description || '').includes('5 vezes');
+          if (needsFix) {
+            // Atualiza de forma assíncrona no banco de dados para garantir que a tabela activities no Supabase tenha 20 pts e as 5 rodadas oficiais
+            supabase
+              .from('activities')
+              .update({
+                description:
+                  'A mesma equipe irá pontuar 5 vezes.\n1º lugar: 4 pontos | 2º lugar: 3 pontos | 3º lugar: 2 pontos | 4º lugar: 1 ponto.',
+                max_points: 20,
+              })
+              .eq('id', a.id)
+              .then(() => {}, () => {});
+          }
+          return {
+            ...a,
+            description:
+              'A mesma equipe irá pontuar 5 vezes.\n1º lugar: 4 pontos | 2º lugar: 3 pontos | 3º lugar: 2 pontos | 4º lugar: 1 ponto.',
+            max_points: 20,
+          };
+        }
+        return a;
+      });
+
       setTeams(teamsRes.data || []);
-      setActivities(sortActivitiesNumerically(actRes.data || []));
+      setActivities(sortActivitiesNumerically(normalizedActivities));
       setScores(scoresRes.data || []);
       setIsUsingDemo(false);
     } catch (err) {

@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { TeamStanding, Score } from '@/lib/types';
 import { Trophy, Medal, Award, Plus, Sparkles, TrendingUp, Target, Download, RotateCcw, AlertTriangle, X, Pencil } from 'lucide-react';
 import { getDeduplicatedTeamScores, sortScoresNumerically } from '@/lib/taskCompletion';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 interface LeaderboardProps {
   standings: TeamStanding[];
@@ -132,6 +134,7 @@ export function Leaderboard({
           // Filtra todas as pontuações individuais desta equipe, deduplicando ajustes e ordenando numericamente
           const rawTeamScores = scores.filter((s) => s.team_id === standing.team.id);
           const teamScores = sortScoresNumerically(getDeduplicatedTeamScores(rawTeamScores));
+          const logo = getTeamLogo(standing.team);
 
           return (
             <div
@@ -179,15 +182,26 @@ export function Leaderboard({
 
                     {/* Cor e Nome da Equipe */}
                     <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                      <div
-                        className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 shadow-sm border-2 ${
-                          (standing.team?.name || '').toLowerCase().includes('branc') || (standing.team?.color || '').toLowerCase() === '#ffffff'
-                            ? 'border-slate-400 dark:border-slate-400 ring-1 ring-slate-900/10'
-                            : 'border-white dark:border-slate-800'
-                        }`}
-                        style={{ backgroundColor: standing.team?.color || '#0284c7' }}
-                        title={`Cor da equipe: ${standing.team?.color || ''}`}
-                      />
+                      {logo ? (
+                        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden relative shadow-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                          <Image
+                            src={logo}
+                            alt={`Logo da equipe ${standing.team.name}`}
+                            fill
+                            className="object-contain p-0.5"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex-shrink-0 shadow-sm border-2 ${
+                            (standing.team?.name || '').toLowerCase().includes('branc') || (standing.team?.color || '').toLowerCase() === '#ffffff'
+                              ? 'border-slate-400 dark:border-slate-400 ring-1 ring-slate-900/10'
+                              : 'border-white dark:border-slate-800'
+                          }`}
+                          style={{ backgroundColor: standing.team?.color || '#0284c7' }}
+                          title={`Cor da equipe: ${standing.team?.color || ''}`}
+                        />
+                      )}
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <h3 className="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white truncate">

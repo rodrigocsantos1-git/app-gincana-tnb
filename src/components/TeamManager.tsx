@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Team, TeamStanding } from '@/lib/types';
 import { Plus, Edit2, Trash2, Shield, Check, X, Palette } from 'lucide-react';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 interface TeamManagerProps {
   teams: Team[];
@@ -214,6 +216,7 @@ export function TeamManager({
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
         {teams.map((team) => {
           const points = getPoints(team.id);
+          const logo = getTeamLogo(team);
 
           return (
             <div
@@ -221,18 +224,24 @@ export function TeamManager({
               className="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-3 transition-all hover:shadow-md"
             >
               <div className="flex items-center gap-3 min-w-0">
-                <div
-                  className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-base sm:text-lg shadow-sm border-2 flex-shrink-0 ${
-                    (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff' || (team?.color || '').toLowerCase() === '#fff'
-                      ? 'text-slate-950 border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
-                      : (team?.name || '').toLowerCase().includes('amar') || (team?.color || '').toLowerCase() === '#f59e0b'
-                      ? 'text-amber-950 border-amber-300/80'
-                      : 'text-white border-white dark:border-slate-700'
-                  }`}
-                  style={{ backgroundColor: team?.color || '#0284c7' }}
-                >
-                  {(team?.name || 'EQ').substring(0, 2).toUpperCase()}
-                </div>
+                {logo ? (
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden relative shadow-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 flex-shrink-0">
+                    <Image src={logo} alt={team.name} fill className="object-contain p-0.5" />
+                  </div>
+                ) : (
+                  <div
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center font-black text-base sm:text-lg shadow-sm border-2 flex-shrink-0 ${
+                      (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff' || (team?.color || '').toLowerCase() === '#fff'
+                        ? 'text-slate-950 border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                        : (team?.name || '').toLowerCase().includes('amar') || (team?.color || '').toLowerCase() === '#f59e0b'
+                        ? 'text-amber-950 border-amber-300/80'
+                        : 'text-white border-white dark:border-slate-700'
+                    }`}
+                    style={{ backgroundColor: team?.color || '#0284c7' }}
+                  >
+                    {(team?.name || 'EQ').substring(0, 2).toUpperCase()}
+                  </div>
+                )}
 
                 <div className="min-w-0">
                   <h3 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white truncate">

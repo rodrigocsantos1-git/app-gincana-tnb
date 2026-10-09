@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { TeamStanding } from '@/lib/types';
 import { Trophy, Medal, Award, Crown, Sparkles, Star } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 interface PodiumProps {
   standings: TeamStanding[];
@@ -99,18 +101,24 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {/* 2º LUGAR (Prata - Esquerda) */}
         {secondPlace ? (() => {
           const style = getTeamStyle(secondPlace.team);
+          const logo = getTeamLogo(secondPlace.team);
           return (
             <div className="flex flex-col items-center group w-full">
               {/* Badge da Equipe */}
               <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-full max-w-[110px] sm:max-w-[150px] md:max-w-[170px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[110px] sm:max-w-[150px] md:max-w-[170px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 text-center leading-tight transition-all ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: secondPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={secondPlace.team.name}
                 >
+                  {logo && (
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md overflow-hidden relative flex-shrink-0 bg-white/20 border border-white/30">
+                      <Image src={logo} alt="" fill className="object-contain" />
+                    </div>
+                  )}
                   <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {secondPlace.team.name}
                   </span>
@@ -152,6 +160,7 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {/* 1º LUGAR (Ouro - Centro / Mais Alto) */}
         {firstPlace ? (() => {
           const style = getTeamStyle(firstPlace.team);
+          const logo = getTeamLogo(firstPlace.team);
           return (
             <div className="flex flex-col items-center group relative -top-3 w-full">
               {/* Coroa flutuante e Troféu */}
@@ -160,13 +169,18 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
                   <Crown className="w-6 h-6 sm:w-8 sm:h-8 text-amber-400 animate-pulse drop-shadow-md" />
                 </div>
                 <div
-                  className={`w-full max-w-[125px] sm:max-w-[170px] md:max-w-[200px] py-2 sm:py-2.5 px-1.5 sm:px-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-lg ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[125px] sm:max-w-[170px] md:max-w-[200px] py-2 sm:py-2.5 px-1.5 sm:px-2.5 rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 text-center leading-tight transition-all shadow-lg ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: firstPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={firstPlace.team.name}
                 >
+                  {logo && (
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md overflow-hidden relative flex-shrink-0 bg-white/20 border border-white/40">
+                      <Image src={logo} alt="" fill className="object-contain" />
+                    </div>
+                  )}
                   <span className="text-[10px] sm:text-sm md:text-base font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {firstPlace.team.name}
                   </span>
@@ -212,18 +226,24 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {/* 3º LUGAR (Bronze - Direita) */}
         {thirdPlace ? (() => {
           const style = getTeamStyle(thirdPlace.team);
+          const logo = getTeamLogo(thirdPlace.team);
           return (
             <div className="flex flex-col items-center group w-full">
               {/* Badge do Time */}
               <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-full max-w-[105px] sm:max-w-[145px] md:max-w-[165px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[105px] sm:max-w-[145px] md:max-w-[165px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: thirdPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={thirdPlace.team.name}
                 >
+                  {logo && (
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md overflow-hidden relative flex-shrink-0 bg-white/20 border border-white/30">
+                      <Image src={logo} alt="" fill className="object-contain" />
+                    </div>
+                  )}
                   <span className="text-[9px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {thirdPlace.team.name}
                   </span>
@@ -265,18 +285,24 @@ export function Podium({ standings, onSelectTeamForScore }: PodiumProps) {
         {/* 4º LUGAR (Honra / Participação) */}
         {fourthPlace ? (() => {
           const style = getTeamStyle(fourthPlace.team);
+          const logo = getTeamLogo(fourthPlace.team);
           return (
             <div className="flex flex-col items-center group w-full">
               {/* Badge do Time */}
               <div className="relative mb-2 transition-transform duration-300 group-hover:-translate-y-1 w-full flex justify-center">
                 <div
-                  className={`w-full max-w-[100px] sm:max-w-[140px] md:max-w-[160px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
+                  className={`w-full max-w-[100px] sm:max-w-[140px] md:max-w-[160px] py-1.5 sm:py-2 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl flex items-center justify-center gap-1.5 text-center leading-tight transition-all shadow-md ${style.textColor} ${style.border}`}
                   style={{
                     backgroundColor: fourthPlace.team.color,
                     boxShadow: style.boxShadow,
                   }}
                   title={fourthPlace.team.name}
                 >
+                  {logo && (
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-md overflow-hidden relative flex-shrink-0 bg-white/20 border border-white/30">
+                      <Image src={logo} alt="" fill className="object-contain" />
+                    </div>
+                  )}
                   <span className="text-[8px] sm:text-xs md:text-sm font-black uppercase tracking-tight whitespace-nowrap overflow-hidden text-ellipsis block text-center px-0.5">
                     {fourthPlace.team.name}
                   </span>

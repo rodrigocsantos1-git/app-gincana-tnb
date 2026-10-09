@@ -20,6 +20,8 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import Image from 'next/image';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 interface CaboDeGuerraTableProps {
   teams: Team[];
@@ -543,17 +545,26 @@ export function CaboDeGuerraTable({
                 <thead>
                   <tr className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-b border-slate-200 dark:border-slate-700 text-[11px] font-black uppercase">
                     <th className="p-3 w-36">Equipe</th>
-                    {validTeams.map((t) => (
-                      <th key={t.id} className="p-2 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full inline-block border border-black/10"
-                            style={{ backgroundColor: t.color }}
-                          />
-                          <span>vs {t.name}</span>
-                        </div>
-                      </th>
-                    ))}
+                    {validTeams.map((t) => {
+                      const logoT = getTeamLogo(t);
+                      return (
+                        <th key={t.id} className="p-2 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            {logoT ? (
+                              <div className="w-4 h-4 rounded-md overflow-hidden relative flex-shrink-0 bg-white">
+                                <Image src={logoT} alt="" fill className="object-contain p-0.5" />
+                              </div>
+                            ) : (
+                              <span
+                                className="w-2.5 h-2.5 rounded-full inline-block border border-black/10"
+                                style={{ backgroundColor: t.color }}
+                              />
+                            )}
+                            <span>vs {t.name}</span>
+                          </div>
+                        </th>
+                      );
+                    })}
                     <th className="p-3 text-center bg-amber-500/10 text-amber-950 dark:text-amber-200 font-black">
                       Vitórias (V)
                     </th>
@@ -563,6 +574,7 @@ export function CaboDeGuerraTable({
                   {validTeams.map((teamA) => {
                     const stat = currentRoundStats.find((s) => s.team.id === teamA.id);
                     const isWhite = (teamA.name || '').toLowerCase().includes('branc');
+                    const logoA = getTeamLogo(teamA);
 
                     return (
                       <tr
@@ -572,12 +584,18 @@ export function CaboDeGuerraTable({
                         {/* Nome da Equipe */}
                         <td className="p-3 font-bold">
                           <div className="flex items-center gap-2">
-                            <span
-                              className={`w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-xs border ${
-                                isWhite ? 'border-slate-400' : 'border-black/10'
-                              }`}
-                              style={{ backgroundColor: teamA.color }}
-                            />
+                            {logoA ? (
+                              <div className="w-5 h-5 rounded-md overflow-hidden relative flex-shrink-0 border border-slate-200 dark:border-slate-700 bg-white">
+                                <Image src={logoA} alt="" fill className="object-contain p-0.5" />
+                              </div>
+                            ) : (
+                              <span
+                                className={`w-3.5 h-3.5 rounded-full flex-shrink-0 shadow-xs border ${
+                                  isWhite ? 'border-slate-400' : 'border-black/10'
+                                }`}
+                                style={{ backgroundColor: teamA.color }}
+                              />
+                            )}
                             <span className="font-black text-slate-900 dark:text-white">
                               {teamA.name}
                             </span>
@@ -655,6 +673,8 @@ export function CaboDeGuerraTable({
             {duelsList.map((duel, idx) => {
               const winner = currentRoundMatches[duel.id];
               const isFinished = winner !== null && winner !== undefined;
+              const logoA = getTeamLogo(duel.teamA);
+              const logoB = getTeamLogo(duel.teamB);
 
               return (
                 <div
@@ -686,10 +706,16 @@ export function CaboDeGuerraTable({
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <span
-                          className="w-3 h-3 rounded-full border border-black/10"
-                          style={{ backgroundColor: duel.teamA.color }}
-                        />
+                        {logoA ? (
+                          <div className="w-4 h-4 rounded-md overflow-hidden relative flex-shrink-0 bg-white">
+                            <Image src={logoA} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        ) : (
+                          <span
+                            className="w-3 h-3 rounded-full border border-black/10"
+                            style={{ backgroundColor: duel.teamA.color }}
+                          />
+                        )}
                         <span>{duel.teamA.name}</span>
                       </div>
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase">
@@ -712,10 +738,16 @@ export function CaboDeGuerraTable({
                       }`}
                     >
                       <div className="flex items-center gap-1.5">
-                        <span
-                          className="w-3 h-3 rounded-full border border-black/10"
-                          style={{ backgroundColor: duel.teamB.color }}
-                        />
+                        {logoB ? (
+                          <div className="w-4 h-4 rounded-md overflow-hidden relative flex-shrink-0 bg-white">
+                            <Image src={logoB} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        ) : (
+                          <span
+                            className="w-3 h-3 rounded-full border border-black/10"
+                            style={{ backgroundColor: duel.teamB.color }}
+                          />
+                        )}
                         <span>{duel.teamB.name}</span>
                       </div>
                       <span className="px-1.5 py-0.5 rounded text-[10px] font-black uppercase">
@@ -760,6 +792,8 @@ export function CaboDeGuerraTable({
                 ? 'border-amber-400 bg-amber-50/80 dark:bg-amber-950/40 ring-1 ring-amber-400/40'
                 : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/70';
 
+            const logo = getTeamLogo(team);
+
             return (
               <div
                 key={team.id}
@@ -775,12 +809,18 @@ export function CaboDeGuerraTable({
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span
-                    className={`w-3 h-3 rounded-full border ${
-                      isWhite ? 'border-slate-400' : 'border-black/10'
-                    }`}
-                    style={{ backgroundColor: team.color }}
-                  />
+                  {logo ? (
+                    <div className="w-4 h-4 rounded-md overflow-hidden relative flex-shrink-0 bg-white border border-slate-200 dark:border-slate-700">
+                      <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                    </div>
+                  ) : (
+                    <span
+                      className={`w-3 h-3 rounded-full border ${
+                        isWhite ? 'border-slate-400' : 'border-black/10'
+                      }`}
+                      style={{ backgroundColor: team.color }}
+                    />
+                  )}
                   <span className="text-xs font-black text-slate-900 dark:text-white truncate">
                     {team.name}
                   </span>
@@ -852,6 +892,7 @@ export function CaboDeGuerraTable({
                 const team = item.team;
                 const isWhite = (team.name || '').toLowerCase().includes('branc');
                 const isLeading = idx === 0 && item.totalPoints > 0;
+                const logo = getTeamLogo(team);
 
                 return (
                   <tr
@@ -860,12 +901,18 @@ export function CaboDeGuerraTable({
                   >
                     <td className="p-2.5 font-bold">
                       <div className="flex items-center gap-2">
-                        <span
-                          className={`w-3 h-3 rounded-full flex-shrink-0 border ${
-                            isWhite ? 'border-slate-400' : 'border-black/10'
-                          }`}
-                          style={{ backgroundColor: team.color }}
-                        />
+                        {logo ? (
+                          <div className="w-5 h-5 rounded-md overflow-hidden relative flex-shrink-0 bg-white border border-slate-200 dark:border-slate-700">
+                            <Image src={logo} alt="" fill className="object-contain p-0.5" />
+                          </div>
+                        ) : (
+                          <span
+                            className={`w-3 h-3 rounded-full flex-shrink-0 border ${
+                              isWhite ? 'border-slate-400' : 'border-black/10'
+                            }`}
+                            style={{ backgroundColor: team.color }}
+                          />
+                        )}
                         <span className="font-black text-slate-900 dark:text-white">
                           {team.name}
                         </span>

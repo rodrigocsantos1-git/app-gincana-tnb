@@ -21,8 +21,10 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import Image from 'next/image';
 import { CaboDeGuerraTable } from '@/components/CaboDeGuerraTable';
 import { getActivityRoundLimit, checkActivityCompletion, sortActivitiesNumerically } from '@/lib/taskCompletion';
+import { getTeamLogo } from '@/lib/teamLogos';
 
 export { getActivityRoundLimit };
 
@@ -779,6 +781,7 @@ export function ScoreModal({
                     const pts = teamPointsMap.get(team.id) ?? 0;
                     const completedRoundsForTeam = teamRoundsMap.get(team.id) ?? 0;
                     const isTeamDone = roundLimit !== null && completedRoundsForTeam >= roundLimit;
+                    const logo = getTeamLogo(team);
 
                     return (
                       <button
@@ -799,14 +802,25 @@ export function ScoreModal({
                       >
                         <div className="flex items-center justify-between w-full gap-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <div
-                              className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
-                                (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff'
-                                  ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
-                                  : 'border-black/10'
-                              }`}
-                              style={{ backgroundColor: team?.color || '#0284c7' }}
-                            />
+                            {logo ? (
+                              <div className="w-5 h-5 rounded-md overflow-hidden relative flex-shrink-0 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                <Image
+                                  src={logo}
+                                  alt={team?.name || ''}
+                                  fill
+                                  className="object-contain p-0.5"
+                                />
+                              </div>
+                            ) : (
+                              <div
+                                className={`w-4 h-4 rounded-full flex-shrink-0 shadow-sm border ${
+                                  (team?.name || '').toLowerCase().includes('branc') || (team?.color || '').toLowerCase() === '#ffffff'
+                                    ? 'border-slate-400 dark:border-slate-500 ring-1 ring-slate-900/10'
+                                    : 'border-black/10'
+                                }`}
+                                style={{ backgroundColor: team?.color || '#0284c7' }}
+                              />
+                            )}
                             <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
                               {team?.name || 'Equipe'}
                             </span>

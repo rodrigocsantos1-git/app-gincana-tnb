@@ -22,6 +22,8 @@ import {
   Sparkle,
   Flame,
   Star,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { VinylAudioPlayer } from '@/components/VinylAudioPlayer';
@@ -175,6 +177,19 @@ export default function TelaoPage() {
   const isLight = theme === 'light';
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [viewMode, setViewMode] = useState<'linhas' | 'podio'>('linhas');
+  // Modo Suspense: por padrão o resultado fica com ** ocultando a pontuação geral
+  const [showResults, setShowResults] = useState(false);
+
+  const toggleShowResults = () => {
+    const next = !showResults;
+    setShowResults(next);
+    if (next) {
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('stop-drum-roll'));
+      }
+      fireCelebration();
+    }
+  };
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -321,7 +336,31 @@ export default function TelaoPage() {
               <SuspenseDrumRollButton />
             </div>
 
-            <div className="flex items-center gap-2 justify-end">
+            <div className="flex items-center gap-2 justify-end flex-wrap">
+              {/* Botão de Revelar / Ocultar Resultado (Modo Suspense **) */}
+              <button
+                type="button"
+                onClick={toggleShowResults}
+                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer active:scale-95 shadow-md ${
+                  showResults
+                    ? 'bg-slate-700/90 hover:bg-slate-700 text-slate-200 border border-slate-600'
+                    : 'bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:brightness-110 text-white shadow-emerald-500/30 ring-2 ring-emerald-400/50 animate-pulse'
+                }`}
+                title={showResults ? 'Ocultar pontuação geral (Modo Suspense **)' : 'Mostrar resultado da pontuação geral'}
+              >
+                {showResults ? (
+                  <>
+                    <EyeOff className="w-4 h-4" />
+                    <span>Ocultar Resultado (**)</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 text-emerald-200" />
+                    <span>Mostrar Resultado ✨</span>
+                  </>
+                )}
+              </button>
+
               <Link
                 href="/resultado-final"
                 className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300 text-amber-950 hover:brightness-110 shadow-lg shadow-amber-500/30 active:scale-95 transition-all"
@@ -368,7 +407,7 @@ export default function TelaoPage() {
       {/* SEÇÃO: BARRA DE TÍTULO + ALTERNADOR DE ABAS (POR PROVAS vs PÓDIO)         */}
       {/* ========================================================================= */}
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 px-1">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <div className="w-1.5 h-6 bg-pink-500 rounded-full shadow-[0_0_12px_rgba(236,72,153,0.9)]" />
           <h2 className={`text-base sm:text-lg md:text-xl font-black uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'
             }`}>
@@ -378,11 +417,40 @@ export default function TelaoPage() {
             }`}>
             {standings.length} EQUIPES ATIVAS
           </span>
+          {!showResults && (
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              SUSPENSE ATIVO: PONTUAÇÃO (**)
+            </span>
+          )}
         </div>
 
-        {/* Abas Alternadoras com Estilo Pílula */}
-        <div className={`flex items-center p-1 rounded-2xl border shadow-lg ${isLight ? 'bg-white/80 border-slate-300' : 'bg-[#0c101d]/90 border-white/10'
-          }`}>
+        {/* Abas Alternadoras com Estilo Pílula e Botão Rápido */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={toggleShowResults}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer active:scale-95 shadow-md ${
+              showResults
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600'
+                : 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white shadow-emerald-500/30'
+            }`}
+          >
+            {showResults ? (
+              <>
+                <EyeOff className="w-3.5 h-3.5" />
+                <span>Ocultar (**)</span>
+              </>
+            ) : (
+              <>
+                <Eye className="w-3.5 h-3.5" />
+                <span>Mostrar Resultado ✨</span>
+              </>
+            )}
+          </button>
+
+          <div className={`flex items-center p-1 rounded-2xl border shadow-lg ${isLight ? 'bg-white/80 border-slate-300' : 'bg-[#0c101d]/90 border-white/10'
+            }`}>
           <button
             onClick={() => setViewMode('linhas')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-black transition-all cursor-pointer ${viewMode === 'linhas'
@@ -405,6 +473,7 @@ export default function TelaoPage() {
           </button>
         </div>
       </div>
+    </div>
 
       {/* ========================================================================= */}
       {/* CONTEÚDO PRINCIPAL                                                        */}
@@ -523,15 +592,22 @@ export default function TelaoPage() {
                     </div>
 
                     {/* Pontuação Total em Destaque Gigante */}
-                    <div className="text-right flex-shrink-0 pl-2">
+                    <div
+                      onClick={toggleShowResults}
+                      className="text-right flex-shrink-0 pl-2 cursor-pointer group/pts transition-transform active:scale-95"
+                      title={showResults ? 'Clique para ocultar pontuação (Modo Suspense **)' : 'Clique para mostrar o resultado ✨'}
+                    >
                       <span className={`text-[9px] sm:text-[10px] font-black uppercase tracking-widest block ${isLight ? 'text-slate-600' : 'text-slate-400'
                         }`}>
                         PONTUAÇÃO TOTAL
                       </span>
                       <div className="flex items-baseline justify-end gap-1">
-                        <span className={`text-2xl sm:text-4xl md:text-5xl font-black tracking-tight ${isLight ? 'text-slate-950' : appearance.pointsColor
+                        <span className={`text-2xl sm:text-4xl md:text-5xl font-black tracking-tight ${
+                          !showResults
+                            ? 'text-amber-400 font-mono tracking-widest animate-pulse'
+                            : isLight ? 'text-slate-900' : appearance.pointsColor
                           }`}>
-                          {standing.totalPoints.toLocaleString('pt-BR')}
+                          {showResults ? standing.totalPoints.toLocaleString('pt-BR') : '**'}
                         </span>
                         <span className={`text-xs sm:text-sm font-black uppercase ${isLight ? 'text-slate-600' : 'text-slate-400'
                           }`}>
@@ -540,7 +616,9 @@ export default function TelaoPage() {
                       </div>
                       <div className="flex items-center justify-end gap-1.5 mt-0.5">
                         <span className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-black uppercase ${appearance.badgeBg}`}>
-                          {displayRank === 1 ? 'LÍDER GERAL' : displayRank === 2 ? 'VICE-LÍDER' : displayRank === 3 ? '3º LUGAR' : '4º LUGAR'}
+                          {showResults
+                            ? (displayRank === 1 ? 'LÍDER GERAL' : displayRank === 2 ? 'VICE-LÍDER' : displayRank === 3 ? '3º LUGAR' : '4º LUGAR')
+                            : 'EM DISPUTA'}
                         </span>
                         <span className={`text-[9px] sm:text-[10px] font-semibold ${isLight ? 'text-slate-600' : 'text-slate-400'
                           }`}>
@@ -652,8 +730,16 @@ export default function TelaoPage() {
                       </span>
                     </div>
 
-                    <p className={`text-lg sm:text-2xl md:text-3xl font-black my-1 sm:my-2 ${isLight ? 'text-slate-900' : 'text-slate-300'}`}>
-                      {secondPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
+                    <p
+                      onClick={toggleShowResults}
+                      className={`text-lg sm:text-2xl md:text-3xl font-black my-1 sm:my-2 cursor-pointer transition-transform active:scale-95 ${
+                        !showResults
+                          ? 'text-amber-400 font-mono tracking-widest animate-pulse'
+                          : isLight ? 'text-slate-900' : 'text-slate-300'
+                      }`}
+                      title={showResults ? 'Clique para ocultar pontuação (**)' : 'Clique para mostrar o resultado ✨'}
+                    >
+                      {showResults ? secondPlace.totalPoints : '**'} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
                     </p>
 
                     <div className="w-full h-28 sm:h-38 md:h-44 rounded-t-3xl bg-gradient-to-t from-slate-800 to-slate-700 border-t-4 border-x-4 border-slate-500 flex flex-col items-center justify-center shadow-2xl relative overflow-hidden">
@@ -695,8 +781,16 @@ export default function TelaoPage() {
                       </span>
                     </div>
 
-                    <p className={`text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black my-1 sm:my-2 drop-shadow-lg ${isLight ? 'text-amber-950' : 'text-amber-400'}`}>
-                      {firstPlace.totalPoints} <span className="text-xs sm:text-base font-bold opacity-80">pts</span>
+                    <p
+                      onClick={toggleShowResults}
+                      className={`text-xl sm:text-3xl md:text-4xl lg:text-5xl font-black my-1 sm:my-2 drop-shadow-lg cursor-pointer transition-transform active:scale-95 ${
+                        !showResults
+                          ? 'text-amber-300 font-mono tracking-widest animate-pulse'
+                          : isLight ? 'text-amber-950' : 'text-amber-400'
+                      }`}
+                      title={showResults ? 'Clique para ocultar pontuação (**)' : 'Clique para mostrar o resultado ✨'}
+                    >
+                      {showResults ? firstPlace.totalPoints : '**'} <span className="text-xs sm:text-base font-bold opacity-80">pts</span>
                     </p>
 
                     <div className="w-full h-36 sm:h-52 md:h-60 rounded-t-3xl bg-gradient-to-t from-amber-600 via-amber-500 to-amber-400 border-t-4 border-x-4 border-amber-300 flex flex-col items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.6)] relative overflow-hidden">
@@ -736,8 +830,16 @@ export default function TelaoPage() {
                       </span>
                     </div>
 
-                    <p className={`text-base sm:text-xl md:text-2xl font-black my-1 sm:my-2 ${isLight ? 'text-amber-950' : 'text-amber-500'}`}>
-                      {thirdPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
+                    <p
+                      onClick={toggleShowResults}
+                      className={`text-base sm:text-xl md:text-2xl font-black my-1 sm:my-2 cursor-pointer transition-transform active:scale-95 ${
+                        !showResults
+                          ? 'text-amber-400 font-mono tracking-widest animate-pulse'
+                          : isLight ? 'text-amber-950' : 'text-amber-500'
+                      }`}
+                      title={showResults ? 'Clique para ocultar pontuação (**)' : 'Clique para mostrar o resultado ✨'}
+                    >
+                      {showResults ? thirdPlace.totalPoints : '**'} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
                     </p>
 
                     <div className="w-full h-22 sm:h-30 md:h-36 rounded-t-3xl bg-gradient-to-t from-amber-900 to-amber-800 border-t-4 border-x-4 border-amber-700 flex flex-col items-center justify-center shadow-xl relative overflow-hidden">
@@ -777,8 +879,16 @@ export default function TelaoPage() {
                       </span>
                     </div>
 
-                    <p className={`text-sm sm:text-lg md:text-xl font-black my-1 sm:my-2 ${isLight ? 'text-slate-900' : 'text-slate-300'}`}>
-                      {fourthPlace.totalPoints} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
+                    <p
+                      onClick={toggleShowResults}
+                      className={`text-sm sm:text-lg md:text-xl font-black my-1 sm:my-2 cursor-pointer transition-transform active:scale-95 ${
+                        !showResults
+                          ? 'text-amber-400 font-mono tracking-widest animate-pulse'
+                          : isLight ? 'text-slate-900' : 'text-slate-300'
+                      }`}
+                      title={showResults ? 'Clique para ocultar pontuação (**)' : 'Clique para mostrar o resultado ✨'}
+                    >
+                      {showResults ? fourthPlace.totalPoints : '**'} <span className="text-xs sm:text-sm font-semibold opacity-70">pts</span>
                     </p>
 
                     <div className="w-full h-18 sm:h-24 md:h-28 rounded-t-3xl bg-gradient-to-t from-slate-900 to-slate-800 border-t-4 border-x-4 border-slate-600 flex flex-col items-center justify-center shadow-lg relative overflow-hidden">
@@ -829,7 +939,9 @@ export default function TelaoPage() {
                       <span className="font-bold text-base truncate">{standing.team.name}</span>
                     </div>
                     <div className="relative z-10 text-right">
-                      <span className="text-xl font-black text-white">{standing.totalPoints}</span>
+                      <span className={`text-xl font-black ${!showResults ? 'text-amber-400 font-mono tracking-widest' : 'text-white'}`}>
+                        {showResults ? standing.totalPoints : '**'}
+                      </span>
                       <span className="text-xs text-slate-400 ml-1">pts</span>
                     </div>
                   </div>
